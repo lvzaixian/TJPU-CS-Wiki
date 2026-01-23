@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库复习练习题库</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-main: #42b883;
+            --primary-dark: #338a65;
+            --secondary-main: #35495e;
+            --accent-soft: #ff7e5f;
+            --text-default: #333;
+            --text-light-gray: #6c757d;
+            --bg-light: #f5f7fa;
+            --bg-lighter: #e4edf5;
+            --card-bg: #FFFFFF;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --border-card: #eceff1;
+            --transition-ease: all 0.3s ease;
+            --code-bg: #282C34;
+            --code-text: #ABB2BF;
+            --code-comment: #5C6370;
+            --code-keyword: #C678DD;
+            --code-string: #98C379;
+            --code-number: #D19A66;
+            --code-operator: #56B6C2;
+            --er-entity: #8E44AD;
+            --er-attribute: #27AE60;
+            --er-relationship-1N: #DC3545;
+            --er-relationship-MN: #007BFF;
+        }
+
+        body {
+            font-family: 'Roboto', 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            color: var(--text-default);
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-lighter) 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--secondary-main) 0%, var(--primary-main) 100%);
+            color: white;
+            padding: 60px 0 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        nav {
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 12px 0;
+            border-radius: 0 0 12px 12px;
+            margin-bottom: 25px;
+        }
+
+        nav a {
+            padding: 10px 20px;
+            margin: 0 8px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            font-weight: 500;
+            color: var(--text-light-gray);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        nav a:hover {
+            background: var(--primary-main);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        section.content-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 30px;
+            margin-bottom: 40px;
+            transition: var(--transition-ease);
+            position: relative;
+            overflow: hidden;
+        }
+
+        section.content-section:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        section.content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: var(--primary-main);
+        }
+
+        .section-header-styled {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-card);
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-main);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2.section-title {
+            font-size: 2.2rem !important;
+            color: var(--secondary-main);
+            margin: 0;
+            padding: 0;
+            border-bottom: none !important;
+            text-align: left !important;
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            color: var(--text-light-gray);
+            font-size: 1.05rem;
+            margin-top: 5px;
+        }
+
+        h3.sub-section-title {
+            color: var(--secondary-main);
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-left: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .question-card {
+            background-color: var(--card-bg);
+            margin: 18px 0;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            transition: var(--transition-ease);
+            border: 1px solid var(--border-card);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--accent-soft);
+            border-radius: 10px 0 0 10px;
+        }
+
+        .question-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        h4.question-heading {
+            color: var(--secondary-main);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.7rem;
+        }
+
+        .question-text {
+            color: var(--text-default);
+            margin-bottom: 0.7rem;
+        }
+
+        .answer-text {
+            color: var(--text-default);
+            font-weight: 500;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .text-highlight {
+            color: var(--primary-main);
+            font-weight: 600;
+        }
+
+        pre.code-block {
+            background-color: var(--code-bg);
+            padding: 18px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 18px 0;
+            line-height: 1.5;
+            color: var(--code-text);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .code-block .sql-keyword { color: var(--code-keyword); }
+        .code-block .sql-string { color: var(--code-string); }
+        .code-block .sql-comment { color: var(--code-comment); font-style: italic; }
+        .code-block .sql-number { color: var(--code-number); }
+
+        .highlight-block {
+            background-color: rgba(66, 184, 131, 0.1);
+            border-left: 5px solid var(--primary-main);
+            padding: 18px 22px;
+            margin: 22px 0;
+            border-radius: 10px;
+            color: var(--text-default);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            line-height: 1.5;
+        }
+
+        .highlight-block strong {
+            color: var(--primary-main);
+        }
+
+        .btn-show-answer {
+            background-color: var(--primary-main);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-show-answer:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table th {
+            background-color: var(--secondary-main);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-card);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .entity-color { color: var(--er-entity); }
+        .attribute-color { color: var(--er-attribute); }
+        .relationship-color-red { color: var(--er-relationship-1N); }
+        .relationship-color-blue { color: var(--er-relationship-MN); }
+        .underline-solid { text-decoration: underline; text-decoration-style: solid; }
+        .underline-wavy { text-decoration: underline; text-decoration-style: wavy; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>数据库复习练习题库</h1>
+            <p class="subtitle">读程序写结果 + SQL编程实战训练</p>
+        </div>
+    </header>
+
+    <nav>
+        <a href="#tables"><i class="fas fa-table"></i> 数据表结构</a>
+        <a href="#read-results"><i class="fas fa-search"></i> 读程序写结果</a>
+        <a href="#sql-programming"><i class="fas fa-code"></i> SQL编程题</a>
+    </nav>
+
+    <main class="container">
+        <!-- 数据表结构 -->
+        <section id="tables" class="content-section">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-database"></i></div>
+                <div>
+                    <h2 class="section-title">练习用数据表结构</h2>
+                    <p class="section-subtitle">以下数据表用于本练习所有题目</p>
+                </div>
+            </div>
+
+            <div class="highlight-block">
+                <p><strong>📚 学生表(Student)</strong>：存储学生基本信息</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>字段名</th>
+                            <th>类型</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>sno</td><td>CHAR(5)</td><td>学号，主键</td></tr>
+                        <tr><td>sname</td><td>VARCHAR(20)</td><td>姓名</td></tr>
+                        <tr><td>ssex</td><td>CHAR(2)</td><td>性别</td></tr>
+                        <tr><td>sage</td><td>SMALLINT</td><td>年龄</td></tr>
+                        <tr><td>sdept</td><td>VARCHAR(20)</td><td>所在系</td></tr>
+                    </tbody>
+                </table>
+
+                <p><strong>📚 课程表(Course)</strong>：存储课程信息</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>字段名</th>
+                            <th>类型</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>cno</td><td>CHAR(4)</td><td>课程号，主键</td></tr>
+                        <tr><td>cname</td><td>VARCHAR(40)</td><td>课程名</td></tr>
+                        <tr><td>cpno</td><td>CHAR(4)</td><td>先修课程号</td></tr>
+                        <tr><td>ccredit</td><td>SMALLINT</td><td>学分</td></tr>
+                    </tbody>
+                </table>
+
+                <p><strong>📚 选课表(SC)</strong>：存储学生选课及成绩信息</p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>字段名</th>
+                            <th>类型</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>sno</td><td>CHAR(5)</td><td>学号，外键</td></tr>
+                        <tr><td>cno</td><td>CHAR(4)</td><td>课程号，外键</td></tr>
+                        <tr><td>grade</td><td>SMALLINT</td><td>成绩</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-block">
+                <p><strong>📊 示例数据预览</strong></p>
+                <p><strong>Student 表数据：</strong></p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>sno</th>
+                            <th>sname</th>
+                            <th>ssex</th>
+                            <th>sage</th>
+                            <th>sdept</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>S1</td><td>李勇</td><td>男</td><td>20</td><td>CS</td></tr>
+                        <tr><td>S2</td><td>刘晨</td><td>女</td><td>19</td><td>IS</td></tr>
+                        <tr><td>S3</td><td>王敏</td><td>女</td><td>18</td><td>MA</td></tr>
+                        <tr><td>S4</td><td>张立</td><td>男</td><td>19</td><td>IS</td></tr>
+                        <tr><td>S5</td><td>赵斌</td><td>男</td><td>20</td><td>CS</td></tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Course 表数据：</strong></p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>cno</th>
+                            <th>cname</th>
+                            <th>cpno</th>
+                            <th>ccredit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>C1</td><td>数据库</td><td>C5</td><td>4</td></tr>
+                        <tr><td>C2</td><td>数学</td><td></td><td>2</td></tr>
+                        <tr><td>C3</td><td>信息系统</td><td>C1</td><td>4</td></tr>
+                        <tr><td>C4</td><td>操作系统</td><td>C6</td><td>3</td></tr>
+                        <tr><td>C5</td><td>数据结构</td><td>C7</td><td>4</td></tr>
+                        <tr><td>C6</td><td>数据处理</td><td></td><td>2</td></tr>
+                        <tr><td>C7</td><td>PASCAL语言</td><td>C6</td><td>4</td></tr>
+                    </tbody>
+                </table>
+
+                <p><strong>SC 表数据：</strong></p>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>sno</th>
+                            <th>cno</th>
+                            <th>grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>S1</td><td>C1</td><td>92</td></tr>
+                        <tr><td>S1</td><td>C2</td><td>85</td></tr>
+                        <tr><td>S1</td><td>C3</td><td>88</td></tr>
+                        <tr><td>S2</td><td>C2</td><td>90</td></tr>
+                        <tr><td>S2</td><td>C3</td><td>80</td></tr>
+                        <tr><td>S3</td><td>C1</td><td>75</td></tr>
+                        <tr><td>S3</td><td>C2</td><td>70</td></tr>
+                        <tr><td>S3</td><td>C3</td><td>95</td></tr>
+                        <tr><td>S4</td><td>C1</td><td>87</td></tr>
+                        <tr><td>S4</td><td>C4</td><td>90</td></tr>
+                        <tr><td>S5</td><td>C1</td><td>82</td></tr>
+                        <tr><td>S5</td><td>C2</td><td>78</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 读程序写结果 -->
+        <section id="read-results" class="content-section">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-search"></i></div>
+                <div>
+                    <h2 class="section-title">一、读程序写结果</h2>
+                    <p class="section-subtitle">根据SQL语句写出查询结果（12题）</p>
+                </div>
+            </div>
+
+            <div class="highlight-block">
+                <p><strong>📌 说明：</strong> 请根据题目中的SQL语句，结合上面的数据表数据，写出查询结果（以表格形式呈现）</p>
+            </div>
+
+            <!-- 题目 1 -->
+            <div class="question-card">
+                <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sname, sdept 
+<span class="sql-keyword">FROM</span> Student 
+<span class="sql-keyword">WHERE</span> sage &gt; 19;</code></pre>
+                <button class="btn-show-answer" onclick="toggleAnswer(1)">查看答案</button>
+                <div class="answer-text" id="answer-1">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>sname</th><th>sdept</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>李勇</td><td>CS</td></tr>
+                            <tr><td>赵斌</td><td>CS</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 题目 2 -->
+            <div class="question-card">
+                <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT DISTINCT</span> sno 
+<span class="sql-keyword">FROM</span> SC;</code></pre>
+                <button class="btn-show-answer" onclick="toggleAnswer(2)">查看答案</button>
+                <div class="answer-text" id="answer-2">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>sno</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>S1</td></tr>
+                            <tr><td>S2</td></tr>
+                            <tr><td>S3</td></tr>
+                            <tr><td>S4</td></tr>
+                            <tr><td>S5</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 题目 3 -->
+            <div class="question-card">
+                <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sdept, <span class="sql-keyword">COUNT</span>(*) 
+<span class="sql-keyword">FROM</span> Student 
+<span class="sql-keyword">GROUP BY</span> sdept;</code></pre>
+                <button class="btn-show-answer" onclick="toggleAnswer(3)">查看答案</button>
+                <div class="answer-text" id="answer-3">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>sdept</th><th>COUNT(*)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>CS</td><td>2</td></tr>
+                            <tr><td>IS</td><td>2</td></tr>
+                            <tr><td>MA</td><td>1</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 题目 4 -->
+            <div class="question-card">
+                <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sno 
+<span class="sql-keyword">FROM</span> SC 
+<span class="sql-keyword">GROUP BY</span> sno 
+<span class="sql-keyword">HAVING AVG</span>(grade) &gt; 85;</code></pre>
+                <button class="btn-show-answer" onclick="toggleAnswer(4)">查看答案</button>
+                <div class="answer-text" id="answer-4">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>sno</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>S1</td></tr>
+                            <tr><td>S4</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 题目 5 -->
+            <div class="question-card">
+                <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sname 
+<span class="sql-keyword">FROM</span> Student 
+<span class="sql-keyword">WHERE</span> sno <span class="sql-keyword">IN</span> (
+    <span class="sql-keyword">SELECT</span> sno 
+    <span class="sql-keyword">FROM</span> SC 
+    <span class="sql-keyword">WHERE</span> cno = <span class="sql-string">'C1'</span>
+);</code></pre>
+                <button class="btn-show-answer" onclick="toggleAnswer(5)">查看答案</button>
+                <div class="answer-text" id="answer-5">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>sname</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>李勇</td></tr>
+                            <tr><td>王敏</td></tr>
+                            <tr><td>张立</td></tr>
+                            <tr><td>赵斌</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 题目 6 -->
+            <div class="question-card">
+                <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sno 
+<span class="sql-keyword">FROM</span> Student 
+<span class="sql-keyword">WHERE</span> sno <span class="sql-keyword">NOT IN</span> (
+    <span class="sql-keyword">SELECT</span> sno 
+    <span class="sql-keyword">FROM</span> SC 
+    <span class="sql-keyword">WHERE</span> cno = <span class="sql-string">'C2'</span>
+);</code></pre>
+                <button class="btn-show-answer" onclick="toggleAnswer(6)">查看答案</button>
+                <div class="answer-text" id="answer-6">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>sno</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>S4</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 题目 7 -->
+            <div class="question-card">
+                <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sname 
+<span class="sql-keyword">FROM</span> Student 
+<span class="sql-keyword">WHERE NOT EXISTS</span> (
+    <span class="sql-keyword">SELECT</span> * 
+    <span class="sql-keyword">FROM</span> Course 
+    <span class="sql-keyword">WHERE NOT EXISTS</span> (
+        <span class="sql-keyword">SELECT</span> * 
+        <span class="sql-keyword">FROM</span> SC 
+        <span class="sql-keyword">WHERE</span> SC.sno = Student.sno <span class="sql-keyword">AND</span> SC.cno = Course.cno
+    )
+);</code></pre>
+                <button class="btn-show-answer" onclick="toggleAnswer(7)">查看答案</button>
+                <div class="answer-text" id="answer-7">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>sname</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>李勇</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 题目 8 -->
+            <div class="question-card">
+                <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sno, cno 
+<span class="sql-keyword">FROM</span> SC 
+<span class="sql-keyword">WHERE</span> grade &gt; 90;</code></pre>
+                <button class="btn-show-answer" onclick="toggleAnswer(8)">查看答案</button>
+                <div class="answer-text" id="answer-8">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>sno</th><th>cno</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>S1</td><td>C1</td></tr>
+                            <tr><td>S3</td><td>C3</td></tr>
+                            <tr><td>S4</td><td>C4</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 题目 9 -->
+            <div class="question-card">
+                <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sno 
+<span class="sql-keyword">FROM</span> SC 
+<span class="sql-keyword">WHERE</span> cno = <span class="sql-string">'C1'</span> 
+<span class="sql-keyword">INTERSECT</span>
+<span class="sql-keyword">SELECT</span> sno 
+<span class="sql-keyword">FROM</span> SC 
+<span class="sql-keyword">WHERE</span> cno = <span class="sql-string">'C2'</span>;</code></pre>
+                <button class="btn-show-answer" onclick="toggleAnswer(9)">查看答案</button>
+                <div class="answer-text" id="answer-9">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>sno</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>S1</td></tr>
+                            <tr><td>S3</td></tr>
+                            <tr><td>S5</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 题目 10 -->
+            <div class="question-card">
+                <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sname 
+<span class="sql-keyword">FROM</span> Student S 
+<span class="sql-keyword">WHERE EXISTS</span> (
+    <span class="sql-keyword">SELECT</span> * 
+    <span class="sql-keyword">FROM</span> SC 
+    <span class="sql-keyword">WHERE</span> SC.sno = S.sno
+);</code></pre>
+                <button class="btn-show-answer" onclick="toggleAnswer(10)">查看答案</button>
+                <div class="answer-text" id="answer-10">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>sname</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>李勇</td></tr>
+                            <tr><td>刘晨</td></tr>
+                            <tr><td>王敏</td></tr>
+                            <tr><td>张立</td></tr>
+                            <tr><td>赵斌</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 题目 11 -->
+            <div class="question-card">
+                <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sno 
+<span class="sql-keyword">FROM</span> SC 
+<span class="sql-keyword">GROUP BY</span> sno 
+<span class="sql-keyword">HAVING AVG</span>(grade) &gt;= <span class="sql-keyword">ALL</span> (
+    <span class="sql-keyword">SELECT AVG</span>(grade) 
+    <span class="sql-keyword">FROM</span> SC 
+    <span class="sql-keyword">GROUP BY</span> sno
+);</code></pre>
+                <button class="btn-show-answer" onclick="toggleAnswer(11)">查看答案</button>
+                <div class="answer-text" id="answer-11">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>sno</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>S1</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 题目 12 -->
+            <div class="question-card">
+                <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sno, sname 
+<span class="sql-keyword">FROM</span> Student 
+<span class="sql-keyword">WHERE</span> sno <span class="sql-keyword">NOT IN</span> (
+    <span class="sql-keyword">SELECT DISTINCT</span> sno 
+    <span class="sql-keyword">FROM</span> SC
+);</code></pre>
+                <button class="btn-show-answer" onclick="toggleAnswer(12)">查看答案</button>
+                <div class="answer-text" id="answer-12">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>sno</th><th>sname</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="2">无记录</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SQL编程题 -->
+        <section id="sql-programming" class="content-section">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-code"></i></div>
+                <div>
+                    <h2 class="section-title">二、SQL编程题</h2>
+                    <p class="section-subtitle">编写SQL语句解决实际问题（20题）</p>
+                </div>
+            </div>
+
+            <div class="highlight-block">
+                <p><strong>📌 说明：</strong> 请根据题目要求编写SQL查询语句，使用上面提供的数据表结构</p>
+            </div>
+
+            <!-- 题目 1 -->
+            <div class="question-card">
+                <h4 class="question-heading">1. 使用集合查询，查询选修了C1或C2课程的学生学号</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(13)">查看答案</button>
+                <div class="answer-text" id="answer-13">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sno <span class="sql-keyword">FROM</span> SC <span class="sql-keyword">WHERE</span> cno = <span class="sql-string">'C1'</span>
+<span class="sql-keyword">UNION</span>
+<span class="sql-keyword">SELECT</span> sno <span class="sql-keyword">FROM</span> SC <span class="sql-keyword">WHERE</span> cno = <span class="sql-string">'C2'</span>;</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 2 -->
+            <div class="question-card">
+                <h4 class="question-heading">2. 使用集合查询，查询没有选修C1课程的学生学号</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(14)">查看答案</button>
+                <div class="answer-text" id="answer-14">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sno <span class="sql-keyword">FROM</span> Student
+<span class="sql-keyword">EXCEPT</span>
+<span class="sql-keyword">SELECT</span> sno <span class="sql-keyword">FROM</span> SC <span class="sql-keyword">WHERE</span> cno = <span class="sql-string">'C1'</span>;</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 3 -->
+            <div class="question-card">
+                <h4 class="question-heading">3. 使用嵌套查询，查询比"李勇"年龄小的学生姓名</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(15)">查看答案</button>
+                <div class="answer-text" id="answer-15">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sname <span class="sql-keyword">FROM</span> Student
+<span class="sql-keyword">WHERE</span> sage &lt; (
+    <span class="sql-keyword">SELECT</span> sage <span class="sql-keyword">FROM</span> Student <span class="sql-keyword">WHERE</span> sname = <span class="sql-string">'李勇'</span>
+);</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 4 -->
+            <div class="question-card">
+                <h4 class="question-heading">4. 使用嵌套查询，查询其他系中比计算机系(CS)所有学生年龄都大的学生姓名和年龄</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(16)">查看答案</button>
+                <div class="answer-text" id="answer-16">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sname, sage <span class="sql-keyword">FROM</span> Student
+<span class="sql-keyword">WHERE</span> sdept &lt;&gt; <span class="sql-string">'CS'</span> <span class="sql-keyword">AND</span> sage &gt; <span class="sql-keyword">ALL</span> (
+    <span class="sql-keyword">SELECT</span> sage <span class="sql-keyword">FROM</span> Student
+    <span class="sql-keyword">WHERE</span> sdept = <span class="sql-string">'CS'</span>
+);</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 5 -->
+            <div class="question-card">
+                <h4 class="question-heading">5. 创建新表 student_avg (sno char(5) primary key, avg_grade int)，汇总每位学生的平均成绩插入到新表中</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(17)">查看答案</button>
+                <div class="answer-text" id="answer-17">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">INSERT INTO</span> student_avg (sno, avg_grade)
+<span class="sql-keyword">SELECT</span> sno, <span class="sql-keyword">AVG</span>(grade) <span class="sql-keyword">FROM</span> SC <span class="sql-keyword">GROUP BY</span> sno;</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 6 -->
+            <div class="question-card">
+                <h4 class="question-heading">6. 创建新表 course_count (cno char(4) primary key, stu_count int)，汇总每门课程的选课人数插入到新表中</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(18)">查看答案</button>
+                <div class="answer-text" id="answer-18">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">INSERT INTO</span> course_count (cno, stu_count)
+<span class="sql-keyword">SELECT</span> cno, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">FROM</span> SC <span class="sql-keyword">GROUP BY</span> cno;</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 7 -->
+            <div class="question-card">
+                <h4 class="question-heading">7. 删除"李勇"的选课记录</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(19)">查看答案</button>
+                <div class="answer-text" id="answer-19">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">DELETE FROM</span> SC <span class="sql-keyword">WHERE</span> sno = (
+    <span class="sql-keyword">SELECT</span> sno <span class="sql-keyword">FROM</span> Student <span class="sql-keyword">WHERE</span> sname = <span class="sql-string">'李勇'</span>
+);</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 8 -->
+            <div class="question-card">
+                <h4 class="question-heading">8. 删除"数据库"课程的选课记录</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(20)">查看答案</button>
+                <div class="answer-text" id="answer-20">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">DELETE FROM</span> SC <span class="sql-keyword">WHERE</span> cno = (
+    <span class="sql-keyword">SELECT</span> cno <span class="sql-keyword">FROM</span> Course <span class="sql-keyword">WHERE</span> cname = <span class="sql-string">'数据库'</span>
+);</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 9 -->
+            <div class="question-card">
+                <h4 class="question-heading">9. 使用连接查询，将同时选修C1和C2两门课程的学生的成绩提高10%</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(21)">查看答案</button>
+                <div class="answer-text" id="answer-21">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">UPDATE</span> SC
+<span class="sql-keyword">SET</span> grade = grade * 1.1
+<span class="sql-keyword">WHERE</span> sno <span class="sql-keyword">IN</span> (
+    <span class="sql-keyword">SELECT</span> s1.sno
+    <span class="sql-keyword">FROM</span> SC s1, SC s2
+    <span class="sql-keyword">WHERE</span> s1.sno = s2.sno <span class="sql-keyword">AND</span> s1.cno = <span class="sql-string">'C1'</span> <span class="sql-keyword">AND</span> s2.cno = <span class="sql-string">'C2'</span>
+);</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 10 -->
+            <div class="question-card">
+                <h4 class="question-heading">10. 使用连接子查询，将选修了"数据库"课程的学生的成绩改为0</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(22)">查看答案</button>
+                <div class="answer-text" id="answer-22">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">UPDATE</span> SC
+<span class="sql-keyword">SET</span> grade = 0
+<span class="sql-keyword">WHERE</span> cno = (
+    <span class="sql-keyword">SELECT</span> cno <span class="sql-keyword">FROM</span> Course <span class="sql-keyword">WHERE</span> cname = <span class="sql-string">'数据库'</span>
+);</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 11 -->
+            <div class="question-card">
+                <h4 class="question-heading">11. 查询选修了3门以上课程的学生学号</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(23)">查看答案</button>
+                <div class="answer-text" id="answer-23">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sno <span class="sql-keyword">FROM</span> SC 
+<span class="sql-keyword">GROUP BY</span> sno 
+<span class="sql-keyword">HAVING COUNT</span>(*) &gt; 3;</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 12 -->
+            <div class="question-card">
+                <h4 class="question-heading">12. 查询平均成绩最高的课程号</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(24)">查看答案</button>
+                <div class="answer-text" id="answer-24">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> cno <span class="sql-keyword">FROM</span> SC 
+<span class="sql-keyword">GROUP BY</span> cno 
+<span class="sql-keyword">HAVING AVG</span>(grade) &gt;= <span class="sql-keyword">ALL</span> (
+    <span class="sql-keyword">SELECT AVG</span>(grade) 
+    <span class="sql-keyword">FROM</span> SC 
+    <span class="sql-keyword">GROUP BY</span> cno
+);</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 13 -->
+            <div class="question-card">
+                <h4 class="question-heading">13. 查询选修了全部课程的学生姓名</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(25)">查看答案</button>
+                <div class="answer-text" id="answer-25">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sname <span class="sql-keyword">FROM</span> Student 
+<span class="sql-keyword">WHERE NOT EXISTS</span> (
+    <span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> Course 
+    <span class="sql-keyword">WHERE NOT EXISTS</span> (
+        <span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> SC 
+        <span class="sql-keyword">WHERE</span> SC.sno = Student.sno <span class="sql-keyword">AND</span> SC.cno = Course.cno
+    )
+);</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 14 -->
+            <div class="question-card">
+                <h4 class="question-heading">14. 查询每门课程的最高分、最低分和平均分</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(26)">查看答案</button>
+                <div class="answer-text" id="answer-26">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> cno, <span class="sql-keyword">MAX</span>(grade), <span class="sql-keyword">MIN</span>(grade), <span class="sql-keyword">AVG</span>(grade) 
+<span class="sql-keyword">FROM</span> SC 
+<span class="sql-keyword">GROUP BY</span> cno;</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 15 -->
+            <div class="question-card">
+                <h4 class="question-heading">15. 查询至少选修了学号为S1的学生所选修全部课程的学生学号</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(27)">查看答案</button>
+                <div class="answer-text" id="answer-27">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT DISTINCT</span> sno 
+<span class="sql-keyword">FROM</span> SC SCX 
+<span class="sql-keyword">WHERE NOT EXISTS</span> (
+    <span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> SC SCY 
+    <span class="sql-keyword">WHERE</span> SCY.sno = <span class="sql-string">'S1'</span> <span class="sql-keyword">AND</span> <span class="sql-keyword">NOT EXISTS</span> (
+        <span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> SC SCZ 
+        <span class="sql-keyword">WHERE</span> SCZ.sno = SCX.sno <span class="sql-keyword">AND</span> SCZ.cno = SCY.cno
+    )
+);</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 16 -->
+            <div class="question-card">
+                <h4 class="question-heading">16. 查询所有课程成绩都在85分以上的学生姓名</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(28)">查看答案</button>
+                <div class="answer-text" id="answer-28">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sname <span class="sql-keyword">FROM</span> Student 
+<span class="sql-keyword">WHERE NOT EXISTS</span> (
+    <span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> SC 
+    <span class="sql-keyword">WHERE</span> SC.sno = Student.sno <span class="sql-keyword">AND</span> grade &lt; 85
+);</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 17 -->
+            <div class="question-card">
+                <h4 class="question-heading">17. 查询每个学生选修课程的门数和平均成绩</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(29)">查看答案</button>
+                <div class="answer-text" id="answer-29">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sno, <span class="sql-keyword">COUNT</span>(*), <span class="sql-keyword">AVG</span>(grade) 
+<span class="sql-keyword">FROM</span> SC 
+<span class="sql-keyword">GROUP BY</span> sno;</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 18 -->
+            <div class="question-card">
+                <h4 class="question-heading">18. 查询平均成绩大于80分的课程号</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(30)">查看答案</button>
+                <div class="answer-text" id="answer-30">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> cno <span class="sql-keyword">FROM</span> SC 
+<span class="sql-keyword">GROUP BY</span> cno 
+<span class="sql-keyword">HAVING AVG</span>(grade) &gt; 80;</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 19 -->
+            <div class="question-card">
+                <h4 class="question-heading">19. 查询选修了"数据库"课程的学生的学号和成绩，按成绩降序排列</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(31)">查看答案</button>
+                <div class="answer-text" id="answer-31">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> sno, grade 
+<span class="sql-keyword">FROM</span> SC 
+<span class="sql-keyword">WHERE</span> cno = (
+    <span class="sql-keyword">SELECT</span> cno <span class="sql-keyword">FROM</span> Course <span class="sql-keyword">WHERE</span> cname = <span class="sql-string">'数据库'</span>
+) 
+<span class="sql-keyword">ORDER BY</span> grade <span class="sql-keyword">DESC</span>;</code></pre>
+                </div>
+            </div>
+
+            <!-- 题目 20 -->
+            <div class="question-card">
+                <h4 class="question-heading">20. 查询每门课程成绩最高的学生学号和成绩</h4>
+                <button class="btn-show-answer" onclick="toggleAnswer(32)">查看答案</button>
+                <div class="answer-text" id="answer-32">
+                    <pre class="code-block"><code class="language-sql"><span class="sql-keyword">SELECT</span> cno, sno, grade 
+<span class="sql-keyword">FROM</span> SC SC1 
+<span class="sql-keyword">WHERE</span> grade = (
+    <span class="sql-keyword">SELECT MAX</span>(grade) 
+    <span class="sql-keyword">FROM</span> SC SC2 
+    <span class="sql-keyword">WHERE</span> SC1.cno = SC2.cno
+);</code></pre>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function toggleAnswer(id) {
+            const answer = document.getElementById(`answer-${id}`);
+            const button = document.querySelector(`#answer-${id}`).previousElementSibling;
+            
+            if (answer.style.display === "block") {
+                answer.style.display = "none";
+                button.textContent = "查看答案";
+            } else {
+                answer.style.display = "block";
+                button.textContent = "隐藏答案";
+            }
+        }
+    </script>
+</body>
+</html>

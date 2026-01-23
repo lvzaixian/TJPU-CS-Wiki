@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第五章 数据库完整性测验</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <!-- 引入MathJax 3库用于渲染公式 -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        /* CSS Variables for a consistent yellow theme (matching 第五章--数据库完整性.html) */
+        :root {
+            --primary-main: #FFD700; /* Gold - vibrant main accent yellow */
+            --primary-dark: #DAA520; /* Goldenrod - darker yellow */
+            --secondary-main: #35495e; /* Dark Blue-Gray - for main titles, header background, good contrast */
+            --accent-soft: #FFA500; /* Orange - for subtle highlights, hover */
+            --text-default: #333; /* Standard text color */
+            --text-light-gray: #6c757d; /* Lighter gray for subtitles, comments, explanations */
+            --bg-light: #FFFBF0; /* Very light yellow-tinted background */
+            --bg-lighter: #FDF7E7; /* Slightly darker light yellow background for sections */
+            --card-bg: #ffffff; /* White card background */
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Soft, prominent shadow */
+            --border-card: #e0e0e0; /* Light gray border for cards, neutral with yellow */
+            --transition-ease: all 0.3s ease; /* General transition */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-default);
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-lighter) 100%);
+            background-attachment: fixed;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 18px;
+            box-shadow: var(--card-shadow);
+            padding: 35px;
+            border: 1px solid var(--border-card);
+            transition: var(--transition-ease);
+        }
+        .container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12); /* Adjusted shadow to be more neutral */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-main);
+            position: relative;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-main), transparent);
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: var(--secondary-main);
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light-gray);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            margin-top: 40px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-card);
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+        .section-title i {
+            color: var(--primary-main);
+        }
+
+        .question-block {
+            background-color: var(--bg-lighter);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-card);
+            transition: var(--transition-ease);
+        }
+        .question-block:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            margin-bottom: 18px;
+            color: var(--text-default);
+            font-weight: 500;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 12px;
+            padding: 12px 15px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .options label:hover {
+            background-color: var(--bg-light);
+            border-color: var(--primary-main);
+            box-shadow: 0 2px 5px rgba(255, 215, 0, 0.2); /* Yellow hover shadow */
+        }
+        
+        .options input[type="radio"] {
+            margin-right: 12px;
+            accent-color: var(--primary-main);
+            transform: scale(1.1);
+        }
+
+        /* Improved fill-in-the-blank input styling */
+        .fill-in-the-blank-container {
+            display: inline-block; /* Allows inputs to be inline with text */
+            margin: 0 5px; /* Spacing between text and input */
+        }
+
+        .fill-in-the-blank-input {
+            padding: 8px 10px;
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            font-size: 1.05rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            text-align: center; /* Center text in input */
+            min-width: 80px; /* Minimum width for inputs */
+            display: inline-block; /* Ensure it stays inline */
+        }
+        .fill-in-the-blank-input:focus {
+            outline: none;
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2); /* Yellow focus shadow */
+        }
+
+        .true-false-options {
+            display: flex;
+            gap: 25px;
+        }
+
+        /* Improved True/False button styling */
+        .true-false-options label {
+            flex: 1;
+            text-align: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: 12px 15px; /* Add padding to make them look like buttons */
+            display: flex; /* Use flex to center content */
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Space between radio and text */
+        }
+
+        .true-false-options label:hover {
+            background-color: var(--bg-light);
+            border-color: var(--primary-main);
+            box-shadow: 0 2px 5px rgba(255, 215, 0, 0.2); /* Yellow hover shadow */
+        }
+
+        .true-false-options input[type="radio"] {
+            margin-right: 0; /* Remove default margin */
+            /* Custom radio button appearance */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 24px; /* Larger custom radio */
+            height: 24px;
+            border: 2px solid var(--primary-main);
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .true-false-options input[type="radio"]:checked {
+            background-color: var(--primary-main);
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.3); /* Subtle outer glow */
+        }
+
+        .true-false-options input[type="radio"]:checked::before {
+            content: '';
+            display: block;
+            width: 12px;
+            height: 12px;
+            background-color: white; /* Inner white dot */
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Styles for individual "查看答案与解析" button (now a small circle with '解') */
+        .individual-answer-btn {
+            width: 38px; /* Diameter for the circle */
+            height: 38px; /* Diameter for the circle */
+            background: linear-gradient(45deg, var(--primary-main), var(--primary-dark));
+            color: var(--secondary-main); /* Dark text for contrast */
+            border: none;
+            border-radius: 50%; /* Make it a perfect circle */
+            cursor: pointer;
+            font-size: 1.0rem; /* Adjust font size for '解' */
+            font-weight: 600;
+            transition: var(--transition-ease);
+            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex; /* Use flex to center text */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            float: right; /* Float to the right */
+            clear: right; /* Clear float for subsequent elements */
+        }
+        .individual-answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-main));
+        }
+        .individual-answer-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .individual-answer-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.5s ease-out;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        .individual-answer-btn:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        /* Styles for global control buttons (larger, full width) */
+        .global-control-btn {
+            background: linear-gradient(45deg, var(--primary-main), var(--primary-dark));
+            color: var(--secondary-main); /* Dark text for contrast */
+            padding: 15px 30px; /* Larger padding */
+            border: none;
+            border-radius: 10px; /* More rounded */
+            cursor: pointer;
+            font-size: 1.2rem; /* Larger font */
+            font-weight: 700;
+            transition: var(--transition-ease);
+            margin-top: 25px; /* Adjust top margin for spacing */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            display: block; /* Full width */
+            width: 100%; /* Full width */
+        }
+        .global-control-btn:hover {
+            transform: translateY(-5px); /* More pronounced lift */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-main));
+        }
+        .global-control-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .global-control-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.5s ease-out;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        .global-control-btn:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .answer-area {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #FFFBF0; /* Light yellow info background */
+            border: 1px solid rgba(255, 215, 0, 0.3); /* Gold border */
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-default);
+            display: none; /* Initially hidden */
+            animation: slideInUp 0.4s ease-out;
+        }
+        .answer-area strong {
+            color: var(--secondary-main);
+        }
+        .answer-area ul {
+            padding-left: 20px;
+            list-style: disc; /* Use standard disc for ul */
+        }
+        .answer-area ol {
+            padding-left: 20px;
+            list-style: decimal; /* Use standard decimal for ol */
+        }
+
+        .concept-highlight {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .code-block {
+            background-color: #282c34; /* Dark gray for code background */
+            color: #abb2bf; /* Light gray for code text */
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin: 15px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .code-block .sql-keyword { color: #FFD700; } /* Gold */
+        .code-block .sql-type { color: #FFA500; } /* Orange */
+        .code-block .sql-string { color: #98c379; } /* Green */
+        .code-block .sql-comment { color: #8b949e; font-style: italic; } /* Softer gray */
+        .code-block .sql-operator { color: #56b6c2; } /* Cyan */
+        .code-block .sql-number { color: #d19a66; } /* Orange-brown */
+        .code-block .sql-function { color: #e5c07b; } /* Light yellow-brown */
+        .code-block .sql-table { color: #61afef; } /* Blue */
+        .code-block .sql-column { color: #abb2bf; } /* Light gray */
+
+        /* Styles for HTML rendered tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse; /* Collapse borders between cells */
+            margin: 20px 0;
+            font-size: 0.95rem;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            overflow: hidden; /* Ensures rounded corners apply to content */
+            border: 1px solid var(--border-card);
+        }
+
+        .data-table thead {
+            background-color: var(--primary-main);
+            color: var(--secondary-main); /* Dark text for contrast */
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-card); /* Lighter border for rows */
+        }
+
+        .data-table th {
+            font-weight: 700;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: var(--bg-light); /* Light alternate row color */
+        }
+
+        .data-table tbody tr:hover {
+            background-color: var(--bg-lighter); /* Slightly darker hover */
+            cursor: default;
+        }
+
+        /* Responsive adjustments for tables */
+        @media (max-width: 600px) {
+            .data-table, .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr {
+                display: block; /* Make table elements stack */
+            }
+
+            .data-table thead tr {
+                position: absolute;
+                top: -9999px; /* Hide table headers (but not display: none; for screen readers) */
+                left: -9999px;
+            }
+
+            .data-table tr {
+                margin-bottom: 15px;
+                border: 1px solid var(--border-card);
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+
+            .data-table td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%; /* Make room for the pseudo-element label */
+                text-align: right;
+            }
+
+            .data-table td:last-child {
+                border-bottom: 0;
+            }
+
+            /* Add a pseudo-element for labels on smaller screens */
+            .data-table td:before {
+                position: absolute;
+                top: 0;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: var(--primary-dark);
+            }
+            /* Assign labels using data-label attribute for each column */
+            .data-table td:nth-of-type(1):before { content: attr(data-label); }
+            .data-table td:nth-of-type(2):before { content: attr(data-label); }
+            .data-table td:nth-of-type(3):before { content: attr(data-label); }
+            .data-table td:nth-of-type(4):before { content: attr(data-label); }
+            .data-table td:nth-of-type(5):before { content: attr(data-label); }
+            /* Extend for more columns if necessary */
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .section-title { font-size: 1.6rem; }
+            .question-text { font-size: 1.05rem; }
+            .options label { padding: 10px; }
+            .individual-answer-btn { width: 32px; height: 32px; font-size: 0.9rem; margin-top: 10px;} /* Smaller on mobile */
+            .global-control-btn { padding: 12px 25px; font-size: 1.05rem; }
+            .true-false-options { flex-direction: column; gap: 10px; }
+            .container { padding: 20px; }
+            .fill-in-the-blank-input { min-width: 60px; padding: 6px 8px; } /* Smaller inputs on mobile */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>数据库原理：第五章数据库完整性测验</h1>
+            <p class="subtitle">深入了解数据库完整性的定义、类型、检查与违约处理！</p>
+        </header>
+
+        <form id="quizForm">
+            <!-- 单项选择题 -->
+            <h2 class="section-title"><i class="fas fa-check-circle"></i> 一、单项选择题</h2>
+
+            <!-- 1. 数据库完整性的定义 -->
+            <div class="question-block">
+                <p class="question-text">1. 数据库完整性指的是数据的（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q1" value="A"> A．保密性、可用性</label>
+                    <label><input type="radio" name="q1" value="B"> B．正确性、相容性</label>
+                    <label><input type="radio" name="q1" value="C"> C．一致性、可恢复性</label>
+                    <label><input type="radio" name="q1" value="D"> D．独立性、共享性</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：</strong> 数据库完整性是指数据的正确性（符合现实世界语义）和相容性（数据库中同一对象在不同关系表中的数据保持一致）。</p>
+                </div>
+            </div>
+
+            <!-- 2. 实体完整性规则 -->
+            <div class="question-block">
+                <p class="question-text">2. 实体完整性规则规定，关系的主码（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q2" value="A"> A．可以取空值，但必须唯一</label>
+                    <label><input type="radio" name="q2" value="B"> B．不允许取空值，且必须唯一</label>
+                    <label><input type="radio" name="q2" value="C"> C．可以不唯一，但不能取空值</label>
+                    <label><input type="radio" name="q2" value="D"> D．既可以空，也可以不唯一</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：</strong> 实体完整性是关系模型的三类完整性约束之一，它要求主码的每个属性都不能是空值（NOT NULL），并且主码值必须是唯一的（UNIQUE），以确保每个元组都能被唯一标识。</p>
+                </div>
+            </div>
+
+            <!-- 3. 参照完整性违约处理：CASCADE -->
+            <div class="question-block">
+                <p class="question-text">3. 在参照完整性中，当删除被参照表（父表）中的一个元组时，如果设定了 <code>ON DELETE CASCADE</code> 规则，则下列说法正确的是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q3" value="A"> A．拒绝执行该删除操作</label>
+                    <label><input type="radio" name="q3" value="B"> B．将参照表（子表）中相关联元组的外码值设置为空值</label>
+                    <label><input type="radio" name="q3" value="C"> C．级联删除参照表中所有相关联的元组</label>
+                    <label><input type="radio" name="q3" value="D"> D．提示用户手动处理冲突</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：C</strong></p>
+                    <p><strong>解析：</strong> `ON DELETE CASCADE` 是一种参照完整性违约处理策略，它表示当被参照表中的父元组被删除时，参照表中所有引用该父元组的子元组也将被自动删除。</p>
+                </div>
+            </div>
+
+            <!-- 4. 用户定义完整性的作用 -->
+            <div class="question-block">
+                <p class="question-text">4. 用户定义的完整性主要是为了（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q4" value="A"> A．确保数据在存储和传输过程中不被窃取</label>
+                    <label><input type="radio" name="q4" value="B"> B．防止恶意用户对数据库进行非法操作</label>
+                    <label><input type="radio" name="q4" value="C"> C．满足某一具体应用的数据必须满足的语义要求</label>
+                    <label><input type="radio" name="q4" value="D"> D．提高数据库的查询性能和并发控制能力</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：C</strong></p>
+                    <p><strong>解析：</strong> 用户定义的完整性是针对特定应用的业务规则和语义要求而设定的约束，例如某个属性的取值范围、特定属性之间的逻辑关系等，这些是实体完整性和参照完整性无法涵盖的。</p>
+                </div>
+            </div>
+
+            <!-- 5. CHECK约束的类型 -->
+            <div class="question-block">
+                <p class="question-text">5. 在 <code>CREATE TABLE</code> 语句中，<code>CHECK</code> 短语可以用于定义（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q5" value="A"> A．实体完整性约束</label>
+                    <label><input type="radio" name="q5" value="B"> B．参照完整性约束</label>
+                    <label><input type="radio" name="q5" value="C"> C．属性上的约束和元组上的约束</label>
+                    <label><input type="radio" name="q5" value="D"> D．主码和外码</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：C</strong></p>
+                    <p><strong>解析：：</strong> `CHECK` 短语可以用来定义属性值满足的条件（如年龄大于0），也可以定义元组内不同属性值之间的相互约束（如性别为男则姓名不能以“Ms.”开头）。</p>
+                </div>
+            </div>
+
+            <!-- 6. 触发器的特点 -->
+            <div class="question-block">
+                <p class="question-text">6. 关于数据库触发器（Trigger），下列说法不正确的是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q6" value="A"> A．触发器是用户定义在关系表上的一类事件驱动的特殊过程</label>
+                    <label><input type="radio" name="q6" value="B"> B．触发器可以定义在基本表上，也可以定义在视图上</label>
+                    <label><input type="radio" name="q6" value="C"> C．当数据发生增、删、改操作时，由数据库服务器自动激活</label>
+                    <label><input type="radio" name="q6" value="D"> D．行级触发器在操作影响多少行就触发多少次</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> 触发器只能定义在**基本表**上，不能定义在视图上。视图是虚拟的表，不存储数据，因此无法直接在其上定义触发器。</p>
+                </div>
+            </div>
+
+            <!-- 7. 参照完整性违约处理：SET NULL -->
+            <div class="question-block">
+                <p class="question-text">7. 在参照完整性中，如果被参照表（父表）的主码值被修改或删除，子表的外码被设置为NULL，这种策略是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q7" value="A"> A．NO ACTION</label>
+                    <label><input type="radio" name="q7" value="B"> B．CASCADE</label>
+                    <label><input type="radio" name="q7" value="C"> C．SET DEFAULT</label>
+                    <label><input type="radio" name="q7" value="D"> D．SET NULL</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：D</strong></p>
+                    <p><strong>解析：：</strong> `SET NULL` 策略是指当删除或修改被参照表的一个元组时，将参照表中所有导致不一致的元组的对应外码属性设置为空值。前提是外码列允许为空。</p>
+                </div>
+            </div>
+
+            <!-- 8. 命名完整性约束的好处 -->
+            <div class="question-block">
+                <p class="question-text">8. 为完整性约束指定名称的主要好处是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q8" value="A"> A．提高数据库的安全性</label>
+                    <label><input type="radio" name="q8" value="B"> B．简化对完整性约束的修改和删除</label>
+                    <label><input type="radio" name="q8" value="C"> C．加快数据查询速度</label>
+                    <label><input type="radio" name="q8" value="D"> D．自动备份数据库</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> 通过 `CONSTRAINT <完整性约束名>` 语法为约束命名后，可以使用 `ALTER TABLE ... DROP CONSTRAINT <完整性约束名>` 语句方便地删除或修改这些约束，无需记住其复杂的定义内容。</p>
+                </div>
+            </div>
+
+            <!-- 9. 触发器执行时机 BEFORE vs AFTER -->
+            <div class="question-block">
+                <p class="question-text">9. 如果一个触发器被定义为 <code>BEFORE INSERT</code>，那么它的触发动作体将在（　　）执行。</p>
+                <div class="options">
+                    <label><input type="radio" name="q9" value="A"> A．插入操作开始前</label>
+                    <label><input type="radio" name="q9" value="B"> B．插入操作完成后</label>
+                    <label><input type="radio" name="q9" value="C"> C．事务提交后</label>
+                    <label><input type="radio" name="q9" value="D"> D．数据库系统启动时</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：A</strong></p>
+                    <p><strong>解析：：</strong> `BEFORE` 触发器表示在触发事件（如 `INSERT`、`UPDATE`、`DELETE`）的操作执行**之前**激活触发器。这允许在数据被实际修改前进行校验或预处理。</p>
+                </div>
+            </div>
+
+            <!-- 10. 语句级触发器和行级触发器的区别 -->
+            <div class="question-block">
+                <p class="question-text">10. 对于一个 <code>UPDATE</code> 语句影响了100行数据，如果定义了一个 <code>FOR EACH STATEMENT</code> 触发器，那么该触发器会执行（　　）次。</p>
+                <div class="options">
+                    <label><input type="radio" name="q10" value="A"> A．0次</label>
+                    <label><input type="radio" name="q10" value="B"> B．1次</label>
+                    <label><input type="radio" name="q10" value="C"> C．100次</label>
+                    <label><input type="radio" name="q10" value="D"> D．取决于触发条件</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> `FOR EACH STATEMENT` 是语句级触发器，意味着无论SQL语句影响了多少行，触发动作体只在整个SQL语句执行完毕后**执行一次**。而 `FOR EACH ROW`（行级触发器）则会执行与受影响行数相同的次数。</p>
+                </div>
+            </div>
+
+
+            <!-- 填空题 -->
+            <h2 class="section-title"><i class="fas fa-pencil-alt"></i> 二、填空题</h2>
+
+            <!-- 1. 数据库完整性的两个方面 -->
+            <div class="question-block">
+                <p class="question-text">1. 数据库的完整性包括数据的正确性和<span class="fill-in-the-blank-container"><input type="text" name="q11" class="fill-in-the-blank-input" data-correct-answer="相容性"></span>。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 相容性</p>
+                    <p><strong>解析：：</strong> 完整性是数据应符合现实世界语义（正确性）和数据库内部数据之间的一致性（相容性）。</p>
+                </div>
+            </div>
+
+            <!-- 2. RDBMS检查完整性的时机 -->
+            <div class="question-block">
+                <p class="question-text">2. 关系数据库管理系统通常在执行 <code>INSERT</code>、<code>UPDATE</code>、<code>DELETE</code> 语句<span class="fill-in-the-blank-container"><input type="text" name="q12" class="fill-in-the-blank-input" data-correct-answer="之后"></span>开始检查完整性约束。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 之后</p>
+                    <p><strong>解析：：</strong> 完整性检查通常在数据操作（增删改）执行后进行，以验证操作是否破坏了预定义的约束。部分系统也支持在事务提交时检查。</p>
+                </div>
+            </div>
+
+            <!-- 3. PRIMARY KEY定义位置 -->
+            <div class="question-block">
+                <p class="question-text">3. 如果主码由多个属性构成，则只能在 <code>CREATE TABLE</code> 语句的<span class="fill-in-the-blank-container"><input type="text" name="q13" class="fill-in-the-blank-input" data-correct-answer="表级"></span>定义主码。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 表级</p>
+                    <p><strong>解析：：</strong> 单属性主码可以在列级或表级定义，但复合主码（由多个属性组成）必须在表级定义，因为它们涉及到多个列的组合约束。</p>
+                </div>
+            </div>
+
+            <!-- 4. FOREIGN KEY的参照对象 -->
+            <div class="question-block">
+                <p class="question-text">4. <code>FOREIGN KEY</code> 短语用于定义外码，而 <code>REFERENCES</code> 短语用于指明这些外码参照哪个表的主码，被参照的表称为<span class="fill-in-the-blank-container"><input type="text" name="q14" class="fill-in-the-blank-input" data-correct-answer="父表"></span>。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 父表</p>
+                    <p><strong>解析：：</strong> 在参照完整性中，包含外码的表称为参照表（或子表），而被外码引用的表（包含主码）称为被参照表（或父表）。</p>
+                </div>
+            </div>
+
+            <!-- 5. 触发器的核心规则 -->
+            <div class="question-block">
+                <p class="question-text">5. 触发器是实现事件-条件-<span class="fill-in-the-blank-container"><input type="text" name="q15" class="fill-in-the-blank-input" data-correct-answer="动作"></span>规则（ECA规则）的数据库对象。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 动作</p>
+                    <p><strong>解析：：</strong> ECA规则是事件驱动系统（包括触发器）的核心，指当特定事件发生时，如果满足某个条件，则执行相应的动作。</p>
+                </div>
+            </div>
+
+
+            <!-- 判断题 -->
+            <h2 class="section-title"><i class="fas fa-question-circle"></i> 三、判断题</h2>
+
+            <!-- 1. 完整性与安全性的区别 -->
+            <div class="question-block">
+                <p class="question-text">1. 数据库的完整性旨在防止非法用户和非法操作，而安全性则防止不符合语义的数据进入数据库。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q16" value="false"> 错误</label>
+                    <label><input type="radio" name="q16" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：错误</strong></p>
+                    <p><strong>解析：：</strong> 题干混淆了完整性和安全性的定义。完整性是防止不合语义或不正确的数据，而安全性是保护数据库防止恶意的破坏和非法存取。</p>
+                </div>
+            </div>
+            
+            <!-- 2. 参照完整性违约处理的默认策略 -->
+            <div class="question-block">
+                <p class="question-text">2. 在SQL中，如果未显式指定参照完整性的违约处理策略，默认是 <code>NO ACTION</code>（拒绝执行）。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q17" value="true"> 正确</label>
+                    <label><input type="radio" name="q17" value="false"> 错误</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：正确</strong></p>
+                    <p><strong>解析：：</strong> SQL标准规定，如果未指定 `ON DELETE` 或 `ON UPDATE` 的行为，默认的参照完整性违约处理是 `NO ACTION`（或 `RESTRICT`），即拒绝执行可能破坏完整性的操作。</p>
+                </div>
+            </div>
+
+            <!-- 3. UNIQUE约束是否允许NULL -->
+            <div class="question-block">
+                <p class="question-text">3. <code>UNIQUE</code> 约束不允许列中出现重复值，但允许出现多个 <code>NULL</code> 值。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q18" value="true"> 正确</label>
+                    <label><input type="radio" name="q18" value="false"> 错误</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：正确</strong></p>
+                    <p><strong>解析：：</strong> `UNIQUE` 约束确保非NULL值的唯一性。根据SQL标准，NULL值被视为不等于任何其他值（包括其他NULL值），因此允许在一列中存在多个NULL值，除非同时定义了 `NOT NULL` 约束。</p>
+                </div>
+            </div>
+
+            <!-- 4. 触发器与存储过程的区别 -->
+            <div class="question-block">
+                <p class="question-text">4. 触发器是一种特殊的存储过程，因此可以像调用其他存储过程一样显式调用触发器。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q19" value="false"> 错误</label>
+                    <label><input type="radio" name="q19" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：错误</strong></p>
+                    <p><strong>解析：：</strong> 触发器是事件驱动的，由数据库服务器在特定事件（如INSERT, UPDATE, DELETE）发生时自动激活，不能被用户直接显式调用。它是特殊的存储过程，但其调用方式与普通存储过程不同。</p>
+                </div>
+            </div>
+
+            <!-- 5. 行级触发器中使用NEW/OLD -->
+            <div class="question-block">
+                <p class="question-text">5. 在行级触发器的触发动作体中，可以使用 <code>NEW</code> 和 <code>OLD</code> 关键字来引用更新操作后的新值或操作前的旧值。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q20" value="true"> 正确</label>
+                    <label><input type="radio" name="q20" value="false"> 错误</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：正确</strong></p>
+                    <p><strong>解析：：</strong> 行级触发器可以访问受操作影响的每一行的旧值（`OLD`）和新值（`NEW`），这使得可以编写更精细的逻辑来比较或操作数据在变化前后的状态。语句级触发器则不能使用这两个关键字。</p>
+                </div>
+            </div>
+
+
+            <!-- SQL编程题 -->
+            <h2 class="section-title"><i class="fas fa-code"></i> 四、SQL编程题</h2>
+
+            <!-- SQL编程题 1 (定义表级PRIMARY KEY) -->
+            <div class="question-block">
+                <p class="question-text">1. **请写出SQL语句，创建一个名为 <code>CourseOffering</code> 的表，包含 <code>CourseID</code>, <code>Semester</code> 和 <code>Year</code> 字段，其中 <code>(CourseID, Semester, Year)</code> 组合作为主码。**</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>参考答案：</strong></p>
+                    <pre class="code-block">
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">CourseOffering</span> <span class="punctuation">(</span>
+    <span class="sql-column">CourseID</span> <span class="sql-type">CHAR</span><span class="punctuation">(</span><span class="sql-number">5</span><span class="punctuation">),</span>
+    <span class="sql-column">Semester</span> <span class="sql-type">CHAR</span><span class="punctuation">(</span><span class="sql-number">10</span><span class="punctuation">),</span>
+    <span class="sql-column">Year</span> <span class="sql-type">SMALLINT</span><span class="punctuation">,</span>
+    <span class="sql-keyword">PRIMARY KEY</span> <span class="punctuation">(</span><span class="sql-column">CourseID</span><span class="punctuation">,</span> <span class="sql-column">Semester</span><span class="punctuation">,</span> <span class="sql-column">Year</span><span class="punctuation">)</span> <span class="comment">-- 复合主码，必须在表级定义</span>
+<span class="punctuation">)</span><span class="punctuation">;</span>
+                    </pre>
+                    <p><strong>解析：</strong></p>
+                    <ol>
+                        <li>使用 `CREATE TABLE` 语句定义新表 `CourseOffering`。</li>
+                        <li>包含所有指定列及其数据类型。</li>
+                        <li>由于主码由多个属性组成 (`CourseID`, `Semester`, `Year`)，因此必须在表级使用 `PRIMARY KEY (column1, column2, ...)` 语法进行定义。</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- SQL编程题 2 (定义外码并指定违约处理) -->
+            <div class="question-block">
+                <p class="question-text">2. **假设存在 <code>Department</code> 表（<code>DeptID</code> 是主码）。请写出SQL语句，创建一个 <code>Professor</code> 表，包含 <code>ProfID</code> (主码), <code>ProfName</code> 和 <code>DeptID</code>。其中，<code>DeptID</code> 是外码，参照 <code>Department</code> 表的 <code>DeptID</code>。要求：当 <code>Department</code> 表中的部门被删除时，级联删除 <code>Professor</code> 表中对应的教授记录；当 <code>Department</code> 表中的 <code>DeptID</code> 被更新时，级联更新 <code>Professor</code> 表中对应的 <code>DeptID</code>。**</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>参考答案：</strong></p>
+                    <pre class="code-block">
+<span class="sql-comment">-- 假设 Department 表已存在</span>
+<span class="sql-comment">-- CREATE TABLE Department (DeptID CHAR(3) PRIMARY KEY, DeptName VARCHAR(50));</span>
+
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Professor</span> <span class="punctuation">(</span>
+    <span class="sql-column">ProfID</span> <span class="sql-type">CHAR</span><span class="punctuation">(</span><span class="sql-number">4</span><span class="punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="punctuation">,</span>
+    <span class="sql-column">ProfName</span> <span class="sql-type">VARCHAR</span><span class="punctuation">(</span><span class="sql-number">50</span><span class="punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="punctuation">,</span>
+    <span class="sql-column">DeptID</span> <span class="sql-type">CHAR</span><span class="punctuation">(</span><span class="sql-number">3</span><span class="punctuation">),</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="punctuation">(</span><span class="sql-column">DeptID</span><span class="punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Department</span><span class="punctuation">(</span><span class="sql-column">DeptID</span><span class="punctuation">)</span>
+        <span class="sql-keyword">ON DELETE CASCADE</span> <span class="comment">-- 当部门被删除时，级联删除教授</span>
+        <span class="sql-keyword">ON UPDATE CASCADE</span> <span class="comment">-- 当部门ID被更新时，级联更新教授的部门ID</span>
+<span class="punctuation">)</span><span class="punctuation">;</span>
+                    </pre>
+                    <p><strong>解析：</strong></p>
+                    <ol>
+                        <li>使用 `FOREIGN KEY (DeptID) REFERENCES Department(DeptID)` 定义外码关系。</li>
+                        <li>`ON DELETE CASCADE` 指定当父表 `Department` 的元组被删除时，子表 `Professor` 中所有引用该元组的记录也一并删除。</li>
+                        <li>`ON UPDATE CASCADE` 指定当父表 `Department` 的 `DeptID` 被更新时，子表 `Professor` 中所有引用该 `DeptID` 的记录的 `DeptID` 也一并更新。</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- SQL编程题 3 (定义CHECK约束) -->
+            <div class="question-block">
+                <p class="question-text">3. **请写出SQL语句，创建一个 <code>StudentScores</code> 表，包含 <code>StudentID</code> (主码), <code>CourseID</code> 和 <code>Score</code> 字段。要求 <code>Score</code> 字段的值必须在 <code>0</code> 到 <code>100</code> 之间（包含0和100）。**</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>参考答案：</strong></p>
+                    <pre class="code-block">
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">StudentScores</span> <span class="punctuation">(</span>
+    <span class="sql-column">StudentID</span> <span class="sql-type">CHAR</span><span class="punctuation">(</span><span class="sql-number">8</span><span class="punctuation">)</span><span class="punctuation">,</span>
+    <span class="sql-column">CourseID</span> <span class="sql-type">CHAR</span><span class="punctuation">(</span><span class="sql-number">5</span><span class="punctuation">),</span>
+    <span class="sql-column">Score</span> <span class="sql-type">SMALLINT</span> <span class="sql-keyword">CHECK</span> <span class="punctuation">(</span><span class="sql-column">Score</span> <span class="sql-operator">>=</span> <span class="sql-number">0</span> <span class="sql-keyword">AND</span> <span class="sql-column">Score</span> <span class="sql-operator"><=</span> <span class="sql-number">100</span><span class="punctuation">),</span> <span class="comment">-- 成绩范围约束</span>
+    <span class="sql-keyword">PRIMARY KEY</span> <span class="punctuation">(</span><span class="sql-column">StudentID</span><span class="punctuation">,</span> <span class="sql-column">CourseID</span><span class="punctuation">)</span>
+<span class="punctuation">)</span><span class="punctuation">;</span>
+                    </pre>
+                    <p><strong>解析：：</strong></p>
+                    <ol>
+                        <li>使用 `CREATE TABLE` 定义表结构。</li>
+                        <li>在 `Score` 列定义后面添加 `CHECK (Score >= 0 AND Score <= 100)` 来指定分数必须在有效范围内。</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- SQL编程题 4 (定义命名约束并修改) -->
+            <div class="question-block">
+                <p class="question-text">4. **请写出SQL语句，创建一个名为 <code>Employee</code> 的表，包含 <code>EmpID</code> (主码), <code>EmpName</code> 和 <code>Salary</code> 字段。为 <code>Salary</code> 字段添加一个名为 <code>CK_SalaryRange</code> 的约束，要求工资必须大于 <code>0</code>。然后，写出SQL语句，将此约束修改为要求工资必须大于 <code>1000</code>。**</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>参考答案：</strong></p>
+                    <pre class="code-block">
+<span class="sql-comment">-- 创建表并定义命名约束</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Employee</span> <span class="punctuation">(</span>
+    <span class="sql-column">EmpID</span> <span class="sql-type">CHAR</span><span class="punctuation">(</span><span class="sql-number">5</span><span class="punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="punctuation">,</span>
+    <span class="sql-column">EmpName</span> <span class="sql-type">VARCHAR</span><span class="punctuation">(</span><span class="sql-number">50</span><span class="punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="punctuation">,</span>
+    <span class="sql-column">Salary</span> <span class="sql-type">NUMERIC</span><span class="punctuation">(</span><span class="sql-number">10</span><span class="punctuation">,</span><span class="sql-number">2</span><span class="punctuation">)</span>
+        <span class="sql-keyword">CONSTRAINT</span> <span class="sql-column">CK_SalaryRange</span> <span class="sql-keyword">CHECK</span> <span class="punctuation">(</span><span class="sql-column">Salary</span> <span class="sql-operator">></span> <span class="sql-number">0</span><span class="punctuation">)</span>
+<span class="punctuation">)</span><span class="punctuation">;</span>
+
+<span class="sql-comment">-- 修改约束：先删除原约束，再添加新约束</span>
+<span class="sql-keyword">ALTER TABLE</span> <span class="sql-table">Employee</span>
+<span class="sql-keyword">DROP CONSTRAINT</span> <span class="sql-column">CK_SalaryRange</span><span class="punctuation">;</span>
+
+<span class="sql-keyword">ALTER TABLE</span> <span class="sql-table">Employee</span>
+<span class="sql-keyword">ADD CONSTRAINT</span> <span class="sql-column">CK_SalaryRange</span> <span class="sql-keyword">CHECK</span> <span class="punctuation">(</span><span class="sql-column">Salary</span> <span class="sql-operator">></span> <span class="sql-number">1000</span><span class="punctuation">)</span><span class="punctuation">;</span>
+                    </pre>
+                    <p><strong>解析：</strong></p>
+                    <ol>
+                        <li>使用 `CONSTRAINT CK_SalaryRange CHECK (Salary > 0)` 在 `CREATE TABLE` 时为工资范围约束命名。</li>
+                        <li>修改约束通常需要分两步：先使用 `ALTER TABLE ... DROP CONSTRAINT <约束名>` 删除旧约束。</li>
+                        <li>然后使用 `ALTER TABLE ... ADD CONSTRAINT <约束名> <新约束定义>` 添加新的约束。</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- SQL编程题 5 (定义触发器) -->
+            <div class="question-block">
+                <p class="question-text">5. **请写出SQL语句，定义一个名为 <code>CheckStudentMajor</code> 的 <code>BEFORE INSERT</code> 行级触发器，作用于 <code>Student</code> 表。当插入新的学生记录时，如果学生的 <code>Smajor</code> 属性（专业）是 '计算机科学与技术'，并且学生的学号 <code>Sno</code> 以 '2' 开头，则将其 <code>Smajor</code> 自动改为 '软件工程'。**</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>参考答案：</strong></p>
+                    <pre class="code-block">
+<span class="sql-keyword">CREATE TRIGGER</span> <span class="sql-column">CheckStudentMajor</span>
+<span class="sql-keyword">BEFORE INSERT ON</span> <span class="sql-table">Student</span> <span class="comment">-- BEFORE INSERT 触发器，作用于Student表</span>
+<span class="sql-keyword">REFERENCING NEW AS</span> <span class="sql-column">newTuple</span> <span class="comment">-- 定义newTuple来引用新插入的行数据</span>
+<span class="sql-keyword">FOR EACH ROW</span> <span class="comment">-- 行级触发器</span>
+<span class="sql-keyword">WHEN</span> <span class="punctuation">(</span><span class="sql-column">newTuple</span><span class="punctuation">.</span><span class="sql-column">Smajor</span> <span class="sql-operator">=</span> <span class="string">'计算机科学与技术'</span> <span class="sql-keyword">AND</span> <span class="sql-column">newTuple</span><span class="punctuation">.</span><span class="sql-column">Sno</span> <span class="sql-keyword">LIKE</span> <span class="string">'2%'</span><span class="punctuation">)</span> <span class="comment">-- 触发条件</span>
+<span class="sql-keyword">BEGIN</span>
+    <span class="sql-column">newTuple</span><span class="punctuation">.</span><span class="sql-column">Smajor</span> <span class="sql-operator">:=</span> <span class="string">'软件工程'</span><span class="punctuation">;</span> <span class="comment">-- 触发动作：修改Smajor为'软件工程'</span>
+<span class="sql-keyword">END</span><span class="punctuation">;</span>
+                    </pre>
+                    <p><strong>解析：</strong></p>
+                    <ol>
+                        <li>`CREATE TRIGGER CheckStudentMajor` 定义触发器名称。</li>
+                        <li>`BEFORE INSERT ON Student` 指定在 `Student` 表执行 `INSERT` 操作**之前**触发。</li>
+                        <li>`REFERENCING NEW AS newTuple` 允许在触发器中通过 `newTuple` 访问即将插入的新行的数据。</li>
+                        <li>`FOR EACH ROW` 指定这是一个行级触发器，对每一行受影响的数据都会执行一次。</li>
+                        <li>`WHEN (...)` 定义了触发条件：当新行的专业是'计算机科学与技术'且学号以'2'开头时。</li>
+                        <li>`BEGIN ... END;` 包裹触发动作体，其中 `newTuple.Smajor := '软件工程';` 会在实际插入前修改 `Smajor` 的值。</li>
+                    </ol>
+                </div>
+            </div>
+
+
+            <!-- 总体的“查看答案与解析”按钮 -->
+            <button type="button" class="global-control-btn show-all-answers-btn mt-10">查看所有答案与解析</button>
+            <button type="button" class="global-control-btn hide-all-answers-btn bg-gray-500 hover:bg-gray-700 text-white mt-4" style="display: none;">隐藏所有答案</button>
+
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select individual buttons (excluding global ones)
+            const individualAnswerButtons = document.querySelectorAll('.individual-answer-btn');
+            const showAllAnswersBtn = document.querySelector('.show-all-answers-btn');
+            const hideAllAnswersBtn = document.querySelector('.hide-all-answers-btn');
+            const quizForm = document.getElementById('quizForm');
+
+            // Function to toggle individual answer visibility
+            function toggleAnswer(button) {
+                const answerArea = button.nextElementSibling;
+                if (answerArea.style.display === 'block') {
+                    answerArea.style.display = 'none';
+                    button.textContent = '解'; // Change text back to '解'
+                } else {
+                    answerArea.style.display = 'block';
+                    button.textContent = '收起'; // Change text to '收起' when open
+                }
+            }
+
+            // Individual "查看答案与解析" button functionality
+            individualAnswerButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    toggleAnswer(this);
+                    updateMasterButtonsVisibility(); // Update master buttons visibility
+                });
+            });
+
+            // "查看所有答案与解析" button functionality
+            showAllAnswersBtn.addEventListener('click', function() {
+                individualAnswerButtons.forEach(button => {
+                    const answerArea = button.nextElementSibling;
+                    if (answerArea.style.display !== 'block') {
+                        answerArea.style.display = 'block';
+                        button.textContent = '收起';
+                    }
+                });
+                updateMasterButtonsVisibility();
+            });
+
+            // "隐藏所有答案" button functionality
+            hideAllAnswersBtn.addEventListener('click', function() {
+                individualAnswerButtons.forEach(button => {
+                    const answerArea = button.nextElementSibling;
+                    if (answerArea.style.display === 'block') {
+                        answerArea.style.display = 'none';
+                        button.textContent = '解';
+                    }
+                });
+                updateMasterButtonsVisibility();
+            });
+
+            // Update visibility of "Show All" and "Hide All" buttons
+            function updateMasterButtonsVisibility() {
+                let anyAnswerShown = false;
+                let allAnswersShown = true;
+
+                individualAnswerButtons.forEach(button => {
+                    if (button.nextElementSibling.style.display === 'block') {
+                        anyAnswerShown = true;
+                    } else {
+                        allAnswersShown = false;
+                    }
+                });
+
+                if (anyAnswerShown) {
+                    hideAllAnswersBtn.style.display = 'block';
+                } else {
+                    hideAllAnswersBtn.style.display = 'none';
+                }
+
+                if (allAnswersShown) {
+                    showAllAnswersBtn.style.display = 'none';
+                } else {
+                    showAllAnswersBtn.style.display = 'block';
+                }
+            }
+
+            // 选择题选项交互效果
+            const options = document.querySelectorAll('.options label');
+            
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionBlock = this.closest('.question-block'); // 获取当前问题块
+                    const allOptionsInBlock = questionBlock.querySelectorAll('.options label');
+                    
+                    // 移除当前问题块中所有选项的选中状态样式
+                    allOptionsInBlock.forEach(opt => {
+                        opt.style.backgroundColor = '';
+                        opt.style.border = '';
+                    });
+                    
+                    // 设置当前被点击选项的选中状态样式
+                    this.style.backgroundColor = 'rgba(255, 215, 0, 0.1)'; /* Yellow tint */
+                    this.style.border = '2px solid var(--primary-main)';
+                });
+            });
+
+            // 填空题输入框聚焦效果 and dynamic width
+            document.querySelectorAll('.fill-in-the-blank-input').forEach(input => {
+                // Set initial width based on placeholder or data-correct-answer length
+                const initialWidth = (input.getAttribute('placeholder') || input.dataset.correctAnswer || '').length * 15 + 20; // Approx 15px per char + padding
+                input.style.width = `${Math.max(initialWidth, 80)}px`; // Ensure min-width of 80px
+
+                input.addEventListener('input', function() {
+                    // Adjust width dynamically as user types
+                    const textWidth = this.value.length * 15 + 20; // Adjust multiplier as needed
+                    this.style.width = `${Math.max(textWidth, 80)}px`;
+                });
+
+                input.addEventListener('focus', function() {
+                    this.style.borderColor = 'var(--primary-main)';
+                    this.style.boxShadow = '0 0 0 3px rgba(255, 215, 0, 0.2)'; /* Yellow focus shadow */
+                });
+                input.addEventListener('blur', function() {
+                    this.style.borderColor = 'var(--border-card)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Initial update of master buttons
+            updateMasterButtonsVisibility();
+        });
+    </script>
+</body>
+</html>

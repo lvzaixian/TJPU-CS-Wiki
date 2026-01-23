@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第四章 数据库安全性测验</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <!-- 引入MathJax 3库用于渲染公式 -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        /* CSS Variables for a consistent red theme (inspired by 第四章--数据库安全性.html) */
+        :root {
+            --primary-main: #E53935; /* Red 600 - vibrant main accent */
+            --primary-dark: #C62828; /* Red 800 - darker shade for strong highlights */
+            --secondary-main: #B71C1C; /* Red 900 - deep dark red for titles, bold elements */
+            --accent-soft: #FFC107; /* Amber 500 - bright contrasting accent (gold-ish yellow) */
+            --text-default: #212121; /* Dark gray for standard text */
+            --text-light-gray: #616161; /* Gray 700 - lighter gray for subtitles */
+            --bg-light: #FFEBEE; /* Red 50 - very light red background */
+            --bg-lighter: #FFCDD2; /* Red 100 - slightly darker light red background */
+            --card-bg: #FFFFFF; /* White card background */
+            --card-shadow: 0 10px 30px rgba(183, 28, 28, 0.1); /* Shadow tinted with secondary-main */
+            --border-card: #EF9A9A; /* Red 200 - light red border for cards */
+            --transition-ease: all 0.3s ease; /* General transition */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-default);
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-lighter) 100%);
+            background-attachment: fixed;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 18px;
+            box-shadow: var(--card-shadow);
+            padding: 35px;
+            border: 1px solid var(--border-card);
+            transition: var(--transition-ease);
+        }
+        .container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(183, 28, 28, 0.15); /* Slightly stronger shadow on hover */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-main);
+            position: relative;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-main), transparent);
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: var(--secondary-main);
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light-gray);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            margin-top: 40px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-card);
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+        .section-title i {
+            color: var(--primary-main);
+        }
+
+        .question-block {
+            background-color: var(--bg-lighter);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-card);
+            transition: var(--transition-ease);
+        }
+        .question-block:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            margin-bottom: 18px;
+            color: var(--text-default);
+            font-weight: 500;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 12px;
+            padding: 12px 15px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .options label:hover {
+            background-color: var(--bg-light);
+            border-color: var(--primary-main);
+            box-shadow: 0 2px 5px rgba(229, 57, 53, 0.2); /* Red hover shadow */
+        }
+        
+        .options input[type="radio"] {
+            margin-right: 12px;
+            accent-color: var(--primary-main);
+            transform: scale(1.1);
+        }
+
+        /* Improved fill-in-the-blank input styling */
+        .fill-in-the-blank-container {
+            display: inline-block; /* Allows inputs to be inline with text */
+            margin: 0 5px; /* Spacing between text and input */
+        }
+
+        .fill-in-the-blank-input {
+            padding: 8px 10px;
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            font-size: 1.05rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            text-align: center; /* Center text in input */
+            min-width: 80px; /* Minimum width for inputs */
+            display: inline-block; /* Ensure it stays inline */
+        }
+        .fill-in-the-blank-input:focus {
+            outline: none;
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.2);
+        }
+
+        .true-false-options {
+            display: flex;
+            gap: 25px;
+        }
+
+        /* Improved True/False button styling */
+        .true-false-options label {
+            flex: 1;
+            text-align: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: 12px 15px; /* Add padding to make them look like buttons */
+            display: flex; /* Use flex to center content */
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Space between radio and text */
+        }
+
+        .true-false-options label:hover {
+            background-color: var(--bg-light);
+            border-color: var(--primary-main);
+            box-shadow: 0 2px 5px rgba(229, 57, 53, 0.2);
+        }
+
+        .true-false-options input[type="radio"] {
+            margin-right: 0; /* Remove default margin */
+            /* Custom radio button appearance */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 24px; /* Larger custom radio */
+            height: 24px;
+            border: 2px solid var(--primary-main);
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .true-false-options input[type="radio"]:checked {
+            background-color: var(--primary-main);
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 4px rgba(229, 57, 53, 0.3); /* Subtle outer glow */
+        }
+
+        .true-false-options input[type="radio"]:checked::before {
+            content: '';
+            display: block;
+            width: 12px;
+            height: 12px;
+            background-color: white; /* Inner white dot */
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Styles for individual "查看答案与解析" button (now a small circle with '解') */
+        .individual-answer-btn {
+            width: 38px; /* Diameter for the circle */
+            height: 38px; /* Diameter for the circle */
+            background: linear-gradient(45deg, var(--primary-main), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 50%; /* Make it a perfect circle */
+            cursor: pointer;
+            font-size: 1.0rem; /* Adjust font size for '解' */
+            font-weight: 600;
+            transition: var(--transition-ease);
+            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex; /* Use flex to center text */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            float: right; /* Float to the right */
+            clear: right; /* Clear float for subsequent elements */
+        }
+        .individual-answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-main));
+        }
+        .individual-answer-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .individual-answer-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.5s ease-out;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        .individual-answer-btn:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        /* Styles for global control buttons (larger, full width) */
+        .global-control-btn {
+            background: linear-gradient(45deg, var(--primary-main), var(--primary-dark));
+            color: white;
+            padding: 15px 30px; /* Larger padding */
+            border: none;
+            border-radius: 10px; /* More rounded */
+            cursor: pointer;
+            font-size: 1.2rem; /* Larger font */
+            font-weight: 700;
+            transition: var(--transition-ease);
+            margin-top: 25px; /* Adjust top margin for spacing */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            display: block; /* Full width */
+            width: 100%; /* Full width */
+        }
+        .global-control-btn:hover {
+            transform: translateY(-5px); /* More pronounced lift */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-main));
+        }
+        .global-control-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .global-control-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.5s ease-out;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        .global-control-btn:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .answer-area {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #FFEBEE; /* Light red info background */
+            border: 1px solid #EF9A9A; /* Light red border */
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-default);
+            display: none; /* Initially hidden */
+            animation: slideInUp 0.4s ease-out;
+        }
+        .answer-area strong {
+            color: var(--secondary-main);
+        }
+        .answer-area ul {
+            padding-left: 20px;
+            list-style: disc; /* Use standard disc for ul */
+        }
+        .answer-area ol {
+            padding-left: 20px;
+            list-style: decimal; /* Use standard decimal for ol */
+        }
+
+        .concept-highlight {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .code-block {
+            background-color: #3E1D1D; /* Darker red-brown for code */
+            color: #FFDAD4; /* Lighter text for code content */
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin: 15px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .code-block .sql-keyword { color: #FF7043; } /* Light Orange */
+        .code-block .sql-type { color: #FFD166; } /* Light Gold */
+        .code-block .sql-string { color: #FF8A65; } /* Light Salmon */
+        .code-block .sql-comment { color: #A1887F; font-style: italic; } /* Light Brown */
+        .code-block .sql-operator { color: #FFB74D; } /* Orange Accent */
+        .code-block .sql-number { color: #FFB300; } /* Amber */
+        .code-block .sql-function { color: #FFD700; } /* Gold */
+        .code-block .sql-table { color: #F0A3A0; } /* Light Pinkish Red */
+        .code-block .sql-column { color: #FFA080; } /* Light Orange Red */
+
+        /* Styles for HTML rendered tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse; /* Collapse borders between cells */
+            margin: 20px 0;
+            font-size: 0.95rem;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            overflow: hidden; /* Ensures rounded corners apply to content */
+            border: 1px solid var(--border-card);
+        }
+
+        .data-table thead {
+            background-color: var(--primary-main);
+            color: white;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-card); /* Lighter border for rows */
+        }
+
+        .data-table th {
+            font-weight: 700;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: var(--bg-light); /* Light alternate row color */
+        }
+
+        .data-table tbody tr:hover {
+            background-color: var(--bg-lighter); /* Slightly darker hover */
+            cursor: default;
+        }
+
+        /* Responsive adjustments for tables */
+        @media (max-width: 600px) {
+            .data-table, .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr {
+                display: block; /* Make table elements stack */
+            }
+
+            .data-table thead tr {
+                position: absolute;
+                top: -9999px; /* Hide table headers (but not display: none; for screen readers) */
+                left: -9999px;
+            }
+
+            .data-table tr {
+                margin-bottom: 15px;
+                border: 1px solid var(--border-card);
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+
+            .data-table td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%; /* Make room for the pseudo-element label */
+                text-align: right;
+            }
+
+            .data-table td:last-child {
+                border-bottom: 0;
+            }
+
+            /* Add a pseudo-element for labels on smaller screens */
+            .data-table td:before {
+                position: absolute;
+                top: 0;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: var(--primary-dark);
+            }
+            /* Assign labels using data-label attribute for each column */
+            .data-table td:nth-of-type(1):before { content: attr(data-label); }
+            .data-table td:nth-of-type(2):before { content: attr(data-label); }
+            .data-table td:nth-of-type(3):before { content: attr(data-label); }
+            .data-table td:nth-of-type(4):before { content: attr(data-label); }
+            .data-table td:nth-of-type(5):before { content: attr(data-label); }
+            /* Extend for more columns if necessary */
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .section-title { font-size: 1.6rem; }
+            .question-text { font-size: 1.05rem; }
+            .options label { padding: 10px; }
+            .individual-answer-btn { padding: 6px 12px; font-size: 0.8rem; min-width: 100px;}
+            .global-control-btn { padding: 12px 25px; font-size: 1.05rem; }
+            .true-false-options { flex-direction: column; gap: 10px; }
+            .container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>数据库原理：第四章数据库安全性测验</h1>
+            <p class="subtitle">深入了解数据库安全的各种机制和挑战！</p>
+        </header>
+
+        <form id="quizForm">
+            <!-- 单项选择题 -->
+            <h2 class="section-title"><i class="fas fa-check-circle"></i> 一、单项选择题</h2>
+
+            <!-- 1. 数据库安全性的核心定义 -->
+            <div class="question-block">
+                <p class="question-text">1. 数据库安全性是指保护数据库以防止不合法使用所造成的数据（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q1" value="A"> A．泄露、篡改或破坏</label>
+                    <label><input type="radio" name="q1" value="B"> B．丢失、错误或冗余</label>
+                    <label><input type="radio" name="q1" value="C"> C．不一致、重复或冲突</label>
+                    <label><input type="radio" name="q1" value="D"> D．备份、恢复或审计</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：A</strong></p>
+                    <p><strong>解析：</strong> 数据库安全性主要关注数据的保密性、完整性和可用性，防止未经授权的泄露、篡改和破坏。</p>
+                </div>
+            </div>
+
+            <!-- 2. DAC的特点 -->
+            <div class="question-block">
+                <p class="question-text">2. 关于自主存取控制（DAC）方法，下列说法正确的是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q2" value="A"> A．用户的存取权限由系统强制规定，不能转授</label>
+                    <label><input type="radio" name="q2" value="B"> B．适用于对数据有严格而固定密级分类的部门</label>
+                    <label><input type="radio" name="q2" value="C"> C．用户可以将其拥有的存取权限转授给其他用户</label>
+                    <label><input type="radio" name="q2" value="D"> D．是一种用户无法直接感知或控制的安全保护</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：C</strong></p>
+                    <p><strong>解析：</strong> DAC的特点是灵活，拥有权限的用户可以根据需要将权限转授给其他用户。A、B、D选项描述的是强制存取控制（MAC）的特点。</p>
+                </div>
+            </div>
+
+            <!-- 3. MAC的特点 -->
+            <div class="question-block">
+                <p class="question-text">3. 强制存取控制（MAC）中，当主体试图读取客体时，必须满足的条件是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q3" value="A"> A．主体的许可证级别小于或等于客体的密级</label>
+                    <label><input type="radio" name="q3" value="B"> B．主体的许可证级别大于或等于客体的密级</label>
+                    <label><input type="radio" name="q3" value="C"> C．主体的许可证级别必须与客体的密级完全相等</label>
+                    <label><input type="radio" name="q3" value="D"> D．无需密级匹配，只要拥有读取权限即可</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> MAC的读操作规则是“只能上读，不能下写”。即主体的许可证级别必须大于或等于客体的密级才能读取，以防止高密级数据泄露给低密级用户。</p>
+                </div>
+            </div>
+
+            <!-- 4. WITH GRANT OPTION的作用 -->
+            <div class="question-block">
+                <p class="question-text">4. 在 <code>GRANT</code> 语句中，添加 <code>WITH GRANT OPTION</code> 子句的含义是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q4" value="A"> A．授予的权限是临时的，下次登录失效</label>
+                    <label><input type="radio" name="q4" value="B"> B．接收权限的用户可以进一步将该权限授予其他用户</label>
+                    <label><input type="radio" name="q4" value="C"> C．强制要求接收权限的用户立即使用该权限</label>
+                    <label><input type="radio" name="q4" value="D"> D．授予的权限只能用于查询操作</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> `WITH GRANT OPTION` 允许被授权的用户将所获得的权限再转授给其他用户，实现权限的传播。</p>
+                </div>
+            </div>
+
+            <!-- 5. REVOKE的CASCADE选项 -->
+            <div class="question-block">
+                <p class="question-text">5. 执行 <code>REVOKE SELECT ON TABLE Student FROM U1 CASCADE;</code> 语句，如果用户U1曾将 `SELECT` 权限转授给了用户U2，则会发生什么？（　　）</p>
+                <div class="options">
+                    <label><input type="radio" name="q5" value="A"> A．只收回U1的权限，U2的权限不受影响</label>
+                    <label><input type="radio" name="q5" value="B"> B．收回U1的权限，并级联收回U2的权限</label>
+                    <label><input type="radio" name="q5" value="C"> C．语句执行失败，因为U1有转授的权限</label>
+                    <label><input type="radio" name="q5" value="D"> D．系统会提示用户选择是否收回U2的权限</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> `CASCADE` 选项表示级联收回权限。当一个用户的权限被收回时，如果该用户曾将此权限转授给了其他用户，则这些被转授的权限也会被同时收回。</p>
+                </div>
+            </div>
+
+            <!-- 6. 视图在安全中的作用 -->
+            <div class="question-block">
+                <p class="question-text">6. 通过视图机制，在数据库安全性方面可以实现的主要目标是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q6" value="A"> A．提高数据加密的强度</label>
+                    <label><input type="radio" name="q6" value="B"> B．对无权存取这些数据的用户隐藏敏感数据</label>
+                    <label><input type="radio" name="q6" value="C"> C．记录所有用户的操作日志</label>
+                    <label><input type="radio" name="q6" value="D"> D．强制用户进行生物特征鉴别</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> 视图可以作为安全机制，通过定义只包含部分行或列的子集，从而隐藏原始基本表中的敏感数据，只暴露用户有权查看的部分。</p>
+                </div>
+            </div>
+
+            <!-- 7. 审计的功能 -->
+            <div class="question-block">
+                <p class="question-text">7. 数据库审计的主要作用是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q7" value="A"> A．提高数据的传输速度</label>
+                    <label><input type="radio" name="q7" value="B"> B．自动记录用户对数据库的所有操作</label>
+                    <label><input type="radio" name="q7" value="C"> C．对数据进行加密存储</label>
+                    <label><input type="radio" name="q7" value="D"> D．防止SQL注入攻击</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> 审计是指DBMS自动记录用户对数据库的各种操作，以便事后进行查询、分析和追溯。</p>
+                </div>
+            </div>
+
+            <!-- 8. 数据加密的主要目的 -->
+            <div class="question-block">
+                <p class="question-text">8. 数据加密技术的主要目的是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q8" value="A"> A．提高数据库的查询效率</label>
+                    <label><input type="radio" name="q8" value="B"> B．减少数据冗余</label>
+                    <label><input type="radio" name="q8" value="C"> C．防止数据库中数据在存储和传输中失密</label>
+                    <label><input type="radio" name="q8" value="D"> D．实现数据库的物理独立性</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：C</strong></p>
+                    <p><strong>解析：：</strong> 数据加密通过将明文转换为密文，有效地防止了数据在存储介质上或网络传输过程中被非法截获和解读，从而保证了数据的保密性。</p>
+                </div>
+            </div>
+
+            <!-- 9. 推断控制解决的问题 -->
+            <div class="question-block">
+                <p class="question-text">9. 推断控制主要解决的问题是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q9" value="A"> A．防止未经授权的用户登录数据库</label>
+                    <label><input type="radio" name="q9" value="B"> B．避免用户通过合法查询推知更高密级的数据</label>
+                    <label><input type="radio" name="q9" value="C"> C．确保数据在传输过程中的完整性</label>
+                    <label><input type="radio" name="q9" value="D"> D．实现多级安全策略的自动管理</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> 推断控制是为了防止用户通过对非敏感数据的合法访问，结合背景知识，推断出他们无权访问的敏感信息。</p>
+                </div>
+            </div>
+
+            <!-- 10. 数据库角色的作用 -->
+            <div class="question-block">
+                <p class="question-text">10. 数据库角色的主要作用是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q10" value="A"> A．增加用户登录的复杂性</label>
+                    <label><input type="radio" name="q10" value="B"> B．定义数据库的物理存储结构</label>
+                    <label><input type="radio" name="q10" value="C"> C．简化对一组用户的权限管理过程</label>
+                    <label><input type="radio" name="q10" value="D"> D．实现数据的高可用性</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：C</strong></p>
+                    <p><strong>解析：：</strong> 角色是权限的命名集合，可以一次性将多个权限授予一个角色，然后将这个角色授予多个用户，从而大大简化了权限管理。</p>
+                </div>
+            </div>
+
+
+            <!-- 填空题 -->
+            <h2 class="section-title"><i class="fas fa-pencil-alt"></i> 二、填空题</h2>
+
+            <!-- 1. 数据库安全控制的“三层” -->
+            <div class="question-block">
+                <p class="question-text">1. 数据库管理系统的安全性控制模型通常包括事前控制、事中控制和<span class="fill-in-the-blank-container"><input type="text" name="q11" class="fill-in-the-blank-input" data-correct-answer="事后控制"></span>。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 事后控制</p>
+                    <p><strong>解析：：</strong> 事前控制通过身份鉴别和入侵检测，事中控制通过多层访问控制，事后控制通过审计。</p>
+                </div>
+            </div>
+
+            <!-- 2. MAC中的实体分类 -->
+            <div class="question-block">
+                <p class="question-text">2. 在强制存取控制（MAC）中，系统管理的全部实体分为<span class="fill-in-the-blank-container"><input type="text" name="q12a" class="fill-in-the-blank-input" data-correct-answer="主体"></span>和<span class="fill-in-the-blank-container"><input type="text" name="q12b" class="fill-in-the-blank-input" data-correct-answer="客体"></span>两大类。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 主体，客体</p>
+                    <p><strong>解析：：</strong> 主体是活动实体（用户或进程），客体是被动实体（文件、表等）。</p>
+                </div>
+            </div>
+
+            <!-- 3. TCSEC的最高安全级别 -->
+            <div class="question-block">
+                <p class="question-text">3. TCSEC/TDI安全评估准则的最高安全级别是<span class="fill-in-the-blank-container"><input type="text" name="q13" class="fill-in-the-blank-input" data-correct-answer="A1"></span>级。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> A1</p>
+                    <p><strong>解析：：</strong> A1级代表“验证设计”，提供最高程度的安全保证。</p>
+                </div>
+            </div>
+
+            <!-- 4. 用于创建数据库用户的SQL语句 -->
+            <div class="question-block">
+                <p class="question-text">4. 在某些数据库系统中，用于创建新用户并指定其创建数据库权限的SQL语句是 <code>CREATE USER ... WITH <span class="fill-in-the-blank-container"><input type="text" name="q14" class="fill-in-the-blank-input" data-correct-answer="CREATEDB"></span></code>。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> CREATEDB</p>
+                    <p><strong>解析：：</strong> `CREATEDB` 是授予用户创建数据库权限的关键字。</p>
+                </div>
+            </div>
+
+            <!-- 5. 审计日志的管理者 -->
+            <div class="question-block">
+                <p class="question-text">5. 审计员通过查阅<span class="fill-in-the-blank-container"><input type="text" name="q15" class="fill-in-the-blank-input" data-correct-answer="审计日志"></span>来监控数据库中的各种行为。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 审计日志</p>
+                    <p><strong>解析：：</strong> 审计日志是记录所有数据库操作的地方，供审计员分析。</p>
+                </div>
+            </div>
+
+
+            <!-- 判断题 -->
+            <h2 class="section-title"><i class="fas fa-question-circle"></i> 三、判断题</h2>
+
+            <!-- 1. 数据库安全与计算机系统安全的关系 -->
+            <div class="question-block">
+                <p class="question-text">1. 数据库的安全性问题与计算机系统的安全性问题是相互独立的，彼此之间没有关联。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q16" value="false"> 错误</label>
+                    <label><input type="radio" name="q16" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：错误</strong></p>
+                    <p><strong>解析：：</strong> 数据库系统是计算机系统的一部分，其安全性与操作系统、网络等底层系统的安全性紧密相关。任何一个环节的漏洞都可能影响数据库的整体安全。</p>
+                </div>
+            </div>
+            
+            <!-- 2. DAC和MAC的优先级 -->
+            <div class="question-block">
+                <p class="question-text">2. 在实现强制存取控制（MAC）的数据库系统中，通常会首先进行自主存取控制（DAC）检查，然后才进行MAC检查。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q17" value="true"> 正确</label>
+                    <label><input type="radio" name="q17" value="false"> 错误</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：正确</strong></p>
+                    <p><strong>解析：：</strong> 大多数支持MAC的系统会首先通过DAC检查来过滤掉大部分不合法的操作，然后对通过DAC检查的数据对象再施加更严格的MAC检查。</p>
+                </div>
+            </div>
+
+            <!-- 3. WITH CHECK OPTION的作用 -->
+            <div class="question-block">
+                <p class="question-text">3. 在定义视图时使用 <code>WITH CHECK OPTION</code> 子句，可以确保通过该视图进行的任何插入或修改操作都满足视图定义中的条件。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q18" value="true"> 正确</label>
+                    <label><input type="radio" name="q18" value="false"> 错误</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：正确</strong></p>
+                    <p><strong>解析：：</strong> `WITH CHECK OPTION` 是视图的一个重要特性，它会阻止任何通过视图进行的更新操作（INSERT, UPDATE），如果这些操作会导致插入或更新的行不再满足视图的 `WHERE` 子句条件。</p>
+                </div>
+            </div>
+
+            <!-- 4. 审计功能是否始终开启 -->
+            <div class="question-block">
+                <p class="question-text">4. 为了确保数据库的绝对安全，审计功能应该始终保持开启状态，不应关闭。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q19" value="false"> 错误</label>
+                    <label><input type="radio" name="q19" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：错误</strong></p>
+                    <p><strong>解析：：</strong> 审计会消耗系统资源（时间和空间），因此DBA通常会根据应用的安全性要求，灵活地打开或关闭审计功能，或只对关键操作进行审计。</p>
+                </div>
+            </div>
+
+            <!-- 5. 链路加密和端到端加密的区别 -->
+            <div class="question-block">
+                <p class="question-text">5. 在传输加密中，链路加密只加密报文，而端到端加密既加密报文也加密报头。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q20" value="false"> 错误</label>
+                    <label><input type="radio" name="q20" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：错误</strong></p>
+                    <p><strong>解析：：</strong> 实际情况是：链路加密加密报文和报头，而端到端加密只加密报文，不加密报头。因此，此说法是错误的。</p>
+                </div>
+            </div>
+
+
+            <!-- SQL编程题 -->
+            <h2 class="section-title"><i class="fas fa-code"></i> 四、SQL编程题</h2>
+
+            <!-- SQL编程题 1 (GRANT - ALL PRIVILEGES) -->
+            <div class="question-block">
+                <p class="question-text">1. **请写出SQL语句，将 <code>Student</code> 表（假设已存在）的所有操作权限授予用户 <code>Tom</code>，并允许 <code>Tom</code> 将此权限再次授予其他用户。**</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>参考答案：</strong></p>
+                    <pre class="code-block">
+<span class="sql-keyword">GRANT</span> <span class="sql-keyword">ALL PRIVILEGES</span>
+<span class="sql-keyword">ON</span> <span class="sql-keyword">TABLE</span> <span class="sql-table">Student</span>
+<span class="sql-keyword">TO</span> <span class="sql-column">Tom</span>
+<span class="sql-keyword">WITH GRANT OPTION</span><span class="punctuation">;</span>
+                    </pre>
+                    <p><strong>解析：</strong></p>
+                    <ol>
+                        <li>`GRANT ALL PRIVILEGES`：授予所有权限。</li>
+                        <li>`ON TABLE Student`：指定操作对象是 `Student` 表。</li>
+                        <li>`TO Tom`：指定接收权限的用户是 `Tom`。</li>
+                        <li>`WITH GRANT OPTION`：允许 `Tom` 将获得的权限再授予其他用户。</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- SQL编程题 2 (REVOKE - CASCADE) -->
+            <div class="question-block">
+                <p class="question-text">2. **假设用户 <code>Jerry</code> 曾从 <code>Tom</code> 那里获得了对 <code>Student</code> 表的 <code>SELECT</code> 权限，而 <code>Tom</code> 最初的权限是从DBA那里获得了 <code>WITH GRANT OPTION</code> 的。现在请写出SQL语句，收回 <code>Tom</code> 对 <code>Student</code> 表的 <code>SELECT</code> 权限，并级联收回所有由 <code>Tom</code> 转授出去的相关权限。**</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>参考答案：</strong></p>
+                    <pre class="code-block">
+<span class="sql-keyword">REVOKE</span> <span class="sql-keyword">SELECT</span>
+<span class="sql-keyword">ON</span> <span class="sql-keyword">TABLE</span> <span class="sql-table">Student</span>
+<span class="sql-keyword">FROM</span> <span class="sql-column">Tom</span> <span class="sql-keyword">CASCADE</span><span class="punctuation">;</span>
+                    </pre>
+                    <p><strong>解析：</strong></p>
+                    <ol>
+                        <li>`REVOKE SELECT`：收回 `SELECT` 权限。</li>
+                        <li>`ON TABLE Student`：指定操作对象是 `Student` 表。</li>
+                        <li>`FROM Tom`：指定被收回权限的用户是 `Tom`。</li>
+                        <li>`CASCADE`：确保所有由 `Tom` 级联转授出去的 `SELECT` 权限（包括 `Jerry` 的）也一并被收回。</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- SQL编程题 3 (CREATE ROLE and GRANT to ROLE) -->
+            <div class="question-block">
+                <p class="question-text">3. **为了简化权限管理，请写出SQL语句：**</p>
+                <ul>
+                    <li>创建名为 `CourseAdmin` 的角色。</li>
+                    <li>授予 `CourseAdmin` 角色对 `Course` 表（假设已存在）的 <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code> 权限。</li>
+                </ul>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>参考答案：</strong></p>
+                    <pre class="code-block">
+<span class="sql-keyword">CREATE ROLE</span> <span class="sql-column">CourseAdmin</span><span class="punctuation">;</span>
+
+<span class="sql-keyword">GRANT</span> <span class="sql-keyword">INSERT</span><span class="punctuation">,</span> <span class="sql-keyword">UPDATE</span><span class="punctuation">,</span> <span class="sql-keyword">DELETE</span>
+<span class="sql-keyword">ON</span> <span class="sql-keyword">TABLE</span> <span class="sql-table">Course</span>
+<span class="sql-keyword">TO</span> <span class="sql-column">CourseAdmin</span><span class="punctuation">;</span>
+                    </pre>
+                    <p><strong>解析：：</strong></p>
+                    <ol>
+                        <li>`CREATE ROLE CourseAdmin;`：创建新的数据库角色 `CourseAdmin`。</li>
+                        <li>`GRANT INSERT, UPDATE, DELETE ON TABLE Course TO CourseAdmin;`：将指定的 `INSERT`, `UPDATE`, `DELETE` 权限授予刚创建的 `CourseAdmin` 角色。</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- SQL编程题 4 (GRANT ROLE to USER) -->
+            <div class="question-block">
+                <p class="question-text">4. **承接上题，请写出SQL语句，将 `CourseAdmin` 角色授予用户 <code>Alice</code> 和 <code>Bob</code>，并允许 <code>Alice</code> 将此角色继续授予其他人。**</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>参考答案：：</strong></p>
+                    <pre class="code-block">
+<span class="sql-keyword">GRANT</span> <span class="sql-column">CourseAdmin</span>
+<span class="sql-keyword">TO</span> <span class="sql-column">Alice</span><span class="punctuation">,</span> <span class="sql-column">Bob</span>
+<span class="sql-keyword">WITH ADMIN OPTION</span><span class="punctuation">;</span> <span class="comment">-- WITH ADMIN OPTION 需谨慎使用，这里仅为示例</span>
+                    </pre>
+                    <p><strong>解析：</strong></p>
+                    <ol>
+                        <li>`GRANT CourseAdmin`：授予 `CourseAdmin` 角色。</li>
+                        <li>`TO Alice, Bob`：指定接收角色的用户。</li>
+                        <li>`WITH ADMIN OPTION`：允许 `Alice` 和 `Bob` 进一步将 `CourseAdmin` 角色（及其权限）授予其他用户或角色。</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- SQL编程题 5 (REVOKE ROLE from USER) -->
+            <div class="question-block">
+                <p class="question-text">5. **请写出SQL语句，收回用户 <code>Bob</code> 的 `CourseAdmin` 角色。**</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>参考答案：</strong></p>
+                    <pre class="code-block">
+<span class="sql-keyword">REVOKE</span> <span class="sql-column">CourseAdmin</span>
+<span class="sql-keyword">FROM</span> <span class="sql-column">Bob</span><span class="punctuation">;</span> <span class="comment">-- 默认RESTRICT，如果Bob曾转授此角色，操作会失败。如需级联，加CASCADE。</span>
+                    </pre>
+                    <p><strong>解析：：</strong> `REVOKE <角色名> FROM <用户名>` 用于从指定用户回收角色。默认行为是 `RESTRICT`，意味着如果该角色曾被 `Bob` 转授出去，则需要使用 `CASCADE` 选项才能成功回收。</p>
+                </div>
+            </div>
+
+            <!-- 总体的“查看答案与解析”按钮 -->
+            <button type="button" class="global-control-btn show-all-answers-btn mt-10">查看所有答案与解析</button>
+            <button type="button" class="global-control-btn hide-all-answers-btn bg-gray-500 hover:bg-gray-700 text-white mt-4" style="display: none;">隐藏所有答案</button>
+
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select individual buttons (excluding global ones)
+            const individualAnswerButtons = document.querySelectorAll('.individual-answer-btn');
+            const showAllAnswersBtn = document.querySelector('.show-all-answers-btn');
+            const hideAllAnswersBtn = document.querySelector('.hide-all-answers-btn');
+            const quizForm = document.getElementById('quizForm');
+
+            // Function to toggle individual answer visibility
+            function toggleAnswer(button) {
+                const answerArea = button.nextElementSibling;
+                if (answerArea.style.display === 'block') {
+                    answerArea.style.display = 'none';
+                    button.textContent = '解'; // Change text back to '解'
+                } else {
+                    answerArea.style.display = 'block';
+                    button.textContent = '收起'; // Change text to '收起' when open
+                }
+            }
+
+            // Individual "查看答案与解析" button functionality
+            individualAnswerButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    toggleAnswer(this);
+                    updateMasterButtonsVisibility(); // Update master buttons visibility
+                });
+            });
+
+            // "查看所有答案与解析" button functionality
+            showAllAnswersBtn.addEventListener('click', function() {
+                individualAnswerButtons.forEach(button => {
+                    const answerArea = button.nextElementSibling;
+                    if (answerArea.style.display !== 'block') {
+                        answerArea.style.display = 'block';
+                        button.textContent = '收起';
+                    }
+                });
+                updateMasterButtonsVisibility();
+            });
+
+            // "隐藏所有答案" button functionality
+            hideAllAnswersBtn.addEventListener('click', function() {
+                individualAnswerButtons.forEach(button => {
+                    const answerArea = button.nextElementSibling;
+                    if (answerArea.style.display === 'block') {
+                        answerArea.style.display = 'none';
+                        button.textContent = '解';
+                    }
+                });
+                updateMasterButtonsVisibility();
+            });
+
+            // Update visibility of "Show All" and "Hide All" buttons
+            function updateMasterButtonsVisibility() {
+                let anyAnswerShown = false;
+                let allAnswersShown = true;
+
+                individualAnswerButtons.forEach(button => {
+                    if (button.nextElementSibling.style.display === 'block') {
+                        anyAnswerShown = true;
+                    } else {
+                        allAnswersShown = false;
+                    }
+                });
+
+                if (anyAnswerShown) {
+                    hideAllAnswersBtn.style.display = 'block';
+                } else {
+                    hideAllAnswersBtn.style.display = 'none';
+                }
+
+                if (allAnswersShown) {
+                    showAllAnswersBtn.style.display = 'none';
+                } else {
+                    showAllAnswersBtn.style.display = 'block';
+                }
+            }
+
+            // 选择题选项交互效果
+            const options = document.querySelectorAll('.options label');
+            
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionBlock = this.closest('.question-block'); // 获取当前问题块
+                    const allOptionsInBlock = questionBlock.querySelectorAll('.options label');
+                    
+                    // 移除当前问题块中所有选项的选中状态样式
+                    allOptionsInBlock.forEach(opt => {
+                        opt.style.backgroundColor = '';
+                        opt.style.border = '';
+                    });
+                    
+                    // 设置当前被点击选项的选中状态样式
+                    this.style.backgroundColor = 'rgba(229, 57, 53, 0.1)'; /* Red tint */
+                    this.style.border = '2px solid var(--primary-main)';
+                });
+            });
+
+            // 填空题输入框聚焦效果 and dynamic width
+            document.querySelectorAll('.fill-in-the-blank-input').forEach(input => {
+                // Set initial width based on placeholder or data-correct-answer length
+                const initialWidth = (input.getAttribute('placeholder') || input.dataset.correctAnswer || '').length * 15 + 20; // Approx 15px per char + padding
+                input.style.width = `${Math.max(initialWidth, 80)}px`; // Ensure min-width of 80px
+
+                input.addEventListener('input', function() {
+                    // Adjust width dynamically as user types
+                    const textWidth = this.value.length * 15 + 20; // Adjust multiplier as needed
+                    this.style.width = `${Math.max(textWidth, 80)}px`;
+                });
+
+                input.addEventListener('focus', function() {
+                    this.style.borderColor = 'var(--primary-main)';
+                    this.style.boxShadow = '0 0 0 3px rgba(229, 57, 53, 0.2)';
+                });
+                input.addEventListener('blur', function() {
+                    this.style.borderColor = 'var(--border-card)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Initial update of master buttons
+            updateMasterButtonsVisibility();
+        });
+    </script>
+</body>
+</html>

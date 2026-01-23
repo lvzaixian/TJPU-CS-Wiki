@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考点总纲</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for a consistent theme */
+        :root {
+            --primary-main: #42b883; /* Vue.js Green */
+            --primary-dark: #338a65; /* Darker Green */
+            --secondary-main: #35495e; /* Vue.js Dark Blue */
+            --accent-soft: #ff7e5f; /* Soft Orange */
+            --text-default: #333; /* Standard text color */
+            --text-light-gray: #6c757d; /* Lighter gray for subtitles, comments */
+            --bg-light: #f5f7fa; /* Light gray page background gradient start */
+            --bg-lighter: #e4edf5; /* Lighter blue page background gradient end */
+            --card-bg: #FFFFFF; /* White card background */
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Card shadow */
+            --border-card: #eceff1; /* Light border for cards */
+            --transition-ease: all 0.3s ease; /* General transition */
+
+            /* Code specific colors */
+            --code-bg: #282C34; /* Dark background for code blocks */
+            --code-text: #ABB2BF; /* Light gray for code text */
+            --code-comment: #5C6370; /* Muted gray for comments */
+            --code-keyword: #C678DD; /* Purple for SQL keywords */
+            --code-string: #98C379; /* Green for strings */
+            --code-number: #D19A66; /* Orange-brown for numbers */
+            --code-operator: #56B6C2; /* Cyan for operators */
+
+            /* ER Diagram specific colors */
+            --er-entity: #8E44AD; /* Deep Purple */
+            --er-attribute: #27AE60; /* Emerald Green */
+            --er-relationship-1N: #DC3545; /* Red for 1:N relationships */
+            --er-relationship-MN: #007BFF; /* Blue for M:N relationships */
+
+            /* Custom property for answer text color */
+            --text-answer: var(--secondary-main);
+
+            /* Highlight colors */
+            --highlight-bg: #e0f7fa; /* Light cyan */
+            --highlight-border: #00bcd4; /* Cyan border */
+
+            /* For frequency counts */
+            --count-color: #dc2626; /* Red-600 from Tailwind */
+            --star-color: #ef4444; /* Red-500 for the star */
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Roboto', 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            color: var(--text-default);
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-lighter) 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styling */
+        header {
+            background: linear-gradient(135deg, var(--secondary-main) 0%, var(--primary-main) 100%);
+            color: white;
+            padding: 80px 0 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 50px;
+        }
+        .header-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .header-text-main {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .header-text-sub {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        /* Navigation Bar */
+        nav {
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 15px 0;
+            border-radius: 0 0 15px 15px;
+            margin-bottom: 30px;
+        }
+        nav a {
+            padding: 12px 25px;
+            margin: 0 10px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            font-weight: 500;
+            color: var(--text-light-gray);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        nav a:hover {
+            background: var(--primary-main);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        nav a.active {
+            background: var(--primary-main);
+            color: white;
+        }
+
+        /* Section Styling */
+        section.content-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 40px;
+            margin-bottom: 50px;
+            transition: var(--transition-ease);
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+        section.content-section:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        section.content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 100%;
+            background: var(--primary-main);
+        }
+
+        /* Section Header */
+        .section-header-styled {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-card);
+        }
+        .section-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-main);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-right: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h2.section-title {
+            font-size: 2.5rem !important;
+            color: var(--secondary-main);
+            margin: 0;
+            padding: 0;
+            border-bottom: none !important;
+            text-align: left !important;
+            line-height: 1.2;
+        }
+        .section-subtitle {
+            color: var(--text-light-gray);
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        /* Sub-section titles within sections */
+        h3.sub-section-title {
+            color: var(--secondary-main);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            padding-left: 0;
+            border-left: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h3.sub-section-title i {
+            color: var(--primary-main);
+            font-size: 1.6rem;
+        }
+
+        /* List item styling for topics */
+        .topic-item {
+            display: flex;
+            align-items: baseline; /* Align text baselines */
+            margin-bottom: 0.8rem; /* Space between items */
+            font-size: 1.1rem; /* Slightly larger text */
+            color: var(--text-default);
+        }
+        .topic-text {
+            flex-grow: 1; /* Allows text to take up available space */
+            margin-right: 10px; /* Space before counts */
+        }
+        .frequency-indicator {
+            display: inline-flex;
+            align-items: center;
+            font-weight: 700;
+            color: var(--count-color);
+            margin-left: 0.5rem; /* Space after topic text */
+            flex-shrink: 0; /* Prevent shrinking */
+            gap: 0.25rem; /* Space between star and number */
+        }
+        .pdf-star {
+            color: var(--star-color);
+            font-size: 0.9em; /* Smaller star */
+            line-height: 1; /* Align vertically */
+        }
+        .doc-count {
+            color: var(--count-color);
+            font-size: 0.9em; /* Smaller number */
+            line-height: 1; /* Align vertically */
+        }
+
+        /* Highlight block for intro/summary */
+        .highlight-block {
+            background-color: var(--highlight-bg);
+            border-left: 5px solid var(--highlight-border);
+            padding: 20px 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            color: var(--text-default);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            line-height: 1.5;
+        }
+        .highlight-block strong {
+            color: var(--primary-main);
+        }
+        .highlight-block ul {
+            padding-left: 20px;
+            list-style: disc;
+        }
+        .highlight-block ul li {
+            margin-bottom: 8px;
+        }
+
+        /* Print styles */
+        @media print {
+            nav, .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: #fff !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .container {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            header {
+                box-shadow: none !important;
+                background: #f0f0f0 !important;
+                color: #333 !important;
+                padding: 20px !important;
+                margin-bottom: 15px !important;
+            }
+            section.content-section {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                border-radius: 5px !important;
+                margin-bottom: 15px !important;
+                padding: 15px !important;
+            }
+            section.content-section::before {
+                display: none !important;
+            }
+            .section-header-styled {
+                border-bottom: 1px solid #eee !important;
+                padding-bottom: 10px !important;
+                margin-bottom: 15px !important;
+            }
+            .section-icon {
+                display: none !important;
+            }
+            h2.section-title, h3.sub-section-title {
+                page-break-before: always;
+                margin-top: 1.5rem !important;
+                margin-bottom: 1rem !important;
+                border-bottom: 1px solid #ccc !important;
+                color: #000 !important;
+                padding-top: 10px !important;
+                border-left: none !important;
+                padding-left: 0 !important;
+                text-align: left !important;
+            }
+            .topic-item, .topic-text, .frequency-indicator {
+                color: #000 !important;
+                font-weight: normal !important;
+            }
+            .pdf-star, .doc-count {
+                color: #000 !important; /* Black for print */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="header-content">
+            <h1 class="header-text-main">数据库期末重要考点</h1>
+            <p class="header-text-sub subtitle">根据复习总纲与真题，以下章节为考试重点</p>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="no-print">
+        <a href="#user-manual">📖 使用手册</a>
+        <a href="#basic-concepts">🧠 基本概念</a>
+        <a href="#programming-questions">💻 程序题</a>
+        <a href="#design-questions">📐 设计题</a>
+        <!-- Removed link for "综合题" as per user request -->
+    </nav>
+
+    <main class="container">
+        <!-- 使用手册 Section -->
+        <section id="user-manual" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-info-circle"></i></div>
+                <div>
+                    <h2 class="section-title">使用手册</h2>
+                    <p class="section-subtitle">如何高效使用这份考点列表</p>
+                </div>
+            </div>
+            <div class="highlight-block">
+                <p>这份文档根据贤提供的《数据库期末总纲.pdf》和《真题十套.doc》进行了梳理，旨在提供最精准的考试重点。以下是使用说明：</p>
+                <ul class="list-disc pl-5">
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">文档目的:</strong> 明确数据库期末考试的必考点、常考点，以及在不同文档中的出现频率。</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">导航使用:</strong> 您可以使用页面顶部的导航栏，快速跳转到“基本概念”、“程序题”和“设计题”等不同部分。</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">考点频率标识:</strong> 每个考点条目后都提供了详细的频率信息：
+                        <ul class="list-circle pl-5 mt-1">
+                            <li><span class="frequency-indicator"><span class="pdf-star">⭐</span></span>：表示该知识点在<strong style="color: var(--primary-main);">《数据库期末总纲.pdf》</strong>中明确提及。</li>
+                            <li><span class="frequency-indicator" style="font-size:1.1em;"><span style="color:var(--count-color);">数字</span></span>：表示该知识点在<strong style="color: var(--primary-main);">《真题十套.doc》</strong>中作为考点出现的次数。数字越大，考查频率越高。</li>
+                        </ul>
+                    </li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">内容筛选:</strong> 文档中仅包含PDF和真题中明确出现的考点。未曾考过或仅为“了解性”的内容已被移除，以确保复习的精准性。</li>
+                </ul>
+                <p class="mt-4">祝您学习顺利，考试成功！</p>
+            </div>
+        </section>
+
+        <!-- 基本概念 Section -->
+        <section id="basic-concepts" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-lightbulb"></i></div>
+                <div>
+                    <h2 class="section-title">一、基本概念</h2>
+                    <p class="section-subtitle">选择、填空、判断题的考察重点</p>
+                </div>
+            </div>
+
+            <div class="highlight-block">
+                <p>本部分概述了数据库的核心理论。每个条目后的<span class="frequency-indicator"><span class="pdf-star">⭐</span></span>表示该知识点在<strong style="color: var(--primary-main);">PDF《数据库期末总纲》</strong>中明确提及，而<span class="frequency-indicator" style="font-size:1.1em;"><span style="color:var(--count-color);">数字</span></span>则表示其在<strong style="color: var(--primary-main);">《真题十套》Word文档</strong>中出现的次数。</p>
+            </div>
+
+            <ul class="list-none pl-0">
+                <li class="topic-item">
+                    <span class="topic-text">1. 数据库系统的组成,核心。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">4</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">2. 数据库三级模式的定义(一句话),个数。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">5</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">3. 数据库的物理独立性、逻辑独立性。(和三级模式的关系)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">7</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">4. 在关系模型中,二维表、行、列的定义。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">2</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">5. 数据库系统中,数据的最小存取单位。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">0</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">6. 主码和外码的描述。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">3</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">7. 关系代数。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">16</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">8. 完整性约束(3个),完整性约束使用的关键字(主码、外码、唯一、非空、检查)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">4</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">9. 参照完整性的定义。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">5</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">10. 创建表的语句。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">2</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">11. 修改表定义的命令,可以修改什么。Alter Table。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">1</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">12. 删除表定义的命令。Drop Table (Delete)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">3</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">13. 查询语句中,关键字 Select、From、Where、Group By、Having、Order By 的作用。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">9</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">14. LIKE 查询通配符的含义(%,\_)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">2</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">15. 连接操作的含义(等值连接、自然连接)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">6</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">16. 常用的聚集函数(Count两个)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">2</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">17. Exists 子查询定义(不要求写程序)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">0</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">18. 集合操作的命令(并、交、差)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">3</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">19. 索引的作用,什么情况下需要建立索引。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">4</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">20. 视图的定义,如何修改视图的定义(关键字),视图更新的要求。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">8</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">21. 1NF、2NF、3NF的定义。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">14</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">22. 在SQL中,授予权限和撤销权限的命令。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">4</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">23. 授予用户对表 TableB 的查询权限的命令。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">0</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">24. 授予用户对表 TableB 的插入权限并允许转授权的命令。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">0</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">25. 先创建一个名为R1的角色,再将对表 TableB 的插入权限授予该角色的命令(2条)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">0</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">26. 数据库设计的阶段,每个阶段的任务。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">13</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">27. 在E-R 模型中,一对一、一对多、多对多联系转换为关系模型的方法(合并?独立?)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">4</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">28. 日志文件的定义。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">2</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">29. 数据库恢复:备份(不同的备份方法:完全、增量)+日志。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">7</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">30. 事务的 ACID 特性,每个特性的含义(一句话)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">8</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">31. 在封锁协议中,X锁和S锁的定义。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">8</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">32. 数据库并发操作中,三种不一致(丢失修改、脏读、不可重复读)的原因。并发控制的主要技术:封锁、时间戳、乐观方法、多版本并发控制。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">13</span></span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 程序题 Section -->
+        <section id="programming-questions" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-code"></i></div>
+                <div>
+                    <h2 class="section-title">二、程序题</h2>
+                    <p class="section-subtitle">SQL编程与结果分析，考试主要得分点</p>
+                </div>
+            </div>
+
+            <div class="highlight-block">
+                <p>本部分是考试的重点分数来源，需要大量练习SQL语句。每个条目后的<span class="frequency-indicator"><span class="pdf-star">⭐</span></span>表示该知识点在<strong style="color: var(--primary-main);">PDF《数据库期末总纲》</strong>中明确提及，而<span class="frequency-indicator" style="font-size:1.1em;"><span style="color:var(--count-color);">数字</span></span>则表示其在<strong style="color: var(--primary-main);">《真题十套》Word文档</strong>中出现的次数。</p>
+            </div>
+
+            <h3 class="sub-section-title"><i class="fas fa-search"></i> 写结果题：</h3>
+            <ul class="list-none pl-0">
+                <li class="topic-item">
+                    <span class="topic-text">1. Select rname 姓名, 2014-rage 出生年份 From reader Where 条件 1;</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">8</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">2. Select DISTINCT rno 读者编号 From borrow Where 条件 1;</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">3</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">3. Select bpublisher, Count(bpublisher) From book Group By bpublisher Having Count(*)>=\*n;</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">3</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">4. Select rno, Sum(fine) From borrow Group By rno Having Sum (fine)>\*n;</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">3</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">5. Select reader.rname, borrow.bishn From reader, borrow Where reader.rno = borrow.rno AND reader.rname='某某某'</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">8</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">6. Select r.rno, r.rname From reader r, borrow b, book bk Where r.rno = b.rno AND bk.bisbn=b.bisbn AND bname='XXX';</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">8</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">7. Select rname From reader Where rno IN (Select rno From borrow Where 条件 1);</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">5</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">8. Select DISTINCT rno From borrow Where fine > (Select AVG(fine) From borrow Where fine<>0);</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">5</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">9. Select rno, rname From reader Where EXISTS (Select \* From borrow Where rno = reader.rno AND bisbn='XXX');</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">5</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">10. Select bname From book Where NOT EXISTS (Select \* From borrow Where bisbn=book.bisbn);</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">5</span></span>
+                </li>
+            </ul>
+
+            <h3 class="sub-section-title mt-8"><i class="fas fa-laptop-code"></i> SQL 编程题：</h3>
+            <ul class="list-none pl-0">
+                <li class="topic-item">
+                    <span class="topic-text">1. 使用集合查询,查询借阅 ISBN号为'B1'或'B2'图书的读者编号。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">1</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">2. 使用集合查询,查询没借过ISBN 号为'B'图书的读者编号。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">1</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">3. 使用嵌套查询,查询比 某某 年龄小的读者姓名。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">5</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">4. 使用嵌套查询,查询其他专业中比 某 专业所有读者年龄都大的读者姓名和年龄。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">5</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">5. 汇总每位读者借书总数,插入到 borrow\_count 表中。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">6</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">6. 汇总每位读者罚款的总额,插入到 reader\_fee表中。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">6</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">7. 删除“某某某(人名)”(无重名)的借阅记录。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">3</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">8. 删除“某(书名)”(无重名)的借阅记录。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">3</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">9. 使用连接查询,将同时借阅'B1'和'B2'两本书的读者的罚款金额改为0。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">4</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">10. 使用连接子查询,将同时借阅 B1'和'B2'两本书的读者的罚款金额提高10%。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">4</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">真题中的SQL编程题也需要重点练习。</span>
+                    <span class="frequency-indicator"><span class="doc-count">25+</span></span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 设计题 Section -->
+        <section id="design-questions" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-sitemap"></i></div>
+                <div>
+                    <h2 class="section-title">三、设计题</h2>
+                    <p class="section-subtitle">从概念到实现的数据库设计实践，综合考察</p>
+                </div>
+            </div>
+
+            <div class="highlight-block">
+                <p>设计题是考察对数据库理论和实践综合应用能力的题目。每个条目后的<span class="frequency-indicator"><span class="pdf-star">⭐</span></span>表示该知识点在<strong style="color: var(--primary-main);">PDF《数据库期末总纲》</strong>中明确提及，而<span class="frequency-indicator" style="font-size:1.1em;"><span style="color:var(--count-color);">数字</span></span>则表示其在<strong style="color: var(--primary-main);">《真题十套》Word文档</strong>中出现的次数。</p>
+            </div>
+
+            <h3 class="sub-section-title"><i class="fas fa-cubes"></i> (一) 规范化设计</h3>
+            <ul class="list-none pl-0">
+                <li class="topic-item">
+                    <span class="topic-text">1. 已知关系模式和函数依赖。写出主码。满足第几范式?为什么?分解成满足第三范式。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">12</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">2. (第二个示例)已知关系模式和函数依赖。写出主码。满足第几范式?为什么?分解成满足第三范式。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">12</span></span>
+                </li>
+            </ul>
+
+            <h3 class="sub-section-title mt-8"><i class="fas fa-bezier-curve"></i> (二) 数据库设计</h3>
+            <ul class="list-none pl-0">
+                <li class="topic-item">
+                    <span class="topic-text">1. 已知需求分析。画出ER图(实体属性,联系属性)。转化为关系模式(主码、外码)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">7</span></span>
+                </li>
+                <li class="topic-item">
+                    <span class="topic-text">2. (第二个示例)已知需求分析。画出ER图(实体属性,联系属性)。转化为关系模式(主码、外码)。</span>
+                    <span class="frequency-indicator"><span class="pdf-star">⭐</span> <span class="doc-count">7</span></span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 综合题 Section (Removed as per user request) -->
+
+    </main>
+</body>
+</html>

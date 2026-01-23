@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第七章 数据库设计测验</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <!-- 引入MathJax 3库用于渲染公式 -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        /* CSS Variables for a consistent blue theme (matching 第七章--数据库设计.html) */
+        :root {
+            --primary-main: #00BCD4; /* Cyan - vibrant main accent */
+            --primary-dark: #0288D1; /* Darker Blue - strong highlights */
+            --secondary-main: #B2EBF2; /* Light Blue - light secondary color */
+            --accent-soft: #FFC107; /* Amber - a soft complementary accent */
+            --text-default: #263238; /* Dark blue-gray for main text */
+            --text-light-gray: #455A64; /* Mid-tone blue-gray for subtitles, explanations */
+            --bg-light: #E0F7FA; /* Lightest Blue background */
+            --bg-lighter: #B2EBF2; /* Slightly darker light blue background for sections */
+            --card-bg: #FFFFFF; /* White card background */
+            --card-shadow: 0 10px 30px rgba(0, 188, 212, 0.1); /* Cyan-tinted shadow */
+            --border-card: #B2EBF2; /* Light blue border for cards */
+            --transition-ease: all 0.3s ease; /* General transition */
+
+            /* Colors for feedback */
+            --correct-answer-bg: #d4edda; /* Light green */
+            --correct-answer-text: #155724; /* Dark green */
+            --incorrect-answer-bg: #f8d7da; /* Light red */
+            --incorrect-answer-text: #721c24; /* Dark red */
+            --info-bg: #e2e3e5; /* Light grey for info boxes */
+            --info-border: #bcbebf; /* Grey border for info boxes */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-default);
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-lighter) 100%);
+            background-attachment: fixed;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 18px;
+            box-shadow: var(--card-shadow);
+            padding: 35px;
+            border: 1px solid var(--border-card);
+            transition: var(--transition-ease);
+        }
+        .container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 188, 212, 0.15); /* Adjusted shadow to be more neutral */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-main);
+            position: relative;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-main), transparent);
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: var(--primary-dark); /* Darker blue for main title */
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light-gray);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            margin-top: 40px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-card);
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+        .section-title i {
+            color: var(--primary-main);
+        }
+
+        .question-block {
+            background-color: var(--bg-lighter);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-card);
+            transition: var(--transition-ease);
+        }
+        .question-block:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            margin-bottom: 18px;
+            color: var(--text-default);
+            font-weight: 500;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 12px;
+            padding: 12px 15px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .options label:hover {
+            background-color: var(--bg-light);
+            border-color: var(--primary-main);
+            box-shadow: 0 2px 5px rgba(0, 188, 212, 0.2); /* Cyan hover shadow */
+        }
+        
+        .options input[type="radio"] {
+            margin-right: 12px;
+            accent-color: var(--primary-main);
+            transform: scale(1.1);
+        }
+
+        /* Improved fill-in-the-blank input styling */
+        .fill-in-the-blank-container {
+            display: inline-block; /* Allows inputs to be inline with text */
+            margin: 0 5px; /* Spacing between text and input */
+        }
+
+        .fill-in-the-blank-input {
+            padding: 8px 10px;
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            font-size: 1.05rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            text-align: center; /* Center text in input */
+            min-width: 80px; /* Minimum width for inputs */
+            display: inline-block; /* Ensure it stays inline */
+        }
+        .fill-in-the-blank-input:focus {
+            outline: none;
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2); /* Cyan focus shadow */
+        }
+
+        .true-false-options {
+            display: flex;
+            gap: 25px;
+        }
+
+        /* Improved True/False button styling */
+        .true-false-options label {
+            flex: 1;
+            text-align: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: 12px 15px; /* Add padding to make them look like buttons */
+            display: flex; /* Use flex to center content */
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Space between radio and text */
+        }
+
+        .true-false-options label:hover {
+            background-color: var(--bg-light);
+            border-color: var(--primary-main);
+            box-shadow: 0 2px 5px rgba(0, 188, 212, 0.2); /* Cyan hover shadow */
+        }
+
+        .true-false-options input[type="radio"] {
+            margin-right: 0; /* Remove default margin */
+            /* Custom radio button appearance */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 24px; /* Larger custom radio */
+            height: 24px;
+            border: 2px solid var(--primary-main);
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .true-false-options input[type="radio"]:checked {
+            background-color: var(--primary-main);
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 4px rgba(0, 188, 212, 0.3); /* Subtle outer glow */
+        }
+
+        .true-false-options input[type="radio"]:checked::before {
+            content: '';
+            display: block;
+            width: 12px;
+            height: 12px;
+            background-color: white; /* Inner white dot */
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Styles for individual "查看答案与解析" button (now a small circle with '解') */
+        .individual-answer-btn {
+            width: 38px; /* Diameter for the circle */
+            height: 38px; /* Diameter for the circle */
+            background: linear-gradient(45deg, var(--primary-main), var(--primary-dark));
+            color: white; /* White text for contrast */
+            border: none;
+            border-radius: 50%; /* Make it a perfect circle */
+            cursor: pointer;
+            font-size: 1.0rem; /* Adjust font size for '解' */
+            font-weight: 600;
+            transition: var(--transition-ease);
+            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex; /* Use flex to center text */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            float: right; /* Float to the right */
+            clear: right; /* Clear float for subsequent elements */
+        }
+        .individual-answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-main));
+        }
+        .individual-answer-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .individual-answer-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.5s ease-out;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        .individual-answer-btn:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        /* Styles for global control buttons (larger, full width) */
+        .global-control-btn, .submit-btn, .reset-btn {
+            background: linear-gradient(45deg, var(--primary-main), var(--primary-dark));
+            color: white; /* White text for contrast */
+            padding: 15px 30px; /* Larger padding */
+            border: none;
+            border-radius: 10px; /* More rounded */
+            cursor: pointer;
+            font-size: 1.2rem; /* Larger font */
+            font-weight: 700;
+            transition: var(--transition-ease);
+            margin-top: 25px; /* Adjust top margin for spacing */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            display: block; /* Full width by default */
+            width: 100%; /* Full width by default */
+        }
+        /* Make submit and reset buttons inline-block to allow side-by-side or centering */
+        .submit-btn, .reset-btn {
+            display: inline-block;
+            width: auto; /* Auto width based on content */
+            margin: 0 10px; /* Space between buttons */
+            min-width: 150px; /* Ensure they are not too small */
+            text-align: center;
+        }
+
+        .global-control-btn:hover, .submit-btn:hover, .reset-btn:hover {
+            transform: translateY(-5px); /* More pronounced lift */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-main));
+        }
+        .global-control-btn:active, .submit-btn:active, .reset-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .global-control-btn::before, .submit-btn::before, .reset-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.5s ease-out;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        .global-control-btn:hover::before, .submit-btn:hover::before, .reset-btn:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .answer-area {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--secondary-main); /* Light blue info background */
+            border: 1px solid rgba(0, 188, 212, 0.3); /* Cyan border */
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-default);
+            display: none; /* Initially hidden */
+            animation: slideInUp 0.4s ease-out;
+        }
+        .answer-area strong {
+            color: var(--primary-dark);
+        }
+        .answer-area ul {
+            padding-left: 20px;
+            list-style: disc; /* Use standard disc for ul */
+        }
+        .answer-area ol {
+            padding-left: 20px;
+            list-style: decimal; /* Use standard decimal for ol */
+        }
+
+        .concept-highlight {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .code-block {
+            background-color: #282c34; /* Dark gray for code background */
+            color: #abb2bf; /* Light gray for code text */
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin: 15px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        /* Adjusted colors for SQL syntax highlighting to better match the blue theme */
+        .code-block .sql-keyword { color: #80DEEA; } /* Light Cyan */
+        .code-block .sql-type { color: #A5D6A7; } /* Light Green */
+        .code-block .sql-string { color: #C5E1A5; } /* Light Green */
+        .code-block .sql-comment { color: #90A4AE; font-style: italic; } /* Blue Gray */
+        .code-block .sql-operator { color: #BBDEFB; } /* Light Blue */
+        .code-block .sql-number { color: #BBDEFB; } /* Light Blue */
+        .code-block .sql-function { color: #E0F7FA; } /* Lightest Blue */
+        .code-block .sql-table { color: #4FC3F7; } /* Light Blue */
+        .code-block .sql-column { color: #9FA8DA; } /* Indigo */
+        .code-block .sql-punctuation { color: #abb2bf; } /* Light gray */
+
+        /* Styles for HTML rendered tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse; /* Collapse borders between cells */
+            margin: 20px 0;
+            font-size: 0.95rem;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            overflow: hidden; /* Ensures rounded corners apply to content */
+            border: 1px solid var(--border-card);
+        }
+
+        .data-table thead {
+            background-color: var(--primary-main);
+            color: white; /* White text for contrast */
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-card); /* Lighter border for rows */
+        }
+
+        .data-table th {
+            font-weight: 700;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: var(--bg-light); /* Light alternate row color */
+        }
+
+        .data-table tbody tr:hover {
+            background-color: var(--bg-lighter); /* Slightly darker hover */
+            cursor: default;
+        }
+
+        /* Responsive adjustments for tables */
+        @media (max-width: 600px) {
+            .data-table, .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr {
+                display: block; /* Make table elements stack */
+            }
+
+            .data-table thead tr {
+                position: absolute;
+                top: -9999px; /* Hide table headers (but not display: none; for screen readers) */
+                left: -9999px;
+            }
+
+            .data-table tr {
+                margin-bottom: 15px;
+                border: 1px solid var(--border-card);
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+
+            .data-table td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%; /* Make room for the pseudo-element label */
+                text-align: right;
+            }
+
+            .data-table td:before {
+                position: absolute;
+                top: 0;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: var(--primary-dark);
+            }
+            /* Assign labels using data-label attribute for each column */
+            .data-table td:nth-of-type(1):before { content: attr(data-label); }
+            .data-table td:nth-of-type(2):before { content: attr(data-label); }
+            .data-table td:nth-of-type(3):before { content: attr(data-label); }
+            .data-table td:nth-of-type(4):before { content: attr(data-label); }
+            .data-table td:nth-of-type(5):before { content: attr(data-label); }
+            /* Extend for more columns if necessary */
+        }
+
+        /* Feedback and Score Display */
+        .result-message {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 1.15rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .result-message.correct {
+            background-color: var(--correct-answer-bg);
+            color: var(--correct-answer-text);
+            border: 1px solid rgba(212, 237, 218, 0.7); /* Light green border */
+        }
+
+        .result-message.incorrect {
+            background-color: var(--incorrect-answer-bg);
+            color: var(--incorrect-answer-text);
+            border: 1px solid rgba(248, 215, 218, 0.7); /* Light red border */
+        }
+
+        .answer-feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            display: none; /* Initially hidden, visible via .is-visible class */
+            animation: slideInUp 0.4s ease-out;
+        }
+
+        .answer-feedback.is-visible {
+            display: block; /* Show when this class is present */
+        }
+
+        .answer-feedback.correct {
+            background-color: var(--correct-answer-bg);
+            color: var(--correct-answer-text);
+            border: 1px solid rgba(212, 237, 218, 0.7);
+        }
+
+        .answer-feedback.incorrect {
+            background-color: var(--incorrect-answer-bg);
+            color: var(--incorrect-answer-text);
+            border: 1px solid rgba(248, 215, 218, 0.7);
+        }
+        
+        .answer-feedback.info { /* For show answers / unanswered */
+            background-color: var(--info-bg);
+            color: var(--text-default);
+            border: 1px solid var(--info-border);
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--info-bg);
+            border: 1px solid var(--info-border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-default);
+            display: none; /* Initially hidden, visible via .is-visible class */
+            animation: slideInUp 0.4s ease-out 0.1s;
+        }
+
+        .explanation.is-visible {
+            display: block; /* Show when this class is present */
+        }
+
+        .score-display {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 25px;
+            color: var(--primary-dark); /* Using primary-dark for score */
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .section-title { font-size: 1.6rem; }
+            .question-text { font-size: 1.05rem; }
+            .options label { padding: 10px; }
+            .individual-answer-btn { width: 32px; height: 32px; font-size: 0.9rem; margin-top: 10px;} /* Smaller on mobile */
+            .global-control-btn, .submit-btn, .reset-btn { padding: 12px 25px; font-size: 1.05rem; }
+            .true-false-options { flex-direction: column; gap: 10px; }
+            .container { padding: 20px; }
+            .fill-in-the-blank-input { min-width: 60px; padding: 6px 8px; } /* Smaller inputs on mobile */
+        }
+
+        /* SVG specific styles for ER Diagram */
+        .er-diagram-container {
+            margin: 2rem auto;
+            display: flex; /* Use flexbox for centering */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            overflow-x: auto; /* Allow scrolling if diagram is too wide on small screens */
+            padding: 1rem;
+            background: #F8F8F8; /* Light background for diagram */
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            max-width: 100%; /* Ensure it doesn't overflow container */
+            min-height: 200px; /* Give some default height */
+        }
+
+        .er-diagram-svg {
+            display: block; /* Remove extra space below SVG */
+            /* Ensure the SVG scales responsibly */
+            max-width: 100%;
+            height: auto;
+        }
+
+        .er-entity {
+            fill: #E0F7FA; /* Light Cyan for entity background (Purple for instruction) */
+            stroke: #00BCD4; /* Vibrant Cyan border (Purple for instruction) */
+            stroke-width: 2;
+            transition: fill 0.3s ease, stroke 0.3s ease;
+        }
+
+        .er-entity-text {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 16px;
+            fill: #263238; /* Dark Blue Gray */
+            font-weight: bold;
+            user-select: none;
+        }
+        
+        .er-attribute-ellipse {
+            fill: #C8E6C9; /* Light Green for attribute ellipse (Green for instruction) */
+            stroke: #4CAF50; /* Green border */
+            stroke-width: 1.5;
+            transition: fill 0.3s ease, stroke 0.3s ease;
+        }
+
+        .er-attribute-text {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 12px;
+            fill: #333;
+            user-select: none;
+        }
+
+        .er-pk-underline {
+            stroke: #263238; /* Dark blue-gray for underline */
+            stroke-width: 1;
+        }
+
+        .er-relationship-diamond {
+            fill: #FFCDD2; /* Light Red for relationship diamond (Red for instruction) */
+            stroke: #EF5350; /* Red border */
+            stroke-width: 2;
+            transition: fill 0.3s ease, stroke 0.3s ease;
+        }
+        .er-relationship-diamond.blue-relation {
+            fill: #BBDEFB; /* Light Blue for the blue relation (Blue for instruction) */
+            stroke: #2196F3; /* Darker blue border */
+        }
+
+        .er-relationship-text {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 14px;
+            fill: #263238; /* Dark Blue Gray */
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .er-cardinality-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            fill: #607D8B; /* Blue Gray */
+            user-select: none;
+        }
+
+        .er-line {
+            stroke: #607D8B; /* Blue Gray for lines */
+            stroke-width: 1.5;
+            fill: none; /* Ensure lines are not filled */
+        }
+        
+        /* Specific stroke for different colored lines for clarity */
+        .er-line.red-relation {
+            stroke: #EF5350; /* Red for the red relation */
+        }
+        .er-line.blue-relation {
+            stroke: #2196F3; /* Blue for the blue relation */
+        }
+
+        /* Foreign Key Wave Underline */
+        .fk-underline-wave {
+            stroke: #FFC107; /* Amber for foreign key underline */
+            stroke-width: 1.5;
+            fill: none;
+            stroke-dasharray: 4, 2; /* Adjust for desired wave pattern */
+            /* Define a simple wave path for demonstration if needed */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>数据库原理：第七章数据库设计测验</h1>
+            <p class="subtitle">检验你对概念设计、逻辑设计与E-R图转换的理解！</p>
+        </header>
+
+        <form id="quizForm">
+            <!-- 单项选择题 -->
+            <h2 class="section-title"><i class="fas fa-check-circle"></i> 一、单项选择题</h2>
+
+            <!-- Placeholder for multiple choice questions - will be shuffled by JS -->
+            <div id="mcq-questions-container"></div>
+
+            <!-- 填空题 -->
+            <h2 class="section-title"><i class="fas fa-pencil-alt"></i> 二、填空题</h2>
+
+            <!-- Placeholder for fill-in-the-blank questions - will be shuffled by JS -->
+            <div id="fib-questions-container"></div>
+
+            <!-- 判断题 -->
+            <h2 class="section-title"><i class="fas fa-question-circle"></i> 三、判断题</h2>
+
+            <!-- Placeholder for true/false questions - will be shuffled by JS -->
+            <div id="tf-questions-container"></div>
+
+            <!-- 综合与设计题 -->
+            <h2 class="section-title"><i class="fas fa-pencil-ruler"></i> 四、综合与设计题</h2>
+
+            <!-- Placeholder for design questions - will be shuffled by JS (though only 2, so order won't change much) -->
+            <div id="design-questions-container"></div>
+
+
+            <!-- 总体的“查看答案与解析”按钮 -->
+            <div class="button-container">
+                <button type="button" class="global-control-btn show-all-answers-btn mt-10">查看所有答案与解析</button>
+                <button type="button" class="global-control-btn hide-all-answers-btn bg-gray-500 hover:bg-gray-700 text-white mt-4" style="display: none;">隐藏所有答案</button>
+                <button type="button" class="reset-btn" onclick="resetQuiz()" style="display:none;">重新测试</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Utility function to shuffle an array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+            return array;
+        }
+
+        // Questions data structure
+        const questionsData = {
+            mcq: [
+                {
+                    text: '数据库设计的第一阶段是（　　）。',
+                    options: ['A．概念结构设计', 'B．需求分析', 'C．逻辑结构设计', 'D．物理结构设计'],
+                    correct: 'B',
+                    explanation: '需求分析是数据库设计的起点，它决定了后续设计是否能准确反映用户需求。'
+                },
+                {
+                    text: '概念结构设计阶段，将需求抽象为信息结构所使用的描述工具是（　　）。',
+                    options: ['A．关系模式', 'B．数据字典', 'C．E-R模型', 'D．数据流图'],
+                    correct: 'C',
+                    explanation: 'E-R模型（实体-关系模型）是描述概念模型的常用工具，它独立于具体的数据库管理系统。'
+                },
+                {
+                    text: 'E-R图向关系模式转换时，多对多联系（M:N）的处理方式是（　　）。',
+                    options: ['A．转换为一个独立的关系模式', 'B．与M端实体对应的关系模式合并', 'C．与N端实体对应的关系模式合并', 'D．直接删除'],
+                    correct: 'A',
+                    explanation: '多对多联系必须转换为一个独立的关系模式，该关系模式的主码通常由参与联系的各实体的主码组合而成。一对一和一对多联系则可以选择合并到其中一端。'
+                },
+                {
+                    text: '在数据库物理设计阶段，选择物理结构时主要需要权衡的三个因素是（　　）。',
+                    options: ['A．数据安全性、数据完整性、易用性', 'B．存取时间、存储空间利用率、维护代价', 'C．概念模型、逻辑模型、外模式', 'D．需求分析、系统实施、运行维护'],
+                    correct: 'B',
+                    explanation: '物理设计主要关注数据库在物理设备上的存储和存取效率，因此需要综合考虑存取时间（效率）、存储空间利用率和维护这些物理结构的代价。'
+                },
+                {
+                    text: '关于数据字典的说法，正确的是（　　）。',
+                    options: ['A．数据字典是数据库中存储的数据本身', 'B．数据字典主要在物理设计阶段建立', 'C．数据字典是关于数据库中数据的描述，即元数据', 'D．数据字典内容通常只包含数据项和数据流'],
+                    correct: 'C',
+                    explanation: '数据字典是关于数据的元数据，它描述了数据项、数据结构、数据流、数据存储和处理过程等信息。它在需求分析阶段建立，并在设计过程中不断完善。'
+                },
+                {
+                    text: 'E-R图中，下列哪种属性不能再有属性或不能再分解？',
+                    options: ['A．复合属性', 'B．多值属性', 'C．简单属性', 'D．派生属性'],
+                    correct: 'C',
+                    explanation: '简单属性是原子性的，不可再分解为更小的部分，而复合属性可以分解，多值属性可以有多个值，派生属性由其他属性计算得出。'
+                },
+                {
+                    text: '在数据库设计过程中，将概念结构转换为某一特定DBMS支持的数据模型的阶段是（　　）。',
+                    options: ['A．需求分析', 'B．概念结构设计', 'C．逻辑结构设计', 'D．物理结构设计'],
+                    correct: 'C',
+                    explanation: '逻辑结构设计是将独立于DBMS的概念模型（E-R图）转换为特定DBMS所能识别的数据模型（如关系模型）。'
+                },
+                {
+                    text: '数据库设计中，关于视图的说法错误的是（　　）。',
+                    options: ['A．视图可以在一定程度上提供数据的逻辑独立性', 'B．视图可以简化用户的操作', 'C．视图能够对机密数据提供安全保护', 'D．视图是真实存储数据的表，可以直接进行所有类型的更新操作'],
+                    correct: 'D',
+                    explanation: '视图是虚拟的表，本身不存储数据。对视图的更新是有条件的，并非所有视图都可更新，尤其是涉及连接、分组或聚合的视图。'
+                },
+                {
+                    text: '数据库物理结构设计中，（）主要用于提高数据存取效率。',
+                    options: ['A．数据流图', 'B．数据字典', 'C．E-R图', 'D．索引'],
+                    correct: 'D',
+                    explanation: '索引是数据库物理设计中用于加快数据检索效率的关键机制。数据流图、数据字典和E-R图主要用于需求分析和概念设计阶段。'
+                },
+                {
+                    text: '下列关于数据库设计过程中“数据模型优化”的说法，正确的是（　　）。',
+                    options: ['A．优化目标是确保达到最高的范式，如BCNF', 'B．优化主要关注减少数据冗余和解决数据异常', 'C．优化过程中无需考虑实际运行效率和性能', 'D．优化是仅在物理设计阶段进行的活动'],
+                    correct: 'B',
+                    explanation: '数据模型优化（主要在逻辑结构设计阶段）的核心目标就是减少数据冗余，并解决由冗余引起的数据异常，如插入、删除和更新异常，同时权衡性能。'
+                }
+            ],
+            fib: [
+                {
+                    text: '数据库设计的基本步骤中，<span class="fill-in-the-blank-container"><input type="text" name="fib1" class="fill-in-the-blank-input" data-correct-answer="需求分析"></span>和<span class="fill-in-the-blank-container"><input type="text" name="fib1_2" class="fill-in-the-blank-input" data-correct-answer="概念结构设计"></span>阶段是独立于任何数据库管理系统的。',
+                    correct: ['需求分析', '概念结构设计'],
+                    explanation: '这两个阶段关注现实世界的信息抽象，不涉及具体DBMS的特性。'
+                },
+                {
+                    text: '在E-R图中，用<span class="fill-in-the-blank-container"><input type="text" name="fib2" class="fill-in-the-blank-input" data-correct-answer="矩形"></span>表示实体型，用<span class="fill-in-the-blank-container"><input type="text" name="fib2_2" class="fill-in-the-blank-input" data-correct-answer="菱形"></span>表示联系。',
+                    correct: ['矩形', '菱形'],
+                    explanation: '这是E-R图的基本图示符号规定。'
+                },
+                {
+                    text: 'E-R图向关系模型转换时，对于一对多（1:N）联系，通常倾向于将其与<span class="fill-in-the-blank-container"><input type="text" name="fib3" class="fill-in-the-blank-input" data-correct-answer="N端"></span>实体对应的关系模式合并，以减少关系个数。',
+                    correct: 'N端',
+                    explanation: '合并到N端关系模式，可以避免引入新的关系，并在N端关系中增加1端的主码作为外码。'
+                },
+                {
+                    text: '关系数据模型的优化（逻辑设计阶段）通常以<span class="fill-in-the-blank-container"><input type="text" name="fib4" class="fill-in-the-blank-input" data-correct-answer="规范化理论"></span>为指导。',
+                    correct: '规范化理论',
+                    explanation: '规范化理论是关系数据库逻辑设计的核心，用于消除数据冗余和各种异常，提高数据一致性。'
+                },
+                {
+                    text: '数据库运行和维护阶段的重要工作包括数据库的转储和恢复、安全性完整性控制、性能监督分析以及数据库的<span class="fill-in-the-blank-container"><input type="text" name="fib5" class="fill-in-the-blank-input" data-correct-answer="重组与重构"></span>。',
+                    correct: '重组与重构',
+                    explanation: '数据库重组是为了优化物理存储，而重构则是在应用环境变化时调整数据库模式。'
+                },
+                {
+                    text: '数据字典记录了数据库中所有数据的<span class="fill-in-the-blank-container"><input type="text" name="fib6" class="fill-in-the-blank-input" data-correct-answer="元数据"></span>。',
+                    correct: '元数据',
+                    explanation: '数据字典是关于数据的数据，它描述了数据项、数据结构、数据流等信息。'
+                },
+                {
+                    text: '数据库设计中，物理结构设计的主要任务是为给定的逻辑数据模型选取一个最适合应用要求的<span class="fill-in-the-blank-container"><input type="text" name="fib7" class="fill-in-the-blank-input" data-correct-answer="物理结构"></span>。',
+                    correct: '物理结构',
+                    explanation: '物理结构设计是关于数据在存储介质上如何组织和存取的问题，直接影响数据库的性能。'
+                }
+            ],
+            tf: [
+                {
+                    text: '在概念结构设计中，为了简化E-R图，现实世界的事物能作为属性对待的，尽量作为属性对待，但属性不能再具有需要描述的性质。',
+                    correct: true,
+                    explanation: '这是属性划分的重要原则之一，属性应该是原子性的，不可再分解。'
+                },
+                {
+                    text: 'E-R图是在物理设计阶段形成的，是依赖于特定数据库管理系统的。',
+                    correct: false,
+                    explanation: 'E-R图是在概念结构设计阶段形成的，它独立于任何特定的数据库管理系统，是现实世界的抽象。'
+                },
+                {
+                    text: '关系数据模型的优化目标是追求最高的规范化程度，例如都达到BCNF或4NF，以消除所有冗余和异常。',
+                    correct: false,
+                    explanation: '关系数据模型的优化需要权衡规范化程度和查询效率。过高的范式可能导致连接操作增多，降低查询性能。在实际应用中，通常会根据具体需求和性能要求选择合适的范式，而不是一味追求最高范式。'
+                },
+                {
+                    text: '一个基本表上可以建立多个聚簇索引，以满足不同查询需求。',
+                    correct: false,
+                    explanation: '一个基本表上最多只能建立一个聚簇索引。因为聚簇索引决定了数据的物理存储顺序，而一个表的数据只能有一种物理存储顺序。'
+                },
+                {
+                    text: '水平分解是将关系模式的属性分为若干子集合，而垂直分解是将关系的元组分为若干子集合。',
+                    correct: false,
+                    explanation: '说法反了。水平分解是将关系的**元组**分为若干子集合（按行分割），而垂直分解是将关系模式的**属性**分为若干子集合（按列分割）。'
+                },
+                {
+                    text: 'E-R图中，联系的属性可以是多个或复合的。',
+                    correct: true,
+                    explanation: '联系可以拥有自己的属性，这些属性可以像实体属性一样，是简单属性、复合属性或多值属性。'
+                },
+                {
+                    text: '数据库设计是一个迭代的过程，各个阶段之间可能存在反馈和修正。',
+                    correct: true,
+                    explanation: '数据库设计并非一次性完成，而是一个不断完善和调整的迭代过程，可能需要从一个阶段返回到前一个阶段进行修改。'
+                }
+            ],
+            design: [
+                {
+                    id: 'design1',
+                    text: `设计一个数据库，包括三个实体型，实体型“商店”的属性有：商店编号、店名、店址、店经理。实体型“会员”的属性有：会员编号、会员名、地址。实体型“职工”的属性有：职工编号、职工姓名、性别、工资。
+                    每家商店有若干职工，但每个职工只能服务于一家商店。每家商店有若干会员，每个会员可以属于多家商店。在联系中应反映出职工参加某商店工作的开始时间，会员的加入时间。
+                    (1) 画出 ER 图。（提示：紫色是实体，画矩形；绿色是属性，画椭圆，主码画下划线。红色是一对多联系，画菱形，联系属性画椭圆。蓝色是多对多联系，画菱形，联系属性画椭圆。）
+                    (2) 将该 ER 图转换成关系模式（能合并的联系合并），并指出主码（下划直线）和外码（下划波浪线）。`,
+                    answerHTML: `
+                        <p><strong>(1) ER 图：</strong></p>
+                        <div class="er-diagram-container">
+                            <svg class="er-diagram-svg" width="600" height="450" viewBox="0 0 600 450">
+                                <defs>
+                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" />
+                                    </marker>
+                                    <marker id="arrowhead-reversed" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                        <polygon points="10 0, 0 3.5, 10 7" />
+                                    </marker>
+                                </defs>
+
+                                <!-- Entities (Purple for instruction) -->
+                                <rect x="50" y="50" width="100" height="40" class="er-entity" />
+                                <text x="100" y="75" text-anchor="middle" class="er-entity-text">商店</text>
+
+                                <rect x="450" y="50" width="100" height="40" class="er-entity" />
+                                <text x="500" y="75" text-anchor="middle" class="er-entity-text">会员</text>
+
+                                <rect x="250" y="350" width="100" height="40" class="er-entity" />
+                                <text x="300" y="375" text-anchor="middle" class="er-entity-text">职工</text>
+
+                                <!-- Attributes for 商店 (Green for instruction) -->
+                                <ellipse cx="100" cy="20" rx="40" ry="15" class="er-attribute-ellipse" />
+                                <text x="100" y="24" text-anchor="middle" class="er-attribute-text">商店编号</text>
+                                <line x1="80" y1="30" x2="120" y2="30" class="er-pk-underline" /> <!-- PK underline -->
+                                <ellipse cx="10" cy="65" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="10" y="69" text-anchor="middle" class="er-attribute-text">店名</text>
+                                <ellipse cx="100" cy="110" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="100" y="114" text-anchor="middle" class="er-attribute-text">店址</text>
+                                <ellipse cx="190" cy="65" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="190" y="69" text-anchor="middle" class="er-attribute-text">店经理</text>
+
+                                <!-- Attributes for 会员 (Green for instruction) -->
+                                <ellipse cx="500" cy="20" rx="40" ry="15" class="er-attribute-ellipse" />
+                                <text x="500" y="24" text-anchor="middle" class="er-attribute-text">会员编号</text>
+                                <line x1="480" y1="30" x2="520" y2="30" class="er-pk-underline" /> <!-- PK underline -->
+                                <ellipse cx="410" cy="65" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="410" y="69" text-anchor="middle" class="er-attribute-text">会员名</text>
+                                <ellipse cx="500" cy="110" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="500" y="114" text-anchor="middle" class="er-attribute-text">地址</text>
+
+                                <!-- Attributes for 职工 (Green for instruction) -->
+                                <ellipse cx="300" cy="320" rx="40" ry="15" class="er-attribute-ellipse" />
+                                <text x="300" y="324" text-anchor="middle" class="er-attribute-text">职工编号</text>
+                                <line x1="280" y1="330" x2="320" y2="330" class="er-pk-underline" /> <!-- PK underline -->
+                                <ellipse cx="210" cy="365" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="210" y="369" text-anchor="middle" class="er-attribute-text">职工姓名</text>
+                                <ellipse cx="390" cy="365" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="390" y="369" text-anchor="middle" class="er-attribute-text">性别</text>
+                                <ellipse cx="300" cy="410" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="300" y="414" text-anchor="middle" class="er-attribute-text">工资</text>
+
+                                <!-- Relationship 商店-职工 (红色: 一对多，"聘用") -->
+                                <g>
+                                    <polygon points="150 70, 275 290, 250 350, 150 70" class="er-relationship-diamond" transform="translate(140, 200) rotate(160) scale(0.6)" />
+                                    <text x="180" y="240" text-anchor="middle" class="er-relationship-text" transform="translate(0,0)">聘用</text>
+                                    <line x1="150" y1="70" x2="260" y2="360" class="er-line red-relation" />
+                                    <text x="160" y="80" class="er-cardinality-text">1</text>
+                                    <text x="250" y="350" class="er-cardinality-text">N</text>
+                                    <!-- Relationship Attribute for 聘用 (Red) -->
+                                    <ellipse cx="250" cy="280" rx="40" ry="15" class="er-attribute-ellipse" fill="#FFCDD2" stroke="#EF5350" />
+                                    <text x="250" y="284" text-anchor="middle" class="er-attribute-text">开始时间</text>
+                                </g>
+
+
+                                <!-- Relationship 会员-商店 (蓝色: 多对多，"所属") -->
+                                <g>
+                                    <polygon points="150 70, 275 290, 250 350, 150 70" class="er-relationship-diamond blue-relation" transform="translate(290, 100) rotate(0) scale(0.6)" />
+                                    <text x="300" y="150" text-anchor="middle" class="er-relationship-text" transform="translate(0,0)">所属</text>
+                                    <line x1="150" y1="70" x2="450" y2="70" class="er-line blue-relation no-arrow" />
+                                    <line x1="450" y1="70" x2="500" y2="70" class="er-line blue-relation no-arrow" />
+
+                                    <line x1="150" y1="70" x2="250" y2="70" class="er-line blue-relation" marker-end="url(#arrowhead-reversed)" />
+                                    <text x="150" y="60" class="er-cardinality-text">N</text>
+                                    <line x1="450" y1="70" x2="550" y2="70" class="er-line blue-relation" marker-end="url(#arrowhead-reversed)" />
+                                    <text x="550" y="60" class="er-cardinality-text">M</text>
+
+                                    <!-- Curved line from Shop to Relationship -->
+                                    <path d="M 150 70 Q 200 130, 300 130" stroke="#EF5350" stroke-width="1.5" fill="none" class="er-line blue-relation" marker-end="url(#arrowhead)" />
+                                    <!-- Curved line from Member to Relationship -->
+                                    <path d="M 450 70 Q 400 130, 300 130" stroke="#EF5350" stroke-width="1.5" fill="none" class="er-line blue-relation" marker-end="url(#arrowhead)" />
+
+                                    <!-- Relationship Attribute for 所属 (Blue) -->
+                                    <ellipse cx="300" cy="180" rx="40" ry="15" class="er-attribute-ellipse" fill="#BBDEFB" stroke="#2196F3" />
+                                    <text x="300" y="184" text-anchor="middle" class="er-attribute-text">加入时间</text>
+                                </g>
+                            </svg>
+                        </div>
+                        <p class="explanation">请注意：ER图中的线条和菱形位置为示意，可能需要您根据具体布局调整。多对多联系的两端都应该用无箭头线连接到菱形。</p>
+
+                        <p><strong>(2) 转换为关系模式：</strong></p>
+                        <p>根据转换原则：</p>
+                        <ul>
+                            <li>每个实体型转换为一个关系模式，属性为实体属性，码为实体的主码。</li>
+                            <li>一对多联系（1:N）通常与N端实体合并，在N端关系中加入1端的主码作为外码，并加入联系的属性。</li>
+                            <li>多对多联系（M:N）转换为一个独立的关系模式，其属性为两端实体的主码和联系的属性，主码由两端实体主码的组合构成。</li>
+                        </ul>
+
+                        <pre class="code-block">
+<span class="sql-comment">-- 1. 商店 (Shop) 实体转换</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Shop</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">商店编号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">店名</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">店址</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">100</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">店经理</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：商店编号</span>
+
+<span class="sql-comment">-- 2. 会员 (Member) 实体转换</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Member</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">会员编号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">会员名</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">地址</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">100</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：会员编号</span>
+
+<span class="sql-comment">-- 3. 职工 (Employee) 实体转换 (与商店的“聘用”联系合并到职工端)</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Employee</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">职工编号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">职工姓名</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">性别</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">工资</span> <span class="sql-type">DECIMAL</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">,</span> <span class="sql-number">2</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">商店编号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span> <span class="comment">-- <span class="fk-underline-wave">外码</span>，来自Shop表</span>
+    <span class="sql-column">开始时间</span> <span class="sql-type">DATE</span><span class="sql-punctuation">,</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">商店编号</span><span class="sql-punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Shop</span><span class="sql-punctuation">(</span><span class="sql-column">商店编号</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：职工编号</span>
+
+<span class="sql-comment">-- 4. 会员所属商店 (Member_Shop) 多对多联系独立关系</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Member_Shop</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">会员编号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span> <span class="comment">-- <span class="fk-underline-wave">外码</span>，来自Member表</span>
+    <span class="sql-column">商店编号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span> <span class="comment">-- <span class="fk-underline-wave">外码</span>，来自Shop表</span>
+    <span class="sql-column">加入时间</span> <span class="sql-type">DATE</span><span class="sql-punctuation">,</span>
+    <span class="sql-keyword">PRIMARY KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">会员编号</span><span class="sql-punctuation">,</span> <span class="sql-column">商店编号</span><span class="sql-punctuation">),</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">会员编号</span><span class="sql-punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Member</span><span class="sql-punctuation">(</span><span class="sql-column">会员编号</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">商店编号</span><span class="sql-punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Shop</span><span class="sql-punctuation">(</span><span class="sql-column">商店编号</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：(会员编号, 商店编号)</span>
+                    `
+                },
+                {
+                    id: 'design2',
+                    text: `设某商业集团数据库中有3个实体集，一是“商店”实体集，属性有商店编号、商店名、地址；二是“商品”实体集，属性有商品号、商品名、规格、单价；三是“职工”实体集，属性有职工编号、姓名、性别、业绩。
+                    每个商店可销售多种商品，每种商品也可以放在多个商店销售，每个商店销售商品的一种商品有月销量。每个商店有许多职工，每个职工只能在一个商店工作，商店聘用职工有聘期和工资。
+                    (1) 画出 ER 图。（提示：紫色是实体，画矩形；绿色是属性，画椭圆，主码画下划线。红色是一对多联系，画菱形，联系属性画椭圆。蓝色是多对多联系，画菱形，联系属性画椭圆。）
+                    (2) 将该 ER 图转换成关系模式（能合并的联系合并），并指出主码（下划直线）和外码（下划波浪线）。`,
+                    answerHTML: `
+                        <p><strong>(1) ER 图：</strong></p>
+                        <div class="er-diagram-container">
+                            <svg class="er-diagram-svg" width="650" height="450" viewBox="0 0 650 450">
+                                <defs>
+                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" />
+                                    </marker>
+                                    <marker id="arrowhead-reversed" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                        <polygon points="10 0, 0 3.5, 10 7" />
+                                    </marker>
+                                </defs>
+
+                                <!-- Entities (Purple for instruction) -->
+                                <rect x="50" y="50" width="100" height="40" class="er-entity" />
+                                <text x="100" y="75" text-anchor="middle" class="er-entity-text">商店</text>
+
+                                <rect x="500" y="50" width="100" height="40" class="er-entity" />
+                                <text x="550" y="75" text-anchor="middle" class="er-entity-text">商品</text>
+
+                                <rect x="250" y="350" width="100" height="40" class="er-entity" />
+                                <text x="300" y="375" text-anchor="middle" class="er-entity-text">职工</text>
+
+                                <!-- Attributes for 商店 (Green for instruction) -->
+                                <ellipse cx="100" cy="20" rx="40" ry="15" class="er-attribute-ellipse" />
+                                <text x="100" y="24" text-anchor="middle" class="er-attribute-text">商店编号</text>
+                                <line x1="80" y1="30" x2="120" y2="30" class="er-pk-underline" /> <!-- PK underline -->
+                                <ellipse cx="10" cy="65" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="10" y="69" text-anchor="middle" class="er-attribute-text">商店名</text>
+                                <ellipse cx="100" cy="110" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="100" y="114" text-anchor="middle" class="er-attribute-text">地址</text>
+
+                                <!-- Attributes for 商品 (Green for instruction) -->
+                                <ellipse cx="550" cy="20" rx="40" ry="15" class="er-attribute-ellipse" />
+                                <text x="550" y="24" text-anchor="middle" class="er-attribute-text">商品号</text>
+                                <line x1="530" y1="30" x2="570" y2="30" class="er-pk-underline" /> <!-- PK underline -->
+                                <ellipse cx="460" cy="65" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="460" y="69" text-anchor="middle" class="er-attribute-text">商品名</text>
+                                <ellipse cx="550" cy="110" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="550" y="114" text-anchor="middle" class="er-attribute-text">规格</text>
+                                <ellipse cx="640" cy="65" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="640" y="69" text-anchor="middle" class="er-attribute-text">单价</text>
+
+                                <!-- Attributes for 职工 (Green for instruction) -->
+                                <ellipse cx="300" cy="320" rx="40" ry="15" class="er-attribute-ellipse" />
+                                <text x="300" y="324" text-anchor="middle" class="er-attribute-text">职工编号</text>
+                                <line x1="280" y1="330" x2="320" y2="330" class="er-pk-underline" /> <!-- PK underline -->
+                                <ellipse cx="210" cy="365" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="210" y="369" text-anchor="middle" class="er-attribute-text">姓名</text>
+                                <ellipse cx="390" cy="365" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="390" y="369" text-anchor="middle" class="er-attribute-text">性别</text>
+                                <ellipse cx="300" cy="410" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="300" y="414" text-anchor="middle" class="er-attribute-text">业绩</text>
+
+                                <!-- Relationship 商店-职工 (红色: 一对多，"聘用") -->
+                                <g>
+                                    <polygon points="150 70, 275 290, 250 350, 150 70" class="er-relationship-diamond" transform="translate(140, 200) rotate(160) scale(0.6)" />
+                                    <text x="180" y="240" text-anchor="middle" class="er-relationship-text" transform="translate(0,0)">聘用</text>
+                                    <line x1="150" y1="70" x2="260" y2="360" class="er-line red-relation" />
+                                    <text x="160" y="80" class="er-cardinality-text">1</text>
+                                    <text x="250" y="350" class="er-cardinality-text">N</text>
+                                    <!-- Relationship Attribute for 聘用 (Red) -->
+                                    <ellipse cx="250" cy="280" rx="35" ry="15" class="er-attribute-ellipse" fill="#FFCDD2" stroke="#EF5350" />
+                                    <text x="250" y="284" text-anchor="middle" class="er-attribute-text">聘期</text>
+                                    <ellipse cx="250" cy="240" rx="35" ry="15" class="er-attribute-ellipse" fill="#FFCDD2" stroke="#EF5350" />
+                                    <text x="250" y="244" text-anchor="middle" class="er-attribute-text">工资</text>
+                                </g>
+
+
+                                <!-- Relationship 商店-商品 (蓝色: 多对多，"销售") -->
+                                <g>
+                                    <polygon points="150 70, 275 290, 250 350, 150 70" class="er-relationship-diamond blue-relation" transform="translate(290, 100) rotate(0) scale(0.6)" />
+                                    <text x="300" y="150" text-anchor="middle" class="er-relationship-text" transform="translate(0,0)">销售</text>
+                                    <line x1="150" y1="70" x2="500" y2="70" class="er-line blue-relation no-arrow" />
+                                    <line x1="500" y1="70" x2="600" y2="70" class="er-line blue-relation no-arrow" />
+
+                                    <line x1="150" y1="70" x2="250" y2="70" class="er-line blue-relation" marker-end="url(#arrowhead-reversed)" />
+                                    <text x="150" y="60" class="er-cardinality-text">M</text>
+                                    <line x1="500" y1="70" x2="600" y2="70" class="er-line blue-relation" marker-end="url(#arrowhead-reversed)" />
+                                    <text x="600" y="60" class="er-cardinality-text">N</text>
+
+                                    <!-- Curved line from Shop to Relationship -->
+                                    <path d="M 150 70 Q 200 130, 300 130" stroke="#2196F3" stroke-width="1.5" fill="none" class="er-line blue-relation" marker-end="url(#arrowhead)" />
+                                    <!-- Curved line from Product to Relationship -->
+                                    <path d="M 500 70 Q 450 130, 300 130" stroke="#2196F3" stroke-width="1.5" fill="none" class="er-line blue-relation" marker-end="url(#arrowhead)" />
+
+                                    <!-- Relationship Attribute for 销售 (Blue) -->
+                                    <ellipse cx="300" cy="180" rx="40" ry="15" class="er-attribute-ellipse" fill="#BBDEFB" stroke="#2196F3" />
+                                    <text x="300" y="184" text-anchor="middle" class="er-attribute-text">月销量</text>
+                                </g>
+                            </svg>
+                        </div>
+                        <p class="explanation">请注意：ER图中的线条和菱形位置为示意，可能需要您根据具体布局调整。多对多联系的两端都应该用无箭头线连接到菱形。</p>
+
+                        <p><strong>(2) 转换为关系模式：</strong></p>
+                        <p>根据转换原则：</p>
+                        <ul>
+                            <li>每个实体型转换为一个关系模式，属性为实体属性，码为实体的主码。</li>
+                            <li>一对多联系（1:N）通常与N端实体合并，在N端关系中加入1端的主码作为外码，并加入联系的属性。</li>
+                            <li>多对多联系（M:N）转换为一个独立的关系模式，其属性为两端实体的主码和联系的属性，主码由两端实体主码的组合构成。</li>
+                        </ul>
+
+                        <pre class="code-block">
+<span class="sql-comment">-- 1. 商店 (Shop) 实体转换</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Shop</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">商店编号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">商店名</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">地址</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">100</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：商店编号</span>
+
+<span class="sql-comment">-- 2. 商品 (Product) 实体转换</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Product</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">商品号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">商品名</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">规格</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">单价</span> <span class="sql-type">DECIMAL</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">,</span> <span class="sql-number">2</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：商品号</span>
+
+<span class="sql-comment">-- 3. 职工 (Employee) 实体转换 (与商店的“聘用”联系合并到职工端)</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Employee</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">职工编号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">姓名</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">性别</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">业绩</span> <span class="sql-type">DECIMAL</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">,</span> <span class="sql-number">2</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">商店编号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span> <span class="comment">-- <span class="fk-underline-wave">外码</span>，来自Shop表</span>
+    <span class="sql-column">聘期</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">工资</span> <span class="sql-type">DECIMAL</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">,</span> <span class="sql-number">2</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">商店编号</span><span class="sql-punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Shop</span><span class="sql-punctuation">(</span><span class="sql-column">商店编号</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：职工编号</span>
+
+<span class="sql-comment">-- 4. 销售 (Sales) 多对多联系独立关系</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Sales</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">商店编号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span> <span class="comment">-- <span class="fk-underline-wave">外码</span>，来自Shop表</span>
+    <span class="sql-column">商品号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span> <span class="comment">-- <span class="fk-underline-wave">外码</span>，来自Product表</span>
+    <span class="sql-column">月销量</span> <span class="sql-type">INT</span><span class="sql-punctuation">,</span>
+    <span class="sql-keyword">PRIMARY KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">商店编号</span><span class="sql-punctuation">,</span> <span class="sql-column">商品号</span><span class="sql-punctuation">),</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">商店编号</span><span class="sql-punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Shop</span><span class="sql-punctuation">(</span><span class="sql-column">商店编号</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">商品号</span><span class="sql-punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Product</span><span class="sql-punctuation">(</span><span class="sql-column">商品号</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：(商店编号, 商品号)</span>
+                    `
+                },
+                {
+                    id: 'design3',
+                    text: `设计一个数据库用于管理大学的课程选修信息。包含实体型“学生”，属性有学号（主码）、姓名、性别、年龄；实体型“课程”，属性有课程号（主码）、课程名、学分；实体型“教师”，属性有教师号（主码）、姓名、职称、所属系别。
+                    一个学生可以选修多门课程，一门课程可以被多个学生选修，学生选修某门课程有成绩。
+                    一名教师可以教授多门课程，一门课程只能由一名教师教授。
+                    (1) 画出 ER 图。（提示：实体、属性、联系及其属性、码的表示方法与之前一致。）
+                    (2) 将该 ER 图转换成关系模式（能合并的联系合并），并指出主码（下划直线）和外码（下划波浪线）。`,
+                    answerHTML: `
+                        <p><strong>(1) ER 图：</strong></p>
+                        <div class="er-diagram-container">
+                            <svg class="er-diagram-svg" width="700" height="500" viewBox="0 0 700 500">
+                                <defs>
+                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" />
+                                    </marker>
+                                    <marker id="arrowhead-reversed" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                        <polygon points="10 0, 0 3.5, 10 7" />
+                                    </marker>
+                                </defs>
+
+                                <!-- Entities -->
+                                <rect x="50" y="50" width="100" height="40" class="er-entity" />
+                                <text x="100" y="75" text-anchor="middle" class="er-entity-text">学生</text>
+
+                                <rect x="550" y="50" width="100" height="40" class="er-entity" />
+                                <text x="600" y="75" text-anchor="middle" class="er-entity-text">课程</text>
+
+                                <rect x="300" y="400" width="100" height="40" class="er-entity" />
+                                <text x="350" y="425" text-anchor="middle" class="er-entity-text">教师</text>
+
+                                <!-- Attributes for 学生 -->
+                                <ellipse cx="100" cy="20" rx="40" ry="15" class="er-attribute-ellipse" />
+                                <text x="100" y="24" text-anchor="middle" class="er-attribute-text">学号</text>
+                                <line x1="80" y1="30" x2="120" y2="30" class="er-pk-underline" />
+                                <ellipse cx="10" cy="65" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="10" y="69" text-anchor="middle" class="er-attribute-text">姓名</text>
+                                <ellipse cx="100" cy="110" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="100" y="114" text-anchor="middle" class="er-attribute-text">性别</text>
+                                <ellipse cx="190" cy="65" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="190" y="69" text-anchor="middle" class="er-attribute-text">年龄</text>
+
+                                <!-- Attributes for 课程 -->
+                                <ellipse cx="600" cy="20" rx="40" ry="15" class="er-attribute-ellipse" />
+                                <text x="600" y="24" text-anchor="middle" class="er-attribute-text">课程号</text>
+                                <line x1="580" y1="30" x2="620" y2="30" class="er-pk-underline" />
+                                <ellipse cx="510" cy="65" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="510" y="69" text-anchor="middle" class="er-attribute-text">课程名</text>
+                                <ellipse cx="600" cy="110" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="600" y="114" text-anchor="middle" class="er-attribute-text">学分</text>
+
+                                <!-- Attributes for 教师 -->
+                                <ellipse cx="350" cy="370" rx="40" ry="15" class="er-attribute-ellipse" />
+                                <text x="350" y="374" text-anchor="middle" class="er-attribute-text">教师号</text>
+                                <line x1="330" y1="380" x2="370" y2="380" class="er-pk-underline" />
+                                <ellipse cx="260" cy="415" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="260" y="419" text-anchor="middle" class="er-attribute-text">姓名</text>
+                                <ellipse cx="440" cy="415" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="440" y="419" text-anchor="middle" class="er-attribute-text">职称</text>
+                                <ellipse cx="350" cy="460" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="350" y="464" text-anchor="middle" class="er-attribute-text">所属系别</text>
+
+                                <!-- Relationship 学生-课程 (多对多，"选修") -->
+                                <g>
+                                    <polygon points="150 70, 275 290, 250 350, 150 70" class="er-relationship-diamond blue-relation" transform="translate(250, 10) rotate(0) scale(0.6)" />
+                                    <text x="350" y="90" text-anchor="middle" class="er-relationship-text" transform="translate(0,0)">选修</text>
+                                    <line x1="150" y1="70" x2="300" y2="70" class="er-line blue-relation" marker-end="url(#arrowhead-reversed)" />
+                                    <text x="150" y="60" class="er-cardinality-text">M</text>
+                                    <line x1="550" y1="70" x2="400" y2="70" class="er-line blue-relation" marker-end="url(#arrowhead-reversed)" />
+                                    <text x="550" y="60" class="er-cardinality-text">N</text>
+                                    
+                                    <!-- Curved lines to relationship -->
+                                    <path d="M 150 70 Q 250 130, 350 130" stroke="#2196F3" stroke-width="1.5" fill="none" class="er-line blue-relation" marker-end="url(#arrowhead)" />
+                                    <path d="M 550 70 Q 450 130, 350 130" stroke="#2196F3" stroke-width="1.5" fill="none" class="er-line blue-relation" marker-end="url(#arrowhead)" />
+                                    
+                                    <!-- Relationship Attributes for 选修 -->
+                                    <ellipse cx="350" cy="180" rx="35" ry="15" class="er-attribute-ellipse" fill="#BBDEFB" stroke="#2196F3" />
+                                    <text x="350" y="184" text-anchor="middle" class="er-attribute-text">成绩</text>
+                                </g>
+
+                                <!-- Relationship 教师-课程 (一对多，"授课") -->
+                                <g>
+                                    <polygon points="150 70, 275 290, 250 350, 150 70" class="er-relationship-diamond" transform="translate(250, 240) rotate(0) scale(0.6)" />
+                                    <text x="350" y="320" text-anchor="middle" class="er-relationship-text" transform="translate(0,0)">授课</text>
+                                    <line x1="350" y1="400" x2="350" y2="350" class="er-line red-relation" />
+                                    <text x="340" y="390" class="er-cardinality-text">1</text>
+                                    <line x1="600" y1="90" x2="350" y2="290" class="er-line red-relation" />
+                                    <text x="590" y="100" class="er-cardinality-text">N</text>
+                                </g>
+                            </svg>
+                        </div>
+                        <p class="explanation">请注意：ER图中的线条和菱形位置为示意，可能需要您根据具体布局调整。多对多联系的两端都应该用无箭头线连接到菱形。</p>
+
+                        <p><strong>(2) 转换为关系模式：</strong></p>
+                        <pre class="code-block">
+<span class="sql-comment">-- 1. 学生 (Student) 实体转换</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Student</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">学号</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">姓名</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">性别</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">年龄</span> <span class="sql-type">SMALLINT</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：学号</span>
+
+<span class="sql-comment">-- 2. 课程 (Course) 实体转换 (与教师的“授课”联系合并到课程端)</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Course</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">课程号</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">5</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">课程名</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">100</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">学分</span> <span class="sql-type">DECIMAL</span><span class="sql-punctuation">(</span><span class="sql-number">2</span><span class="sql-punctuation">,</span> <span class="sql-number">1</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">教师号</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span> <span class="comment">-- <span class="fk-underline-wave">外码</span>，来自Teacher表</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">教师号</span><span class="sql-punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Teacher</span><span class="sql-punctuation">(</span><span class="sql-column">教师号</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：课程号</span>
+
+<span class="sql-comment">-- 3. 教师 (Teacher) 实体转换</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Teacher</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">教师号</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">姓名</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">职称</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">所属系别</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：教师号</span>
+
+<span class="sql-comment">-- 4. 选修 (Enrollment) 多对多联系独立关系</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Enrollment</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">学号</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span> <span class="comment">-- <span class="fk-underline-wave">外码</span>，来自Student表</span>
+    <span class="sql-column">课程号</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">5</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span> <span class="comment">-- <span class="fk-underline-wave">外码</span>，来自Course表</span>
+    <span class="sql-column">成绩</span> <span class="sql-type">SMALLINT</span><span class="sql-punctuation">,</span>
+    <span class="sql-keyword">PRIMARY KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">学号</span><span class="sql-punctuation">,</span> <span class="sql-column">课程号</span><span class="sql-punctuation">),</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">学号</span><span class="sql-punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Student</span><span class="sql-punctuation">(</span><span class="sql-column">学号</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">课程号</span><span class="sql-punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Course</span><span class="sql-punctuation">(</span><span class="sql-column">课程号</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：(学号, 课程号)</span>
+                        </pre>
+                    `
+                },
+                {
+                    id: 'design4',
+                    text: `设计一个数据库用于管理图书馆借阅系统。包含实体型“图书”，属性有书号（主码）、书名、作者、出版社、出版年份；实体型“读者”，属性有读者号（主码）、姓名、地址、电话。
+                    一名读者可以借阅多本图书，一本图书可以被多名读者借阅，读者借阅某本图书有借出日期和归还日期。
+                    (1) 画出 ER 图。（提示：实体、属性、联系及其属性、码的表示方法与之前一致。）
+                    (2) 将该 ER 图转换成关系模式（能合并的联系合并），并指出主码（下划直线）和外码（下划波浪线）。`,
+                    answerHTML: `
+                        <p><strong>(1) ER 图：</strong></p>
+                        <div class="er-diagram-container">
+                            <svg class="er-diagram-svg" width="600" height="400" viewBox="0 0 600 400">
+                                <defs>
+                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" />
+                                    </marker>
+                                    <marker id="arrowhead-reversed" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                        <polygon points="10 0, 0 3.5, 10 7" />
+                                    </marker>
+                                </defs>
+
+                                <!-- Entities -->
+                                <rect x="50" y="100" width="100" height="40" class="er-entity" />
+                                <text x="100" y="125" text-anchor="middle" class="er-entity-text">图书</text>
+
+                                <rect x="450" y="100" width="100" height="40" class="er-entity" />
+                                <text x="500" y="125" text-anchor="middle" class="er-entity-text">读者</text>
+
+                                <!-- Attributes for 图书 -->
+                                <ellipse cx="100" cy="70" rx="40" ry="15" class="er-attribute-ellipse" />
+                                <text x="100" y="74" text-anchor="middle" class="er-attribute-text">书号</text>
+                                <line x1="80" y1="80" x2="120" y2="80" class="er-pk-underline" />
+                                <ellipse cx="10" cy="115" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="10" y="119" text-anchor="middle" class="er-attribute-text">书名</text>
+                                <ellipse cx="100" cy="160" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="100" y="164" text-anchor="middle" class="er-attribute-text">作者</text>
+                                <ellipse cx="190" cy="115" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="190" y="119" text-anchor="middle" class="er-attribute-text">出版社</text>
+                                <ellipse cx="100" cy="205" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="100" y="209" text-anchor="middle" class="er-attribute-text">出版年份</text>
+
+                                <!-- Attributes for 读者 -->
+                                <ellipse cx="500" cy="70" rx="40" ry="15" class="er-attribute-ellipse" />
+                                <text x="500" y="74" text-anchor="middle" class="er-attribute-text">读者号</text>
+                                <line x1="480" y1="80" x2="520" y2="80" class="er-pk-underline" />
+                                <ellipse cx="410" cy="115" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="410" y="119" text-anchor="middle" class="er-attribute-text">姓名</text>
+                                <ellipse cx="500" cy="160" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="500" y="164" text-anchor="middle" class="er-attribute-text">地址</text>
+                                <ellipse cx="590" cy="115" rx="35" ry="15" class="er-attribute-ellipse" />
+                                <text x="590" y="119" text-anchor="middle" class="er-attribute-text">电话</text>
+
+                                <!-- Relationship 图书-读者 (多对多，"借阅") -->
+                                <g>
+                                    <polygon points="150 120, 275 290, 250 350, 150 70" class="er-relationship-diamond blue-relation" transform="translate(190, 80) rotate(0) scale(0.6)" />
+                                    <text x="300" y="170" text-anchor="middle" class="er-relationship-text" transform="translate(0,0)">借阅</text>
+                                    
+                                    <!-- Lines to relationship -->
+                                    <path d="M 150 120 Q 200 180, 300 180" stroke="#2196F3" stroke-width="1.5" fill="none" class="er-line blue-relation" marker-end="url(#arrowhead)" />
+                                    <path d="M 450 120 Q 400 180, 300 180" stroke="#2196F3" stroke-width="1.5" fill="none" class="er-line blue-relation" marker-end="url(#arrowhead)" />
+
+                                    <!-- Cardinalities -->
+                                    <text x="140" y="110" class="er-cardinality-text">M</text>
+                                    <text x="460" y="110" class="er-cardinality-text">N</text>
+                                    
+                                    <!-- Relationship Attributes for 借阅 -->
+                                    <ellipse cx="300" cy="230" rx="40" ry="15" class="er-attribute-ellipse" fill="#BBDEFB" stroke="#2196F3" />
+                                    <text x="300" y="234" text-anchor="middle" class="er-attribute-text">借出日期</text>
+                                    <ellipse cx="300" cy="275" rx="40" ry="15" class="er-attribute-ellipse" fill="#BBDEFB" stroke="#2196F3" />
+                                    <text x="300" y="279" text-anchor="middle" class="er-attribute-text">归还日期</text>
+                                </g>
+                            </svg>
+                        </div>
+                        <p class="explanation">请注意：ER图中的线条和菱形位置为示意，可能需要您根据具体布局调整。多对多联系的两端都应该用无箭头线连接到菱形。</p>
+
+                        <p><strong>(2) 转换为关系模式：</strong></p>
+                        <pre class="code-block">
+<span class="sql-comment">-- 1. 图书 (Book) 实体转换</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Book</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">书号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">书名</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">100</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">作者</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">出版社</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">100</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">出版年份</span> <span class="sql-type">YEAR</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：书号</span>
+
+<span class="sql-comment">-- 2. 读者 (Reader) 实体转换</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Reader</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">读者号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">姓名</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">地址</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">100</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">电话</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：读者号</span>
+
+<span class="sql-comment">-- 3. 借阅 (Borrow) 多对多联系独立关系</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Borrow</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">书号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span> <span class="comment">-- <span class="fk-underline-wave">外码</span>，来自Book表</span>
+    <span class="sql-column">读者号</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">20</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span> <span class="comment">-- <span class="fk-underline-wave">外码</span>，来自Reader表</span>
+    <span class="sql-column">借出日期</span> <span class="sql-type">DATE</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">归还日期</span> <span class="sql-type">DATE</span><span class="sql-punctuation">,</span>
+    <span class="sql-keyword">PRIMARY KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">书号</span><span class="sql-punctuation">,</span> <span class="sql-column">读者号</span><span class="sql-punctuation">),</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">书号</span><span class="sql-punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Book</span><span class="sql-punctuation">(</span><span class="sql-column">书号</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">读者号</span><span class="sql-punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Reader</span><span class="sql-punctuation">(</span><span class="sql-column">读者号</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+<span class="sql-comment">-- 主码：(书号, 读者号)</span>
+                        </pre>
+                    `
+                }
+            ]
+        };
+
+        // Function to create question HTML for multiple choice
+        function createMcqQuestionHtml(question, index) {
+            const optionsHtml = question.options.map((option, i) => `
+                <label>
+                    <input type="radio" name="mcq${index}" value="${String.fromCharCode(65 + i)}"> ${option}
+                </label>
+            `).join('');
+
+            return `
+                <div class="question-block">
+                    <p class="question-text">${index + 1}. ${question.text}</p>
+                    <div class="options">
+                        ${optionsHtml}
+                    </div>
+                    <button type="button" class="individual-answer-btn">解</button>
+                    <div class="answer-area">
+                        <p><strong>正确答案：${question.correct}</strong></p>
+                        <p><strong>解析：</strong> ${question.explanation}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to create question HTML for fill-in-the-blank
+        function createFibQuestionHtml(question, index) {
+            // Using a simple placeholder for correct answers in data-correct-answer attribute
+            // If question.correct is an array, take the first one for placeholder, otherwise use it directly.
+            const placeholder = Array.isArray(question.correct) ? question.correct[0] : question.correct;
+            const inputName = `fib${index}`;
+            const questionTextHtml = question.text.replace(/<span class="fill-in-the-blank-container"><input type="text" name="fib\d+" class="fill-in-the-blank-input" data-correct-answer="[^"]+"><\/span>/g, (match) => {
+                // Extract existing data-correct-answer from the original span if present
+                const existingCorrectAnswerMatch = match.match(/data-correct-answer="([^"]+)"/);
+                const existingCorrectAnswer = existingCorrectAnswerMatch ? existingCorrectAnswerMatch[1] : '';
+                return `<span class="fill-in-the-blank-container"><input type="text" name="${inputName}" class="fill-in-the-blank-input" data-correct-answer="${existingCorrectAnswer || placeholder}"></span>`;
+            });
+
+            return `
+                <div class="question-block">
+                    <p class="question-text">${index + 1}. ${questionTextHtml}</p>
+                    <button type="button" class="individual-answer-btn">解</button>
+                    <div class="answer-area">
+                        <p><strong>正确答案：</strong> ${Array.isArray(question.correct) ? question.correct.join(', ') : question.correct}</p>
+                        <p><strong>解析：：</strong> ${question.explanation}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+
+        // Function to create question HTML for true/false
+        function createTfQuestionHtml(question, index) {
+            return `
+                <div class="question-block">
+                    <p class="question-text">${index + 1}. ${question.text}</p>
+                    <div class="true-false-options">
+                        <label><input type="radio" name="tf${index}" value="true"> 正确</label>
+                        <label><input type="radio" name="tf${index}" value="false"> 错误</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn">解</button>
+                    <div class="answer-area">
+                        <p><strong>正确答案：${question.correct ? '正确' : '错误'}</strong></p>
+                        <p><strong>解析：：</strong> ${question.explanation}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to create question HTML for design questions
+        function createDesignQuestionHtml(question, index) {
+            return `
+                <div class="question-block">
+                    <p class="question-text">${index + 1}. ${question.text}</p>
+                    <button type="button" class="individual-answer-btn">解</button>
+                    <div class="answer-area">
+                        ${question.answerHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const mcqContainer = document.getElementById('mcq-questions-container');
+            const fibContainer = document.getElementById('fib-questions-container');
+            const tfContainer = document.getElementById('tf-questions-container');
+            const designContainer = document.getElementById('design-questions-container');
+
+            // Shuffle questions and render
+            shuffleArray(questionsData.mcq).forEach((q, i) => {
+                mcqContainer.innerHTML += createMcqQuestionHtml(q, i);
+            });
+            shuffleArray(questionsData.fib).forEach((q, i) => {
+                fibContainer.innerHTML += createFibQuestionHtml(q, i);
+            });
+            shuffleArray(questionsData.tf).forEach((q, i) => {
+                tfContainer.innerHTML += createTfQuestionHtml(q, i);
+            });
+            // Design questions are kept in their original order as they are often sequential/related
+            // and the user explicitly asked to keep the original ones and add more.
+            questionsData.design.forEach((q, i) => {
+                designContainer.innerHTML += createDesignQuestionHtml(q, i);
+            });
+
+            // Re-select all buttons and inputs after rendering dynamic content
+            const individualAnswerButtons = document.querySelectorAll('.individual-answer-btn');
+            const showAllAnswersBtn = document.querySelector('.show-all-answers-btn');
+            const hideAllAnswersBtn = document.querySelector('.hide-all-answers-btn');
+            const quizForm = document.getElementById('quizForm');
+            const resetButton = document.querySelector('.reset-btn');
+
+            // Function to toggle individual answer visibility
+            function toggleAnswer(button) {
+                const answerArea = button.nextElementSibling; // This is the .answer-area
+                if (answerArea.style.display === 'block') {
+                    answerArea.style.display = 'none';
+                    button.textContent = '解'; // Change text back to '解'
+                } else {
+                    answerArea.style.display = 'block';
+                    button.textContent = '收起'; // Change text to '收起' when open
+                }
+                updateMasterButtonsVisibility(); // Update master buttons visibility
+            }
+
+            // Individual "解" button functionality
+            individualAnswerButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    toggleAnswer(this);
+                });
+            });
+
+            // "查看所有答案与解析" button functionality
+            showAllAnswersBtn.addEventListener('click', function() {
+                individualAnswerButtons.forEach(button => {
+                    const answerArea = button.nextElementSibling;
+                    if (answerArea.style.display !== 'block') {
+                        answerArea.style.display = 'block';
+                        button.textContent = '收起';
+                    }
+                });
+                // Show reset button when answers are shown
+                resetButton.style.display = 'inline-block';
+                updateMasterButtonsVisibility();
+            });
+
+            // "隐藏所有答案" button functionality
+            hideAllAnswersBtn.addEventListener('click', function() {
+                individualAnswerButtons.forEach(button => {
+                    const answerArea = button.nextElementSibling;
+                    if (answerArea.style.display === 'block') {
+                        answerArea.style.display = 'none';
+                        button.textContent = '解';
+                    }
+                });
+                // Hide reset button if no answers are shown
+                if (document.querySelectorAll('.answer-area[style*="display: block"]').length === 0) {
+                    resetButton.style.display = 'none';
+                }
+                updateMasterButtonsVisibility();
+            });
+
+            // Update visibility of "Show All" and "Hide All" buttons
+            function updateMasterButtonsVisibility() {
+                let anyAnswerShown = false;
+                let allAnswersShown = true;
+
+                individualAnswerButtons.forEach(button => {
+                    if (button.nextElementSibling.style.display === 'block') {
+                        anyAnswerShown = true;
+                    } else {
+                        allAnswersShown = false;
+                    }
+                });
+
+                if (anyAnswerShown) {
+                    hideAllAnswersBtn.style.display = 'block';
+                } else {
+                    hideAllAnswersBtn.style.display = 'none';
+                }
+
+                if (allAnswersShown) {
+                    showAllAnswersBtn.style.display = 'none';
+                } else {
+                    showAllAnswersBtn.style.display = 'block';
+                }
+
+                // Show reset button if any answer is shown
+                if (anyAnswerShown) {
+                    resetButton.style.display = 'inline-block';
+                } else {
+                    resetButton.style.display = 'none';
+                }
+            }
+
+            // Function to reset the quiz
+            window.resetQuiz = function() {
+                quizForm.reset(); // Resets all form inputs
+
+                individualAnswerButtons.forEach(button => {
+                    const answerArea = button.nextElementSibling;
+                    if (answerArea) {
+                        answerArea.style.display = 'none';
+                    }
+                    button.textContent = '解'; // Reset '解' button text
+                });
+                
+                // Reset radio button selection styling
+                document.querySelectorAll('.options label, .true-false-options label').forEach(opt => {
+                    opt.style.backgroundColor = '';
+                    opt.style.border = '';
+                });
+
+                // Re-adjust fill-in-the-blank input widths
+                document.querySelectorAll('.fill-in-the-blank-input').forEach(input => {
+                    const initialWidth = (input.getAttribute('placeholder') || input.dataset.correctAnswer || '').length * 15 + 20;
+                    input.style.width = `${Math.max(initialWidth, 80)}px`;
+                });
+
+                // Ensure all inputs are enabled
+                quizForm.querySelectorAll('input, select, textarea').forEach(input => {
+                    input.disabled = false;
+                });
+
+                updateMasterButtonsVisibility(); // Update master buttons visibility
+            }
+
+
+            // 选择题选项交互效果
+            const options = document.querySelectorAll('.options label');
+            
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionBlock = this.closest('.question-block'); // 获取当前问题块
+                    const allOptionsInBlock = questionBlock.querySelectorAll('.options label');
+                    
+                    // 移除当前问题块中所有选项的选中状态样式
+                    allOptionsInBlock.forEach(opt => {
+                        opt.style.backgroundColor = '';
+                        opt.style.border = '';
+                    });
+                    
+                    // 设置当前被点击选项的选中状态样式
+                    this.style.backgroundColor = 'rgba(0, 188, 212, 0.1)'; /* Cyan tint */
+                    this.style.border = '2px solid var(--primary-main)';
+                });
+            });
+
+            // 填空题输入框聚焦效果 and dynamic width
+            document.querySelectorAll('.fill-in-the-blank-input').forEach(input => {
+                // Set initial width based on placeholder or data-correct-answer length
+                const initialWidth = (input.getAttribute('placeholder') || input.dataset.correctAnswer || '').length * 15 + 20; // Approx 15px per char + padding
+                input.style.width = `${Math.max(initialWidth, 80)}px`; // Ensure min-width of 80px
+
+                input.addEventListener('input', function() {
+                    // Adjust width dynamically as user types
+                    const textWidth = this.value.length * 15 + 20; // Adjust multiplier as needed
+                    this.style.width = `${Math.max(textWidth, 80)}px`;
+                });
+
+                input.addEventListener('focus', function() {
+                    this.style.borderColor = 'var(--primary-main)';
+                    this.style.boxShadow = '0 0 0 3px rgba(0, 188, 212, 0.2)'; /* Cyan focus shadow */
+                });
+                input.addEventListener('blur', function() {
+                    this.style.borderColor = 'var(--border-card)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Initial update of master buttons
+            updateMasterButtonsVisibility();
+        });
+    </script>
+</body>
+</html>

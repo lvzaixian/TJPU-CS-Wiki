@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U4--事件处理</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.36/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #FFEFD6; /* 香槟金 */
+            --secondary-color: #FFD8B8; /* 杏桃橙 */
+            --accent-color: #5AB2FF; /* 宝石蓝 */
+            --background-color: rgba(255,251,245,0.97); /* 丝绸白（0.5%金调）*/
+            --text-color: #2c3e50;
+            --light-text: #f8f8f8;
+            --border-color: #e0d0b8;
+            --code-bg: #fffaf0;
+            --shadow: 0 5px 15px rgba(0,0,0,0.05);
+            --success-color: #4caf50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding-top: 80px;
+            background-image: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        }
+        
+        /* 导航栏样式 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--text-color);
+            padding: 15px 20px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            letter-spacing: 1px;
+            color: #2c662d;
+        }
+        
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 15px;
+        }
+        
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 8px 15px;
+            border-radius: 30px;
+            background: rgba(255, 216, 184, 0.3);
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+        
+        .nav-links a:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .nav-links a i {
+            margin-right: 8px;
+        }
+        
+        /* 主内容容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 章节样式 */
+        .chapter {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid var(--accent-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chapter:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .chapter h2 {
+            color: var(--accent-color);
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed var(--border-color);
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            position: relative;
+        }
+        
+        .chapter h2 i {
+            margin-right: 15px;
+            background: var(--accent-color);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 8px rgba(90, 178, 255, 0.3);
+        }
+        
+        .chapter h3 {
+            color: var(--accent-color);
+            margin: 35px 0 20px;
+            padding: 10px 15px;
+            background: linear-gradient(90deg, rgba(255, 239, 214, 0.3), transparent);
+            border-left: 4px solid var(--accent-color);
+            font-size: 1.6rem;
+            position: relative;
+        }
+        
+        /* 知识点卡片 */
+        .knowledge-card {
+            background: linear-gradient(135deg, #fffaf0, #fff0e1);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: var(--shadow);
+            border: 1px solid #ffd8b8;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        
+        .knowledge-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .knowledge-card h4 {
+            color: #2c662d;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .knowledge-card h4 i {
+            margin-right: 12px;
+            color: var(--accent-color);
+            font-size: 1.5rem;
+        }
+        
+        .knowledge-card p, .knowledge-card ol, .knowledge-card ul {
+            position: relative;
+            z-index: 2;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .knowledge-card ol, .knowledge-card ul {
+            padding-left: 25px;
+            margin: 15px 0;
+        }
+        
+        .knowledge-card li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+            position: relative;
+        }
+        
+        .knowledge-card li::before {
+            content: '•';
+            color: var(--accent-color);
+            font-weight: bold;
+            position: absolute;
+            left: -15px;
+            top: 0;
+            font-size: 1.2rem;
+        }
+        
+        /* 代码块样式 */
+        .code-container {
+            position: relative;
+            margin: 30px 0;
+            background: linear-gradient(135deg, #fffaf0, #fff0e1);
+            color: #2c3e50;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid #ffd8b8;
+        }
+        
+        .code-header {
+            background: linear-gradient(135deg, #fff0e1, #ffd8b8);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ffd8b8;
+        }
+        
+        .code-title {
+            font-weight: bold;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .code-title i {
+            margin-right: 12px;
+            color: var(--accent-color);
+            font-size: 1.3rem;
+        }
+        
+        .run-btn {
+            background: linear-gradient(135deg, var(--accent-color), #3a8de0);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(90, 178, 255, 0.4);
+        }
+        
+        .run-btn i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .run-btn:hover {
+            background: linear-gradient(135deg, #3a8de0, var(--accent-color));
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(90, 178, 255, 0.5);
+        }
+        
+        pre {
+            margin: 0;
+            padding: 30px;
+            overflow-x: auto;
+            background: var(--code-bg);
+        }
+        
+        code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        
+        .comment { color: #75715e; }
+        .keyword { color: #d73a49; }
+        .string { color: #2c662d; }
+        .function { color: #6f42c1; }
+        .variable { color: #e36209; }
+        .property { color: #005cc5; }
+        
+        /* 结果容器 */
+        .result-container {
+            background: linear-gradient(135deg, #f8f8f8, #f0f0f0);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 25px;
+            display: none;
+            box-shadow: var(--shadow);
+        }
+        
+        .result-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-header {
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .result-header::before {
+            content: "►";
+            margin-right: 12px;
+            font-size: 1.3em;
+            color: var(--accent-color);
+        }
+        
+        /* 比较表格 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            font-size: 1.1rem;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--accent-color), #3a8de0);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--primary-color);
+        }
+        
+        .comparison-table td:first-child {
+            font-weight: bold;
+            color: var(--accent-color);
+            width: 25%;
+        }
+        
+        /* 提示框 */
+        .tip-box {
+            background: linear-gradient(135deg, #fffaf0, #fff0e1);
+            border-left: 5px solid var(--accent-color);
+            padding: 25px;
+            margin: 35px 0;
+            border-radius: 0 15px 15px 0;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tip-icon {
+            font-size: 28px;
+            color: var(--accent-color);
+            margin-right: 20px;
+            min-width: 40px;
+        }
+        
+        .tip-content {
+            flex: 1;
+        }
+        
+        .tip-box h4 {
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .tip-box p {
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .chapter {
+                padding: 20px;
+            }
+            
+            .navbar {
+                padding: 10px 15px;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+                font-size: 1.4rem;
+                justify-content: center;
+            }
+            
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .nav-links li {
+                margin: 5px;
+            }
+            
+            .chapter h2 {
+                font-size: 1.6rem;
+            }
+            
+            .chapter h2 i {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* 示例样式 */
+        .example-container {
+            padding: 20px;
+            border: 1px solid #ffd8b8;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #fffaf0, #fff0e1);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+        }
+        
+        .example-container button, .example-container input {
+            margin: 12px;
+            padding: 10px 18px;
+            border: 1px solid var(--accent-color);
+            border-radius: 6px;
+            background: white;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+        
+        .example-container button:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+        }
+        
+        .example-container input {
+            padding: 10px;
+            width: 220px;
+            font-size: 1.1rem;
+        }
+        
+        .example-container a {
+            color: var(--accent-color);
+            text-decoration: underline;
+            margin: 12px;
+            display: inline-block;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .example-container h3, .example-container h4 {
+            margin: 15px 10px;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        
+        .example-container span {
+            display: inline-block;
+            margin: 12px;
+            padding: 8px 15px;
+            background: white;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .highlight {
+            background-color: rgba(90, 178, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #2a6db0;
+        }
+        
+        /* 动画效果 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* 事件流可视化 */
+        .event-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px 0;
+        }
+        
+        .event-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+        
+        .step-desc {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            color: #666;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .vue-app {
+            padding: 15px;
+            border: 1px solid #ffd8b8;
+            border-radius: 8px;
+            background: white;
+            margin: 15px 0;
+            box-shadow: var(--shadow);
+        }
+        
+        .dom-status {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .event-bubble-demo {
+            padding: 20px;
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .bubble-container {
+            background: rgba(90, 178, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .bubble-child {
+            background: rgba(90, 178, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px auto;
+            max-width: 80%;
+        }
+        
+        .bubble-inner {
+            background: rgba(90, 178, 255, 0.3);
+            padding: 10px;
+            border-radius: 6px;
+        }
+        
+        .event-log {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+        
+        .log-entry {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon"><i class="fab fa-vuejs"></i></span>
+            <span>Vue.js 事件处理学习手册</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#event-basics"><i class="fas fa-info-circle"></i> 事件基础</a></li>
+            <li><a href="#v-on"><i class="fas fa-mouse-pointer"></i> v-on指令</a></li>
+            <li><a href="#event-object"><i class="fas fa-cube"></i> 事件对象</a></li>
+            <li><a href="#modifiers"><i class="fas fa-sliders-h"></i> 事件修饰符</a></li>
+            <li><a href="#keyboard-modifiers"><i class="fas fa-keyboard"></i> 键盘事件修饰符</a></li>
+            <li><a href="#mouse-modifiers"><i class="fas fa-mouse"></i> 鼠标事件修饰符</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- 事件基础 -->
+        <div class="chapter" id="event-basics">
+            <h2><i class="fas fa-info-circle"></i> 事件基础</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-lightbulb"></i> 什么是事件？</h4>
+                <p>事件是发生在HTML元素上的某些特定的事情，它的目的是能够使页面具有某些行为，执行某些“动作”。</p>
+            </div>
+            
+            <h3>事件流</h3>
+            <p>由于DOM是树形结构，因此当某个子元素被点击时，它的父元素实际上也被点击了，它的父元素的父元素也被点击了，一直到根元素。因此一个“鼠标点击”产生的并不是一个事件，而是一系列事件，这一系列事件就组成了“事件流”。</p>
+            
+            <div class="event-flow">
+                <div class="event-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">捕获阶段</div>
+                        <div class="step-desc">从最外层的根元素html开始依次向下。</div>
+                    </div>
+                </div>
+                
+                <div class="event-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">到达阶段</div>
+                        <div class="step-desc">事件到达目标元素时。</div>
+                    </div>
+                </div>
+                
+                <div class="event-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">冒泡阶段</div>
+                        <div class="step-desc">然后再依次向上回到根元素。</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="example-container">
+                <h3>事件流示例</h3>
+                <div class="event-bubble-demo">
+                    <div class="bubble-container" @click="logEvent('容器被点击', $event)">
+                        <p>容器元素</p>
+                        <div class="bubble-child" @click="logEvent('子元素被点击', $event)">
+                            <p>子元素</p>
+                            <div class="bubble-inner" @click="logEvent('内部元素被点击', $event)">
+                                <p>内部元素</p>
+                                <button @click="logEvent('按钮被点击', $event)">点击我</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="event-log">
+                        <div class="log-entry" v-for="(log, index) in logs" :key="index">{{ log }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- v-on指令 -->
+        <div class="chapter" id="v-on">
+            <h2><i class="fas fa-mouse-pointer"></i> v-on指令</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-code"></i> v-on指令基础</h4>
+                <p>在Vue开发中，需要给DOM元素绑定事件，利用事件实现交互效果，这时可以利用事件绑定指令 <span class="highlight">v-on</span> 来实现。</p>
+                <p>基本语法：</p>
+                <pre><code>&lt;标签名 v-on:事件名="事件处理器"&gt;&lt;/标签名&gt;</code></pre>
+                <p>事件名即DOM中的事件名，例如 <span class="highlight">click</span>、<span class="highlight">input</span>、<span class="highlight">keyup</span> 等。</p>
+                <p>事件处理器可以是方法名或内联JavaScript语句。逻辑复杂时，事件处理器建议使用方法名，方法在&lt;script&gt;标签中定义；逻辑简单，只有一行代码时，使用内联JavaScript语句。</p>
+            </div>
+            
+            <h3>v-on的使用方法</h3>
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>使用方式</th>
+                            <th>适用场景</th>
+                            <th>示例</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>方法名</td>
+                            <td>逻辑复杂</td>
+                            <td><code>v-on:click="handleClick"</code></td>
+                        </tr>
+                        <tr>
+                            <td>内联语句</td>
+                            <td>逻辑简单，只有一行代码</td>
+                            <td><code>v-on:click="count++"</code></td>
+                        </tr>
+                        <tr>
+                            <td>简写形式</td>
+                            <td>所有情况，<code>v-on:</code> 可以简写为 <code>@</code></td>
+                            <td><code>@click="handleClick"</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h3>v-on示例</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> v-on 基本用法</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;template&gt;
+  &lt;div&gt;
+    &lt;!-- 使用方法名作为事件处理器 --&gt;
+    &lt;button v-on:click="showInfo"&gt;点我提示&lt;/button&gt;
+    &lt;!-- 使用内联JavaScript语句作为事件处理器，并使用v-on简写形式 --&gt;
+    &lt;button @click="count++"&gt;计数器: {{ count }}&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  data() {
+    return {
+      count: 0
+    }
+  },
+  methods: {
+    showInfo() {
+      // 使用自定义消息盒子替代 alert，符合 Canvas 规范
+      this.showMessage('欢迎学习Vue事件处理！');
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="v-on-example" class="example-container">
+                    <div class="vue-app">
+                        <button @click="showInfo">点我提示</button>
+                        <button @click="count++">计数器: {{ count }}</button>
+                        <div id="message-box-v-on" style="display:none; padding:10px; margin-top:10px; background-color:#e0f7fa; border:1px solid #00bcd4; border-radius:5px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 事件对象 -->
+        <div class="chapter" id="event-object">
+            <h2><i class="fas fa-cube"></i> 事件对象</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-database"></i> 什么是事件对象？如何获取？</h4>
+                <p>事件对象是JavaScript原生事件对象，可以获取与事件相关的信息，例如事件类型、目标元素等。</p>
+                <p>Vue中可以通过<code>$event</code>来访问原生DOM事件。</p>
+                <p>在Vue中获取事件对象有两种主要方式：</p>
+                <ol>
+                    <li>如果事件处理器没有传入参数，则默认的第一个参数就是事件对象。</li>
+                    <li>如果事件处理器需要传入自定义参数，可以使用<code>$event</code>显式传入事件对象。</li>
+                </ol>
+            </div>
+            
+            <h3>通过参数获取事件对象</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 通过参数获取事件对象</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;template&gt;
+  &lt;div&gt;
+    &lt;!-- click 事件触发时，原生事件对象会作为 showInfo 方法的第一个参数传入 --&gt;
+    &lt;button @click="showInfo"&gt;点我显示事件信息&lt;/button&gt;
+    &lt;p&gt;事件信息: {{ eventMessage }}&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  data() {
+    return {
+      eventMessage: '点击按钮获取事件信息'
+    }
+  },
+  methods: {
+    // Vue 会自动将原生事件对象作为第一个参数传入
+    showInfo(event) {
+      this.eventMessage = `事件类型: ${event.type}, 目标标签: ${event.target.tagName}`;
+      console.log('事件对象:', event); // 可以在控制台查看完整事件对象
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="event-param-example" class="example-container">
+                    <div class="vue-app">
+                        <button @click="showInfo">点我显示事件信息</button>
+                        <p>事件信息: {{ eventMessage }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>通过$event获取事件对象及参数传递顺序</h3>
+            <div class="knowledge-card">
+                <h4><i class="fas fa-exchange-alt"></i> $event 变量与参数传递</h4>
+                <p>当事件处理器需要接收原生事件对象，同时又需要传递额外的自定义参数时，可以使用特殊的 <code>$event</code> 变量。</p>
+                <p><code>$event</code> 会显式地引用原生 DOM 事件对象。</p>
+                <p><strong>参数传递顺序：</strong></p>
+                <p>在方法调用中，<code>$event</code> 变量可以与自定义参数混合使用。无论 <code>$event</code> 放置在参数列表的哪个位置，它都代表原生事件对象。Vue 会智能地识别它并正确地传递原生事件。</p>
+                <pre><code>@click="myMethod(param1, $event, param2)"</code></pre>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 使用 $event 传递事件对象和自定义参数</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;template&gt;
+  &lt;div&gt;
+    &lt;!-- 示例1: 传递自定义参数和 $event --&gt;
+    &lt;button @click="showInfo2('自定义文本', $event)"&gt;带自定义参数和$event&lt;/button&gt;
+    &lt;!-- 示例2: 仅传递 $event --&gt;
+    &lt;button @click="showInfo1($event)"&gt;只传 $event&lt;/button&gt;
+    &lt;p&gt;{{ message }}&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  data() {
+    return {
+      message: ''
+    }
+  },
+  methods: {
+    // 仅接收事件对象
+    showInfo1(event) {
+      this.message = `事件类型: ${event.type}`;
+      console.log('showInfo1 - 接收到的事件对象:', event);
+    },
+    // 接收自定义参数和事件对象
+    showInfo2(text, event) {
+      this.message = `${text} - 目标标签: ${event.target.tagName}`;
+      console.log('showInfo2 - 自定义文本:', text);
+      console.log('showInfo2 - 事件对象:', event);
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="event-dollar-example" class="example-container">
+                    <div class="vue-app">
+                        <button @click="showInfo2('自定义文本', $event)">带自定义参数和$event</button>
+                        <button @click="showInfo1($event)">只传 $event</button>
+                        <p>{{ message }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 事件修饰符 -->
+        <div class="chapter" id="modifiers">
+            <h2><i class="fas fa-sliders-h"></i> 事件修饰符</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-magic"></i> 什么是事件修饰符？</h4>
+                <p>事件修饰符是Vue提供的特殊后缀，用于修饰事件的行为。修饰符写在事件名称之后，用点 <code>.</code> 连接。</p>
+                <p>多个事件修饰符可以串联使用。</p>
+            </div>
+            
+            <h3>常用事件修饰符详解</h3>
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>修饰符</th>
+                            <th>功能描述</th>
+                            <th>示例</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>.stop</code></td>
+                            <td>阻止事件冒泡。</td>
+                            <td><code>@click.stop</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>.prevent</code></td>
+                            <td>阻止事件的默认行为。</td>
+                            <td><code>@click.prevent</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>.once</code></td>
+                            <td>使事件只触发一次。用于阻止事件的多次触发，让事件只触发一次。</td>
+                            <td><code>@click.once</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>.capture</code></td>
+                            <td>实现事件捕获的功能。事件捕获的顺序和冒泡的顺序相反，在DOM树中的方向是由外向内。</td>
+                            <td><code>@click.capture</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>.self</code></td>
+                            <td>使DOM元素只有自身触发事件时才执行事件方法。</td>
+                            <td><code>@click.self</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>.passive</code></td>
+                            <td>监听滚动事件的功能。主要用于优化移动端设备的滚屏性能。添加<code>.passive</code>事件修饰符后会优先响应滚动事件而不是滚动事件的回调函数，从而可提升性能。</td>
+                            <td><code>@scroll.passive</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h3>阻止默认行为(.prevent) 示例</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 使用 .prevent 阻止默认行为</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;template&gt;
+  &lt;div&gt;
+    &lt;!-- 默认行为会跳转页面 --&gt;
+    &lt;a href="https://vuejs.org" @click="log('普通链接被点击，将跳转')"&gt;
+      普通链接（会跳转）
+    &lt;/a&gt;
+    
+    &lt;!-- 使用.prevent阻止默认跳转行为 --&gt;
+    &lt;a href="https://vuejs.org" @click.prevent="log('阻止跳转的链接被点击')"&gt;
+      阻止跳转的链接
+    &lt;/a&gt;
+
+    &lt;!-- 阻止表单的默认提交刷新页面行为 --&gt;
+    &lt;form @submit.prevent="handleSubmit"&gt;
+        &lt;input type="text" placeholder="输入内容"&gt;
+        &lt;button type="submit"&gt;提交 (阻止刷新)&lt;/button&gt;
+    &lt;/form&gt;
+    
+    &lt;div class="event-log"&gt;
+      &lt;div v-for="(log, index) in logs" :key="index"&gt;{{ log }}&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  data() {
+    return {
+      logs: []
+    }
+  },
+  methods: {
+    log(message) {
+      this.logs.unshift(`${new Date().toLocaleTimeString()}: ${message}`);
+      if (this.logs.length > 5) this.logs.pop(); // 限制日志数量
+    },
+    handleSubmit() {
+        this.log('表单被提交，但默认刷新行为被阻止');
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="prevent-example" class="example-container">
+                    <div class="vue-app">
+                        <a href="https://vuejs.org" @click="log('普通链接被点击，将跳转')" style="display:block; margin:10px 0;">
+                            普通链接（会跳转）
+                        </a>
+                        
+                        <a href="https://vuejs.org" @click.prevent="log('阻止跳转的链接被点击')" style="display:block; margin:10px 0;">
+                            阻止跳转的链接
+                        </a>
+                        
+                        <form @submit.prevent="handleSubmit" style="margin-top: 15px; display: flex; gap: 10px;">
+                            <input type="text" placeholder="输入内容" style="flex: 1;">
+                            <button type="submit">提交 (阻止刷新)</button>
+                        </form>
+
+                        <div class="event-log">
+                            <div class="log-entry" v-for="(log, index) in logs" :key="index">{{ log }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>阻止事件冒泡(.stop)和只触发一次(.once) 示例</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> .stop 和 .once 示例</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;template&gt;
+  &lt;div class="bubble-container" @click="log('容器被点击 (冒泡)')"&gt;
+    &lt;p&gt;容器元素&lt;/p&gt;
+    
+    &lt;div class="bubble-child" @click="log('普通子元素被点击 (会冒泡)')"&gt;
+      &lt;p&gt;普通子元素（会冒泡到容器）&lt;/p&gt;
+    &lt;/div&gt;
+    
+    &lt;div class="bubble-child" @click.stop="log('带.stop的子元素被点击 (阻止冒泡)')"&gt;
+      &lt;p&gt;带.stop的子元素（阻止事件冒泡到容器）&lt;/p&gt;
+    &lt;/div&gt;
+    
+    &lt;button @click.once="log('这个按钮只能点一次')"&gt;
+      只能点一次的按钮
+    &lt;/button&gt;
+    
+    &lt;div class="event-log"&gt;
+      &lt;div v-for="(log, index) in logs" :key="index"&gt;{{ log }}&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  data() {
+    return {
+      logs: []
+    }
+  },
+  methods: {
+    log(message) {
+      this.logs.unshift(`${new Date().toLocaleTimeString()}: ${message}`);
+      if (this.logs.length > 5) this.logs.pop();
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="stop-once-example" class="example-container">
+                    <div class="vue-app">
+                        <div class="bubble-container" @click="log('容器被点击 (冒泡)')" style="background: rgba(90, 178, 255, 0.1); padding: 20px; border-radius: 8px;">
+                            <p>容器元素</p>
+                            
+                            <div class="bubble-child" @click="log('普通子元素被点击 (会冒泡)')" style="background: rgba(90, 178, 255, 0.2); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                                <p>普通子元素（会冒泡到容器）</p>
+                            </div>
+                            
+                            <div class="bubble-child" @click.stop="log('带.stop的子元素被点击 (阻止冒泡)')" style="background: rgba(90, 178, 255, 0.2); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                                <p>带.stop的子元素（阻止事件冒泡到容器）</p>
+                            </div>
+                            
+                            <button @click.once="log('这个按钮只能点一次')" style="margin-top: 15px;">
+                                只能点一次的按钮
+                            </button>
+                            
+                            <div class="event-log" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-top: 20px; max-height: 150px; overflow-y: auto;">
+                                <div class="log-entry" v-for="(log, index) in logs" :key="index">{{ log }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>事件捕获(.capture) 示例</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 使用 .capture 示例</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;template&gt;
+  &lt;!-- 父元素使用 .capture 监听，事件会在捕获阶段被处理 --&gt;
+  &lt;div class="bubble-container" @click.capture="log('我是父元素的事件')"&gt;
+    &lt;p&gt;父元素 (捕获)&lt;/p&gt;
+    &lt;!-- 子元素普通监听，会在冒泡阶段被处理 --&gt;
+    &lt;button @click="log('我是子元素的事件')"&gt;事件捕获&lt;/button&gt;
+    &lt;div class="event-log"&gt;
+      &lt;div v-for="(log, index) in logs" :key="index"&gt;{{ log }}&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  data() {
+    return {
+      logs: []
+    }
+  },
+  methods: {
+    log(message) {
+      this.logs.unshift(`${new Date().toLocaleTimeString()}: ${message}`);
+      if (this.logs.length > 5) this.logs.pop();
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="capture-example" class="example-container">
+                    <div class="vue-app">
+                        <div class="bubble-container" @click.capture="log('我是父元素的事件')" style="background: rgba(255, 216, 184, 0.5); padding: 20px; border-radius: 8px;">
+                            <p>父元素 (捕获)</p>
+                            <button @click="log('我是子元素的事件')" style="margin-top: 10px;">事件捕获</button>
+                            <div class="event-log" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-top: 20px; max-height: 150px; overflow-y: auto;">
+                                <div class="log-entry" v-for="(log, index) in logs" :key="index">{{ log }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="margin-top:15px; font-weight:bold; color:var(--text-color);">运行结果：当你点击“事件捕获”按钮时，日志会先输出“我是父元素的事件”，再输出“我是子元素的事件”，这表明事件在捕获阶段（由外向内）先被父元素处理，然后才到达子元素并冒泡。</p>
+                </div>
+            </div>
+
+            <h3>自身触发(.self) 示例</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 使用 .self 示例</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;template&gt;
+  &lt;!-- 父元素使用 .self 监听，只有点击其自身时才触发 --&gt;
+  &lt;div class="bubble-container" @click.self="log('父元素自身被点击')"&gt;
+    &lt;p&gt;父元素 (只有自身点击才触发)&lt;/p&gt;
+    &lt;!-- 点击子元素会冒泡，但父元素的 .self 监听器会忽略它 --&gt;
+    &lt;button @click="log('子元素被点击')"&gt;点击子元素&lt;/button&gt;
+    &lt;div class="event-log"&gt;
+      &lt;div v-for="(log, index) in logs" :key="index"&gt;{{ log }}&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  data() {
+    return {
+      logs: []
+    }
+  },
+  methods: {
+    log(message) {
+      this.logs.unshift(`${new Date().toLocaleTimeString()}: ${message}`);
+      if (this.logs.length > 5) this.logs.pop();
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="self-example" class="example-container">
+                    <div class="vue-app">
+                        <div class="bubble-container" @click.self="log('父元素自身被点击')" style="background: rgba(255, 239, 214, 0.5); padding: 20px; border-radius: 8px;">
+                            <p>父元素 (只有自身点击才触发)</p>
+                            <button @click="log('子元素被点击')" style="margin-top: 10px;">点击子元素</button>
+                            <div class="event-log" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-top: 20px; max-height: 150px; overflow-y: auto;">
+                                <div class="log-entry" v-for="(log, index) in logs" :key="index">{{ log }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="margin-top:15px; font-weight:bold; color:var(--text-color);">运行结果：当你点击父元素空白区域时，会触发“父元素自身被点击”；当你点击“点击子元素”按钮时，只会触发“子元素被点击”，父元素的 <code>.self</code> 监听器不会被触发，因为它阻止了从子元素冒泡上来的事件。</p>
+                </div>
+            </div>
+
+            <h3>被动事件(.passive) 示例</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 使用 .passive 示例</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;template&gt;
+  &lt;!-- 使用 .passive 优化滚动性能 --&gt;
+  &lt;div class="scroll-container" @scroll.passive="handleScroll"&gt;
+    &lt;p&gt;请在此区域滚动，观察控制台输出。&lt;/p&gt;
+    &lt;p&gt;添加 .passive 事件修饰符后会优先响应滚动事件而不是滚动事件的回调函数，从而可提升性能。&lt;/p&gt;
+    &lt;p v-for="n in 50" :key="n"&gt;滚动内容 {{ n }}&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class="event-log"&gt;
+    &lt;div v-for="(log, index) in logs" :key="index"&gt;{{ log }}&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  data() {
+    return {
+      logs: []
+    }
+  },
+  methods: {
+    handleScroll(event) {
+      // .passive 修饰符告诉浏览器，你不会在这里调用 event.preventDefault()
+      // 因此，即使回调函数执行较慢，浏览器也可以继续平滑滚动
+      this.logs.unshift(`${new Date().toLocaleTimeString()}: 滚动事件触发, 滚动位置: ${event.target.scrollTop.toFixed(2)}`);
+      if (this.logs.length > 5) this.logs.pop();
+    }
+  }
+}
+&lt;/script&gt;
+&lt;style&gt;
+.scroll-container {
+  height: 200px;
+  overflow-y: scroll;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-top: 20px;
+  background-color: #f9f9f9;
+}
+&lt;/style&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="passive-example" class="example-container">
+                    <div class="vue-app">
+                        <div class="scroll-container" @scroll.passive="handleScroll" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-top: 20px; background-color: #f9f9f9;">
+                            <p>请在此区域滚动，观察控制台输出。</p>
+                            <p>添加 .passive 事件修饰符后会优先响应滚动事件而不是等待滚动事件的回调函数执行，从而可提升性能。</p>
+                            <p v-for="n in 50" :key="n">滚动内容 {{ n }}</p>
+                        </div>
+                        <div class="event-log" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-top: 20px; max-height: 150px; overflow-y: auto;">
+                            <div class="log-entry" v-for="(log, index) in logs" :key="index">{{ log }}</div>
+                        </div>
+                    </div>
+                    <p style="margin-top:15px; font-weight:bold; color:var(--text-color);">运行结果：当你在此区域滚动时，日志会快速更新滚动位置，即使 <code>handleScroll</code> 中有复杂逻辑也不会阻塞页面的平滑滚动，这是 <code>.passive</code> 修饰符的主要作用。</p>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-icon"><i class="fas fa-lightbulb"></i></div>
+                <div class="tip-content">
+                    <h4>事件修饰符使用技巧</h4>
+                    <p>1. 多个修饰符可以串联使用。</p>
+                    <p>2. 修饰符的顺序很重要，Vue会按顺序执行。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 键盘事件修饰符 -->
+        <div class="chapter" id="keyboard-modifiers">
+            <h2><i class="fas fa-keyboard"></i> 键盘事件修饰符</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-key"></i> 键盘事件修饰符详解</h4>
+                <p>Vue 提供了用于监听特定键盘按键的修饰符。</p>
+                <p><strong>常用按键修饰符：</strong></p>
+                <ul>
+                    <li><code>.enter</code></li>
+                    <li><code>.tab</code></li>
+                    <li><code>.delete</code> (捕获“删除”和“退格”键)</li>
+                    <li><code>.esc</code></li>
+                    <li><code>.space</code></li>
+                    <li><code>.up</code></li>
+                    <li><code>.down</code></li>
+                    <li><code>.left</code></li>
+                    <li><code>.right</code></li>
+                </ul>
+                <p><strong>系统修饰符：</strong></p>
+                <ul>
+                    <li><code>.ctrl</code></li>
+                    <li><code>.alt</code></li>
+                    <li><code>.shift</code></li>
+                    <li><code>.meta</code></li>
+                </ul>
+                <p><strong><code>.exact</code>修饰符：</strong></p>
+                <p>控制修饰符组合，只有当确切地按下某个修饰符时才触发事件。</p>
+            </div>
+
+            <h3>键盘事件修饰符示例</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 键盘事件修饰符</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;template&gt;
+  &lt;div&gt;
+    &lt;p&gt;请在以下输入框中尝试按键:&lt;/p&gt;
+    &lt;input type="text" @keyup.enter="handleEnter" placeholder="按回车键触发"&gt;
+    &lt;input type="text" @keyup.esc="handleEsc" placeholder="按Esc键触发"&gt;
+    &lt;!-- PDF中示例的组合键 --&gt;
+    &lt;input type="text" @keyup.ctrl.enter="handleCtrlEnter" placeholder="按Ctrl + Enter触发"&gt;
+    &lt;!-- PDF中.exact修饰符的示例 --&gt;
+    &lt;input type="text" @click.ctrl="handleCtrlClick" placeholder="按Ctrl + 点击我 (无论是否有其他修饰符)"&gt;
+    &lt;input type="text" @click.ctrl.exact="handleCtrlExactClick" placeholder="按Ctrl + 点击我 (仅当Ctrl按下，无其他修饰符)"&gt;
+    &lt;input type="text" @click.exact="handleExactClick" placeholder="仅普通点击 (无任何修饰符)"&gt;
+
+    &lt;p&gt;最新事件: &lt;span&gt;{{ keyMessage }}&lt;/span&gt;&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  data() {
+    return {
+      keyMessage: '等待按键...'
+    }
+  },
+  methods: {
+    handleEnter() {
+      this.keyMessage = '回车键 (Enter) 被按下！';
+    },
+    handleEsc() {
+      this.keyMessage = 'Esc 键被按下！';
+    },
+    handleCtrlEnter() {
+      this.keyMessage = 'Ctrl + Enter 组合键被按下！';
+    },
+    // 以下为PDF中.exact修饰符的示例对应
+    handleCtrlClick() {
+        this.keyMessage = 'Ctrl 键被按下 (无论是否有其他修饰符)';
+    },
+    handleCtrlExactClick() {
+        this.keyMessage = '仅 Ctrl 键被按下 (无其他修饰符)！';
+    },
+    handleExactClick() {
+        this.keyMessage = '仅普通点击 (无任何修饰符)！';
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="keyboard-modifier-example" class="example-container">
+                    <div class="vue-app">
+                        <p>请在以下输入框中尝试按键:</p>
+                        <input type="text" @keyup.enter="handleEnter" placeholder="按回车键触发">
+                        <input type="text" @keyup.esc="handleEsc" placeholder="按Esc键触发">
+                        <input type="text" @keyup.ctrl.enter="handleCtrlEnter" placeholder="按Ctrl + Enter触发">
+                        <input type="text" @click.ctrl="handleCtrlClick" placeholder="按Ctrl + 点击我 (无论是否有其他修饰符)">
+                        <input type="text" @click.ctrl.exact="handleCtrlExactClick" placeholder="按Ctrl + 点击我 (仅当Ctrl按下，无其他修饰符)">
+                        <input type="text" @click.exact="handleExactClick" placeholder="仅普通点击 (无任何修饰符)">
+                        <p>最新事件: <span>{{ keyMessage }}</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 鼠标事件修饰符 -->
+        <div class="chapter" id="mouse-modifiers">
+            <h2><i class="fas fa-mouse"></i> 鼠标事件修饰符</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-mouse-pointer"></i> 鼠标事件修饰符详解</h4>
+                <p>Vue 也提供了用于监听特定鼠标按键的修饰符。</p>
+                <ul>
+                    <li><code>.left</code>：左键点击。</li>
+                    <li><code>.right</code>：右键点击。</li>
+                    <li><code>.middle</code>：中键点击。</li>
+                </ul>
+            </div>
+
+            <h3>鼠标事件修饰符示例</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 鼠标事件修饰符</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;template&gt;
+  &lt;div&gt;
+    &lt;p&gt;请用不同鼠标按键点击以下按钮:&lt;/p&gt;
+    &lt;button @click.left="handleLeftClick"&gt;左键点击我&lt;/button&gt;
+    &lt;!-- 阻止右键菜单的默认行为 --&gt;
+    &lt;button @click.right.prevent="handleRightClick"&gt;右键点击我 (阻止默认菜单)&lt;/button&gt;
+    &lt;button @click.middle="handleMiddleClick"&gt;中键点击我&lt;/button&gt;
+    &lt;p&gt;最新事件: &lt;span&gt;{{ mouseMessage }}&lt;/span&gt;&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  data() {
+    return {
+      mouseMessage: '等待鼠标点击...'
+    }
+  },
+  methods: {
+    handleLeftClick() {
+      this.mouseMessage = '鼠标左键被点击！';
+    },
+    handleRightClick() {
+      this.mouseMessage = '鼠标右键被点击！';
+    },
+    handleMiddleClick() {
+      this.mouseMessage = '鼠标中键被点击！';
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="mouse-modifier-example" class="example-container">
+                    <div class="vue-app">
+                        <p>请用不同鼠标按键点击以下按钮:</p>
+                        <button @click.left="handleLeftClick">左键点击我</button>
+                        <button @click.right.prevent="handleRightClick">右键点击我 (阻止默认菜单)</button>
+                        <button @click.middle="handleMiddleClick">中键点击我</button>
+                        <p>最新事件: <span>{{ mouseMessage }}</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <p>Vue事件处理学习手册 | 完整覆盖PDF所有知识点 | 基于Vue 3</p>
+        <p>本教程涵盖了事件基础、v-on指令、事件对象和事件修饰符等核心概念</p>
+    </div>
+
+    <script>
+        // 全局消息盒子函数，替代 alert
+        function showMessageBox(message, id) {
+            const msgBox = document.getElementById(id);
+            if (msgBox) {
+                msgBox.textContent = message;
+                msgBox.style.display = 'block';
+                setTimeout(() => {
+                    msgBox.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // 运行按钮功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const runButtons = document.querySelectorAll('.run-btn');
+            
+            runButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const resultContainer = this.closest('.code-container').nextElementSibling;
+                    resultContainer.classList.add('active');
+                    
+                    // 添加视觉反馈
+                    button.innerHTML = '<i class="fas fa-check"></i> 已运行';
+                    button.style.background = 'linear-gradient(135deg, #4caf50, #2e7d32)';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="fas fa-play"></i> 运行代码';
+                        button.style.background = 'linear-gradient(135deg, var(--accent-color), #3a8de0)';
+                    }, 2000);
+                });
+            });
+            
+            // 为事件基础示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        logs: []
+                    }
+                },
+                methods: {
+                    logEvent(message, event) {
+                        const path = [];
+                        let current = event.target;
+                        
+                        while (current) {
+                            // 避免重复记录文档/html/body标签，只记录有实际意义的元素
+                            if (current.tagName && current.tagName !== 'HTML' && current.tagName !== 'BODY' && current.tagName !== 'DIV') {
+                                path.push(current.tagName);
+                            }
+                            current = current.parentElement;
+                        }
+                        // 反转路径以显示从内到外的冒泡顺序
+                        const displayPath = path.reverse().join(' → ');
+                        
+                        const log = `${new Date().toLocaleTimeString()}: ${message} (事件路径: ${displayPath})`;
+                        this.logs.unshift(log);
+                        
+                        // 限制日志数量
+                        if (this.logs.length > 10) {
+                            this.logs.pop();
+                        }
+                    }
+                }
+            }).mount('.event-bubble-demo');
+            
+            // 为v-on示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        count: 0
+                    }
+                },
+                methods: {
+                    showInfo() {
+                        // 使用自定义消息盒子替代 alert
+                        showMessageBox('欢迎学习Vue事件处理！', 'message-box-v-on');
+                    },
+                    // 为了示例，这里需要一个log方法
+                    log(message) {
+                        console.log(message);
+                    }
+                }
+            }).mount('#v-on-example .vue-app');
+            
+            // 为事件参数示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        eventMessage: '点击按钮获取事件信息' // Simplified to match PDF's level of detail
+                    }
+                },
+                methods: {
+                    showInfo(event) {
+                        this.eventMessage = `事件类型: ${event.type}, 目标标签: ${event.target.tagName}`;
+                        console.log('事件对象:', event); // 可以在控制台查看完整事件对象
+                    }
+                }
+            }).mount('#event-param-example .vue-app');
+            
+            // 为$event示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        message: ''
+                    }
+                },
+                methods: {
+                    showInfo1(event) {
+                        this.message = `事件类型: ${event.type}`;
+                        console.log('showInfo1 - 接收到的事件对象:', event);
+                    },
+                    showInfo2(text, event) { // Changed parameter names to match example
+                        this.message = `${text} - 目标标签: ${event.target.tagName}`;
+                        console.log('showInfo2 - 自定义文本:', text);
+                        console.log('showInfo2 - 事件对象:', event);
+                    }
+                }
+            }).mount('#event-dollar-example .vue-app');
+            
+            // 为prevent示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        logs: []
+                    }
+                },
+                methods: {
+                    log(message) {
+                        this.logs.unshift(`${new Date().toLocaleTimeString()}: ${message}`);
+                        if (this.logs.length > 5) this.logs.pop();
+                    },
+                    handleSubmit() {
+                        this.log('表单被提交，但默认刷新行为被阻止');
+                    }
+                }
+            }).mount('#prevent-example .vue-app');
+            
+            // 为stop和once示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        logs: []
+                    }
+                },
+                methods: {
+                    log(message) {
+                        this.logs.unshift(`${new Date().toLocaleTimeString()}: ${message}`);
+                        if (this.logs.length > 5) this.logs.pop();
+                    }
+                }
+            }).mount('#stop-once-example .vue-app');
+
+            // 为capture示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        logs: []
+                    }
+                },
+                methods: {
+                    log(message) {
+                        this.logs.unshift(`${new Date().toLocaleTimeString()}: ${message}`);
+                        if (this.logs.length > 5) this.logs.pop();
+                    }
+                }
+            }).mount('#capture-example .vue-app');
+
+            // 为self示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        logs: []
+                    }
+                },
+                methods: {
+                    log(message) {
+                        this.logs.unshift(`${new Date().toLocaleTimeString()}: ${message}`);
+                        if (this.logs.length > 5) this.logs.pop();
+                    }
+                }
+            }).mount('#self-example .vue-app');
+
+            // 为passive示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        logs: []
+                    }
+                },
+                methods: {
+                    handleScroll(event) {
+                      this.logs.unshift(`${new Date().toLocaleTimeString()}: 滚动事件触发, 滚动位置: ${event.target.scrollTop.toFixed(2)}`);
+                      if (this.logs.length > 5) this.logs.pop();
+                    }
+                }
+            }).mount('#passive-example .vue-app');
+
+            // 移除 "组合使用事件修饰符" 示例的 Vue 应用，因为该部分已根据PDF要求删除详细解释
+            // 为keyboard-modifier-example创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        keyMessage: '等待按键...'
+                    }
+                },
+                methods: {
+                    handleEnter() {
+                      this.keyMessage = '回车键 (Enter) 被按下！';
+                    },
+                    handleEsc() {
+                      this.keyMessage = 'Esc 键被按下！';
+                    },
+                    handleCtrlEnter() {
+                      this.keyMessage = 'Ctrl + Enter 组合键被按下！';
+                    },
+                    // PDF中.exact修饰符的示例对应方法
+                    handleCtrlClick() {
+                        this.keyMessage = 'Ctrl 键被按下 (无论是否有其他修饰符)';
+                    },
+                    handleCtrlExactClick() {
+                        this.keyMessage = '仅 Ctrl 键被按下 (无其他修饰符)！';
+                    },
+                    handleExactClick() {
+                        this.keyMessage = '仅普通点击 (无任何修饰符)！';
+                    }
+                }
+            }).mount('#keyboard-modifier-example .vue-app');
+
+            // 为mouse-modifier-example创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        mouseMessage: '等待鼠标点击...'
+                    }
+                },
+                methods: {
+                    handleLeftClick() {
+                      this.mouseMessage = '鼠标左键被点击！';
+                    },
+                    handleRightClick() {
+                      this.mouseMessage = '鼠标右键被点击！';
+                    },
+                    handleMiddleClick() {
+                      this.mouseMessage = '鼠标中键被点击！';
+                    }
+                }
+            }).mount('#mouse-modifier-example .vue-app');
+        });
+    </script>
+</body>
+</html>

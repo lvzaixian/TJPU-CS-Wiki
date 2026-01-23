@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vue 3 示例</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+  <div id="root">
+    <p v-for="(value,index) in list" :key="index">{{index}}+1={{value}}</p>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          num: 1,
+          numChage: '这里显示数值更新情况',
+          list:[1,2,3]
+        };
+      },
+      methods: {
+        chageNum() {
+          this.num += 1;
+        }
+      },
+
+      watch: {
+        num(newval, oldval) {
+          this.numChage = `num从${oldval}变成了${newval}`;
+        }
+      }
+    }).mount('#root');
+  </script>
+</body>
+</html>

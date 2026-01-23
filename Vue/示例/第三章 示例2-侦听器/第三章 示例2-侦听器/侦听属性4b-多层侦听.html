@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+  <html>
+   <head>
+    <meta charset="UTF-8" />
+    <title>侦听属性</title>
+    <script  src="vue.js"></script>
+   </head>
+   <body>
+    <div id="root">
+       <h2>今天天气很{{info}}</h2>
+       <button @click="changeweather">切换天气</button> 
+       <br/>
+       <h3>a的值是{{numbers.a}}</h3>
+       <button @click="numbers.a++">点我a+1</button>
+       <h3>b的值是{{numbers.b}}</h3>
+       <button @click="numbers.b++">点我b+1</button>
+    </div>
+   </body>
+  
+   <script>
+    Vue.config.productionTip = false //阻止Vue启动时生成生产提示
+         
+    const vm = new Vue({
+       el:'#root',
+       data:{
+          ishot:true,
+          numbers:{
+            a:1,
+            b:2
+          }
+         },
+      computed:{
+         info(){
+            return this.ishot? '炎热':'凉爽'
+         }
+      },
+      methods: {
+         changeweather(){
+            this.ishot=!this.ishot
+         }
+      },
+      watch:{
+         ishot:{
+            handler(newValue,oldValue){    //ishot发生改变时调用
+               console.log('ishot被修改了',newValue,oldValue)
+            }
+         },
+        numbers:{
+         deep: true,
+         handler(){    
+            console.log('numbers被修改了')
+         }
+       }
+   }
+   })   
+   </script>
+  </html>

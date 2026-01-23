@@ -1,0 +1,35 @@
+{
+  "target_directory": "D:\\cxdownload",
+  "rules": {
+    "Images": [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".bmp"
+    ],
+    "Documents": [
+      ".pdf",
+      ".docx",
+      ".txt",
+      ".xlsx",
+      ".pptx"
+    ],
+    "Archives": [
+      ".zip",
+      ".rar",
+      ".7z",
+      ".tar",
+      ".gz"
+    ],
+    "Executables": [
+      ".exe",
+      ".msi",
+      ".dmg"
+    ]
+  },
+  "favorite_dirs": [
+    "C:\\Users\\Jason\\Desktop",
+    "D:\\Download"
+  ]
+}

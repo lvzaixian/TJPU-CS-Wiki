@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第三章 关系数据库标准语言SQL测验</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <!-- 引入MathJax 3库用于渲染公式 -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        /* CSS Variables for a consistent green theme (matching previous Chapter 3 theme, but adopting Chapter 7's blue-ish structure) */
+        :root {
+            --primary-main: #4CAF50; /* Green 500 - vibrant main accent */
+            --primary-dark: #388E3C; /* Green 700 - darker shade for strong highlights */
+            --secondary-main: #1B5E20; /* Green 900 - deep dark green for titles, bold elements */
+            --accent-soft: #FFC107; /* Amber 500 - bright contrasting accent (gold-ish yellow) */
+            --text-default: #212121; /* Dark gray for standard text */
+            --text-light-gray: #616161; /* Gray 700 - lighter gray for subtitles */
+            --bg-light: #F1F8E9; /* Green 50 - very light green background */
+            --bg-lighter: #E8F5E9; /* Green 100 - slightly darker light green background */
+            --card-bg: #FFFFFF; /* White card background */
+            --card-shadow: 0 10px 30px rgba(27, 94, 32, 0.1); /* Shadow tinted with secondary-main */
+            --border-card: #C8E6C9; /* Green 200 - light green border for cards */
+            --transition-ease: all 0.3s ease; /* General transition */
+
+            /* Colors for feedback (matching Chapter 7's feedback style) */
+            --correct-answer-bg: #d4edda; /* Light green */
+            --correct-answer-text: #155724; /* Dark green */
+            --incorrect-answer-bg: #f8d7da; /* Light red */
+            --incorrect-answer-text: #721c24; /* Dark red */
+            --info-bg: #e2e3e5; /* Light grey for info boxes */
+            --info-border: #bcbebf; /* Grey border for info boxes */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-default);
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-lighter) 100%);
+            background-attachment: fixed;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 960px; /* Slightly wider for SQL examples */
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 18px;
+            box-shadow: var(--card-shadow);
+            padding: 35px;
+            border: 1px solid var(--border-card);
+            transition: var(--transition-ease);
+        }
+        .container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(27, 94, 32, 0.15); /* Slightly stronger shadow on hover */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-main);
+            position: relative;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-main), transparent);
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: var(--secondary-main);
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light-gray);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            margin-top: 40px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-card);
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+        .section-title i {
+            color: var(--primary-main);
+        }
+
+        .question-block {
+            background-color: var(--bg-lighter);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-card);
+            transition: var(--transition-ease);
+        }
+        .question-block:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            margin-bottom: 18px;
+            color: var(--text-default);
+            font-weight: 500;
+        }
+
+        /* Improved options label styling */
+        .options label {
+            display: block;
+            margin-bottom: 12px;
+            padding: 12px 15px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex; /* Use flex to align radio button and text */
+            align-items: center;
+            gap: 12px; /* Space between radio and text */
+        }
+
+        .options label:hover {
+            background-color: var(--bg-light);
+            border-color: var(--primary-main);
+            box-shadow: 0 2px 5px rgba(76, 175, 80, 0.2); /* Green hover shadow */
+        }
+        
+        .options input[type="radio"] {
+            /* Custom radio button appearance */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 20px; /* Size of the custom radio */
+            height: 20px;
+            border: 2px solid var(--primary-main);
+            border-radius: 50%; /* Make it circular */
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0; /* Prevent shrinking in flex container */
+            transition: all 0.2s ease;
+        }
+
+        .options input[type="radio"]:checked {
+            background-color: var(--primary-main);
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.3); /* Subtle outer glow */
+        }
+
+        .options input[type="radio"]:checked::before {
+            content: '';
+            display: block;
+            width: 10px; /* Size of the inner dot */
+            height: 10px;
+            background-color: white; /* Inner white dot */
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Improved fill-in-the-blank input styling */
+        .fill-in-the-blank-container {
+            display: inline-block; /* Allows inputs to be inline with text */
+            margin: 0 5px; /* Spacing between text and input */
+        }
+
+        .fill-in-the-blank-input {
+            padding: 8px 10px;
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            font-size: 1.05rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            text-align: center; /* Center text in input */
+            min-width: 80px; /* Minimum width for inputs */
+            display: inline-block; /* Ensure it stays inline */
+        }
+        .fill-in-the-blank-input:focus {
+            outline: none;
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); /* Green focus shadow */
+        }
+
+        .true-false-options {
+            display: flex;
+            gap: 25px;
+        }
+
+        /* Improved True/False button styling (similar to Chapter 7) */
+        .true-false-options label {
+            flex: 1;
+            text-align: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: 12px 15px; /* Add padding to make them look like buttons */
+            display: flex; /* Use flex to center content */
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Space between radio and text */
+        }
+
+        .true-false-options label:hover {
+            background-color: var(--bg-light);
+            border-color: var(--primary-main);
+            box-shadow: 0 2px 5px rgba(76, 175, 80, 0.2); /* Green hover shadow */
+        }
+
+        .true-false-options input[type="radio"] {
+            margin-right: 0; /* Remove default margin */
+            /* Custom radio button appearance */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 24px; /* Larger custom radio */
+            height: 24px;
+            border: 2px solid var(--primary-main);
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .true-false-options input[type="radio"]:checked {
+            background-color: var(--primary-main);
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.3); /* Subtle outer glow */
+        }
+
+        .true-false-options input[type="radio"]:checked::before {
+            content: '';
+            display: block;
+            width: 12px;
+            height: 12px;
+            background-color: white; /* Inner white dot */
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Styles for individual "查看答案与解析" button (now a small circle with '解' like Chapter 7/8) */
+        .individual-answer-btn {
+            width: 38px; /* Diameter for the circle */
+            height: 38px; /* Diameter for the circle */
+            background: linear-gradient(45deg, var(--primary-main), var(--primary-dark));
+            color: white; /* White text for contrast */
+            border: none;
+            border-radius: 50%; /* Make it a perfect circle */
+            cursor: pointer;
+            font-size: 1.0rem; /* Adjust font size for '解' */
+            font-weight: 600;
+            transition: var(--transition-ease);
+            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex; /* Use flex to center text */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            float: right; /* Float to the right */
+            clear: right; /* Clear float for subsequent elements */
+        }
+        .individual-answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-main));
+        }
+        .individual-answer-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .individual-answer-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.5s ease-out;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        .individual-answer-btn:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+
+        /* Styles for global control buttons (larger, full width, like Chapter 8) */
+        .global-control-btn, .submit-btn, .reset-btn {
+            background: linear-gradient(45deg, var(--primary-main), var(--primary-dark));
+            color: white; /* White text for contrast */
+            padding: 15px 30px; /* Larger padding */
+            border: none;
+            border-radius: 10px; /* More rounded */
+            cursor: pointer;
+            font-size: 1.2rem; /* Larger font */
+            font-weight: 700;
+            transition: var(--transition-ease);
+            margin-top: 25px; /* Adjust top margin for spacing */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            display: block; /* Full width by default */
+            width: 100%; /* Full width by default */
+        }
+        /* Make submit and reset buttons inline-block to allow side-by-side or centering */
+        .submit-btn, .reset-btn {
+            display: inline-block;
+            width: auto; /* Auto width based on content */
+            margin: 0 10px; /* Space between buttons */
+            min-width: 150px; /* Ensure they are not too small */
+            text-align: center;
+        }
+
+        .global-control-btn:hover, .submit-btn:hover, .reset-btn:hover {
+            transform: translateY(-5px); /* More pronounced lift */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-main));
+        }
+        .global-control-btn:active, .submit-btn:active, .reset-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .global-control-btn::before, .submit-btn::before, .reset-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.5s ease-out;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        .global-control-btn:hover::before, .submit-btn:hover::before, .reset-btn:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+
+        .answer-area {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--info-bg); /* Use info background color */
+            border: 1px solid var(--info-border); /* Use info border color */
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-default);
+            display: none; /* Initially hidden */
+            animation: slideInUp 0.4s ease-out;
+        }
+        .answer-area strong {
+            color: var(--primary-dark);
+        }
+        .answer-area ul {
+            padding-left: 20px;
+            list-style: disc; /* Use standard disc for ul */
+        }
+        .answer-area ol {
+            padding-left: 20px;
+            list-style: decimal; /* Use standard decimal for ol */
+        }
+
+        .concept-highlight {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        /* SQL code block styles */
+        .sql-code-block {
+            background-color: #263238; /* Dark blue-grey for code */
+            color: #EEFF41; /* Light green-yellow for code text */
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin: 15px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        /* Adjusted colors for SQL syntax highlighting to match theme */
+        .sql-code-block .sql-keyword { color: #80CBC4; } /* Teal */
+        .sql-code-block .sql-type { color: #82B1FF; } /* Light Blue */
+        .sql-code-block .sql-string { color: #A5D6A7; } /* Light Green */
+        .sql-code-block .sql-comment { color: #9E9E9E; font-style: italic; } /* Grey */
+        .sql-code-block .sql-operator { color: #FFAB91; } /* Light Orange */
+        .sql-code-block .sql-number { color: #FFEB3B; } /* Yellow */
+        .sql-code-block .sql-function { color: #64FFDA; } /* Aqua */
+        .sql-code-block .sql-table { color: #CFD8DC; } /* Blue Grey 100 */
+        .sql-code-block .sql-column { color: #B39DDB; } /* Deep Purple 200 */
+        .sql-code-block .sql-punctuation { color: #EEFF41; } /* Light green-yellow */
+
+
+        /* Styles for HTML rendered tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse; /* Collapse borders between cells */
+            margin: 20px 0;
+            font-size: 0.95rem;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            overflow: hidden; /* Ensures rounded corners apply to content */
+            border: 1px solid var(--border-card);
+        }
+
+        .data-table thead {
+            background-color: var(--primary-main);
+            color: white; /* White text for contrast */
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-card); /* Lighter border for rows */
+        }
+
+        .data-table th {
+            font-weight: 700;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: var(--bg-light); /* Light alternate row color */
+        }
+
+        .data-table tbody tr:hover {
+            background-color: var(--bg-lighter); /* Slightly darker hover */
+            cursor: default;
+        }
+
+        /* Responsive adjustments for tables */
+        @media (max-width: 600px) {
+            .data-table, .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr {
+                display: block; /* Make table elements stack */
+            }
+
+            .data-table thead tr {
+                position: absolute;
+                top: -9999px; /* Hide table headers (but not display: none; for screen readers) */
+                left: -9999px;
+            }
+
+            .data-table tr {
+                margin-bottom: 15px;
+                border: 1px solid var(--border-card);
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+
+            .data-table td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%; /* Make room for the pseudo-element label */
+                text-align: right;
+            }
+
+            .data-table td:before {
+                position: absolute;
+                top: 0;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: var(--primary-dark);
+            }
+            /* Assign labels using data-label attribute for each column */
+            .data-table td:nth-of-type(1):before { content: attr(data-label); }
+            .data-table td:nth-of-type(2):before { content: attr(data-label); }
+            .data-table td:nth-of-type(3):before { content: attr(data-label); }
+            .data-table td:nth-of-type(4):before { content: attr(data-label); }
+            .data-table td:nth-of-type(5):before { content: attr(data-label); }
+            .data-table td:nth-of-type(6):before { content: attr(data-label); } /* Added for fine column */
+            /* Extend for more columns if necessary */
+        }
+
+        /* Feedback and Score Display */
+        .result-message {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 1.15rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .result-message.correct {
+            background-color: var(--correct-answer-bg);
+            color: var(--correct-answer-text);
+            border: 1px solid rgba(212, 237, 218, 0.7); /* Light green border */
+        }
+
+        .result-message.incorrect {
+            background-color: var(--incorrect-answer-bg);
+            color: var(--incorrect-answer-text);
+            border: 1px solid rgba(248, 215, 218, 0.7); /* Light red border */
+        }
+
+        .answer-feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            display: none; /* Initially hidden, visible via .is-visible class */
+            animation: slideInUp 0.4s ease-out;
+        }
+
+        .answer-feedback.is-visible {
+            display: block; /* Show when this class is present */
+        }
+
+        .answer-feedback.correct {
+            background-color: var(--correct-answer-bg);
+            color: var(--correct-answer-text);
+            border: 1px solid rgba(212, 237, 218, 0.7);
+        }
+
+        .answer-feedback.incorrect {
+            background-color: var(--incorrect-answer-bg);
+            color: var(--incorrect-answer-text);
+            border: 1px solid rgba(248, 215, 218, 0.7);
+        }
+        
+        .answer-feedback.info { /* For show answers / unanswered */
+            background-color: var(--info-bg);
+            color: var(--text-default);
+            border: 1px solid var(--info-border);
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--info-bg);
+            border: 1px solid var(--info-border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-default);
+            display: none; /* Initially hidden, visible via .is-visible class */
+            animation: slideInUp 0.4s ease-out 0.1s;
+        }
+
+        .explanation.is-visible {
+            display: block; /* Show when this class is present */
+        }
+
+        .score-display {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 25px;
+            color: var(--primary-dark); /* Using primary-dark for score */
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .section-title { font-size: 1.6rem; }
+            .question-text { font-size: 1.05rem; }
+            .options label { padding: 10px; }
+            .individual-answer-btn { width: 32px; height: 32px; font-size: 0.9rem; margin-top: 10px;} /* Smaller on mobile */
+            .global-control-btn, .submit-btn, .reset-btn { padding: 12px 25px; font-size: 1.05rem; }
+            .true-false-options { flex-direction: column; gap: 10px; }
+            .container { padding: 20px; }
+            .fill-in-the-blank-input { min-width: 60px; padding: 6px 8px; } /* Smaller inputs on mobile */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>数据库原理：第三章关系数据库标准语言SQL测验</h1>
+            <p class="subtitle">检验你对SQL数据定义、查询、更新及视图等核心概念的掌握程度！</p>
+        </header>
+
+        <form id="quizForm">
+            <!-- 单项选择题 -->
+            <h2 class="section-title"><i class="fas fa-check-circle"></i> 一、单项选择题</h2>
+            <div id="multiple-choice-questions">
+                <!-- 1. SQL语言的特点 (PPT 3.1.2) -->
+                <div class="question-block" data-question-index="0">
+                    <p class="question-text">1. SQL语言的特点不包括（　　）。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q1" value="A"> A．功能综合统一</label>
+                        <label><input type="radio" name="q1" value="B"> B．高度非过程化</label>
+                        <label><input type="radio" name="q1" value="C"> C．面向记录的操作方式</label>
+                        <label><input type="radio" name="q1" value="D"> D．语言简洁，易学易用</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q1">解</button>
+                    <div class="answer-area" id="answer-q1">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> SQL采用的是<span class="concept-highlight">面向集合的操作方式</span>，而不是面向记录的操作方式。层次、网状模型采用的是面向记录的操作方式。</p>
+                    </div>
+                </div>
+
+                <!-- 2. CREATE SCHEMA语句的作用 (PPT 3.2.1) -->
+                <div class="question-block" data-question-index="1">
+                    <p class="question-text">2. 在SQL中，<code>CREATE SCHEMA</code> 语句的主要作用是（　　）。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q2" value="A"> A．创建一个新的数据库实例</label>
+                        <label><input type="radio" name="q2" value="B"> B．定义一个命名空间，可以在其中定义数据库对象</label>
+                        <label><input type="radio" name="q2" value="C"> C．创建一张新的基本表</label>
+                        <label><input type="radio" name="q2" value="D"> D．设置用户权限</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q2">解</button>
+                    <div class="answer-area" id="answer-q2">
+                        <p><strong>正确答案：B</strong></p>
+                        <p><strong>解析：：</strong> `CREATE SCHEMA` 用于定义一个模式（schema），它是一个命名空间，用于组织和管理数据库对象（如表、视图、索引）。</p>
+                    </div>
+                </div>
+
+                <!-- 3. DROP SCHEMA的CASCADE和RESTRICT (PPT 3.2.1) -->
+                <div class="question-block" data-question-index="2">
+                    <p class="question-text">3. 执行 <code>DROP SCHEMA Test RESTRICT;</code> 语句时，如果模式Test中包含有表Tab1，则会发生什么？（　　）</p>
+                    <div class="options">
+                        <label><input type="radio" name="q3" value="A"> A．模式Test和表Tab1都被删除</label>
+                        <label><input type="radio" name="q3" value="B"> B．只删除模式Test，表Tab1保留</label>
+                        <label><input type="radio" name="q3" value="C"> C．语句执行失败，因为模式中存在数据库对象</label>
+                        <label><input type="radio" name="q3" value="D"> D．删除模式Test，但会提示用户是否删除表Tab1</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q3">解</button>
+                    <div class="answer-area" id="answer-q3">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> `RESTRICT` 选项表示“限制”，如果该模式中定义了任何数据库对象（如表、视图等），则拒绝该删除语句的执行，只有当模式为空时才能删除。而 `CASCADE` 选项才会级联删除模式中的所有对象。</p>
+                    </div>
+                </div>
+
+                <!-- 4. SELECT语句中去除重复元组的关键字 (PPT 3.3.1) -->
+                <div class="question-block" data-question-index="3">
+                    <p class="question-text">4. 在SQL的 <code>SELECT</code> 语句中，用于消除查询结果中重复元组的关键字是（　　）。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q4" value="A"> A．ALL</label>
+                        <label><input type="radio" name="q4" value="B"> B．UNIQUE</label>
+                        <label><input type="radio" name="q4" value="C"> C．DISTINCT</label>
+                        <label><input type="radio" name="q4" value="D"> D．TOP</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q4">解</button>
+                    <div class="answer-area" id="answer-q4">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> `DISTINCT` 关键字用于在查询结果中去除重复的行。`ALL` 是默认行为，表示保留所有重复行。</p>
+                    </div>
+                </div>
+
+                <!-- 5. WHERE子句和HAVING短语的区别 (PPT 3.3.1) -->
+                <div class="question-block" data-question-index="4">
+                    <p class="question-text">5. 关于SQL的 <code>WHERE</code> 子句和 <code>HAVING</code> 短语，下列说法正确的是（　　）。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q5" value="A"> A．`WHERE` 子句作用于组，`HAVING` 短语作用于元组。</label>
+                        <label><input type="radio" name="q5" value="B"> B．`WHERE` 子句和 `HAVING` 短语都可以作用于元组和组。</label>
+                        <label><input type="radio" name="q5" value="C"> C．`WHERE` 子句不能使用聚集函数，`HAVING` 短语可以使用聚集函数。</label>
+                        <label><input type="radio" name="q5" value="D"> D．`HAVING` 短语在 `WHERE` 子句之前执行。</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q5">解</button>
+                    <div class="answer-area" id="answer-q5">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> `WHERE` 子句作用于基本表或视图中的元组，用于筛选行，不能直接使用聚集函数。`HAVING` 短语作用于 `GROUP BY` 子句分组后的结果，用于筛选组，因此可以使用聚集函数。</p>
+                    </div>
+                </div>
+
+                <!-- 6. 外连接的特点 (PPT 3.3.2) -->
+                <div class="question-block" data-question-index="5">
+                    <p class="question-text">6. 与普通连接不同，外连接操作的特点是（　　）。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q6" value="A"> A．只输出满足连接条件的元组</label>
+                        <label><input type="radio" name="q6" value="B"> B．只输出不满足连接条件的元组</label>
+                        <label><input type="radio" name="q6" value="C"> C．会以指定表为主体，将主体表中不满足连接条件的元组一并输出</label>
+                        <label><input type="radio" name="q6" value="D"> D．只在连接属性相同时才进行连接</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q6">解</button>
+                    <div class="answer-area" id="answer-q6">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> 普通连接（内连接）只会返回满足连接条件的元组。外连接（左外连接、右外连接、全外连接）会保留主体表中所有元组，即使它们在另一表中没有匹配的元组，未匹配的属性会用NULL填充。</p>
+                    </div>
+                </div>
+
+                <!-- 7. 子查询中不能使用的子句 (PPT 3.3.3) -->
+                <div class="question-block" data-question-index="6">
+                    <p class="question-text">7. SQL语言中，子查询的SELECT语句中不允许使用（　　）子句。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q7" value="A"> A．WHERE</label>
+                        <label><input type="radio" name="q7" value="B"> B．GROUP BY</label>
+                        <label><input type="radio" name="q7" value="C"> C．ORDER BY</label>
+                        <label><input type="radio" name="q7" value="D"> D．HAVING</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q7">解</button>
+                    <div class="answer-area" id="answer-q7">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> 子查询的结果是一个关系，但其内部的SELECT语句通常不能包含 `ORDER BY` 子句，因为子查询的目的是返回数据集合供外层查询使用，其内部顺序无关紧G。实际系统可能会对某些简单子查询放宽此限制，但在标准概念上通常不允许。</p>
+                    </div>
+                </div>
+
+                <!-- 8. EXISTS谓词的特点 (PPT 3.3.3) -->
+                <div class="question-block" data-question-index="7">
+                    <p class="question-text">8. 关于带有 <code>EXISTS</code> 谓词的子查询，下列说法正确的是（　　）。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q8" value="A"> A．它返回一个具体的数据集合供外层查询使用。</label>
+                        <label><input type="radio" name="q8" value="B"> B．它返回一个布尔值（`TRUE` 或 `FALSE`），给出列名无实际意义。</label>
+                        <label><input type="radio" name="q8" value="C"> C．它通常用于与 `ANY` 或 `ALL` 谓词结合使用。</label>
+                        <label><input type="radio" name="q8" value="D"> D．它只能用于不相关子查询。</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q8">解</button>
+                    <div class="answer-area" id="answer-q8">
+                        <p><strong>正确答案：B</strong></p>
+                        <p><strong>解析：：</strong> `EXISTS` 谓词只判断子查询的结果集是否为空。如果非空则返回 `TRUE`，否则返回 `FALSE`。因此，其目标列表达式通常用 `*`，因为它不返回实际数据。</p>
+                    </div>
+                </div>
+
+                <!-- 9. 更新视图的限制 (PPT 3.6.3) -->
+                <div class="question-block" data-question-index="8">
+                    <p class="question-text">9. 下列关于视图更新的描述中，哪一项是错误的？（　　）</p>
+                    <div class="options">
+                        <label><input type="radio" name="q9" value="A"> A．通过视图可以插入、删除和修改数据。</label>
+                        <label><input type="radio" name="q9" value="B"> B．视图的更新操作会通过视图消解转换为对基本表的更新操作。</label>
+                        <label><input type="radio" name="q9" value="C"> C．所有视图都是可更新的。</label>
+                        <label><input type="radio" name="q9" value="D"> D．使用 `WITH CHECK OPTION` 可以保证更新操作满足视图定义中的条件。</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q9">解</button>
+                    <div class="answer-area" id="answer-q9">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> 并非所有视图都是可更新的。例如，包含聚集函数、`GROUP BY` 子句、`DISTINCT` 关键字、多表连接（某些情况）或导出属性的视图通常是不可更新的。</p>
+                    </div>
+                </div>
+
+                <!-- 10. 空值判断的谓词 (PPT 3.5.2) -->
+                <div class="question-block" data-question-index="9">
+                    <p class="question-text">10. 判断一个属性的值是否为空值，应该使用的谓词是（　　）。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q10" value="A"> A．`= NULL`</label>
+                        <label><input type="radio" name="q10" value="B"> B．`IS NULL`</label>
+                        <label><input type="radio" name="q10" value="C"> C．`EMPTY`</label>
+                        <label><input type="radio" name="q10" value="D"> D．`NOT EXISTS`</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q10">解</button>
+                    <div class="answer-area" id="answer-q10">
+                        <p><strong>正确答案：B</strong></p>
+                        <p><strong>解析：：</strong> 在SQL中，判断空值需要使用特殊的 `IS NULL` 或 `IS NOT NULL` 谓词，不能使用 `=` 或 `!=` 进行比较，因为空值不等于任何值，包括它自身。</p>
+                    </div>
+                </div>
+
+                <!-- 11. 常用SQL动词 (PPT 3.1.2) -->
+                <div class="question-block" data-question-index="10">
+                    <p class="question-text">11. 下列SQL动词中，属于数据控制功能的是（　　）。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q11" value="A"> A．`CREATE`</label>
+                        <label><input type="radio" name="q11" value="B"> B．`SELECT`</label>
+                        <label><input type="radio" name="q11" value="C"> C．`UPDATE`</label>
+                        <label><input type="radio" name="q11" value="D"> D．`GRANT`</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q11">解</button>
+                    <div class="answer-area" id="answer-q11">
+                        <p><strong>正确答案：D</strong></p>
+                        <p><strong>解析：：</strong> `GRANT` (授权) 和 `REVOKE` (撤销权限) 属于数据控制语言 (DCL)，用于管理数据库的安全性。</p>
+                    </div>
+                </div>
+
+                <!-- 12. 关系数据库管理系统处理SQL的基本表结构 (PPT 3.1.3) -->
+                <div class="question-block" data-question-index="11">
+                    <p class="question-text">12. 在关系数据库管理系统中，一个关系通常对应一个（　　）。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q12" value="A"> A．视图</label>
+                        <label><input type="radio" name="q12" value="B"> B．模式</label>
+                        <label><input type="radio" name="q12" value="C"> C．基本表</label>
+                        <label><input type="radio" name="q12" value="D"> D．索引</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q12">解</button>
+                    <div class="answer-area" id="answer-q12">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> 在关系数据库管理系统中，关系模式的实例，即实际存储数据并独立存在的表，被称为基本表。</p>
+                    </div>
+                </div>
+
+                <!-- 13. 修改列数据类型的语句 (PPT 3.2.2) -->
+                <div class="question-block" data-question-index="12">
+                    <p class="question-text">13. 修改表中某一列的数据类型应使用以下哪个语句？（　　）</p>
+                    <div class="options">
+                        <label><input type="radio" name="q13" value="A"> A．`ALTER TABLE ... ADD COLUMN ...`</label>
+                        <label><input type="radio" name="q13" value="B"> B．`ALTER TABLE ... DROP COLUMN ...`</label>
+                        <label><input type="radio" name="q13" value="C"> C．`ALTER TABLE ... ALTER COLUMN ... TYPE ...`</label>
+                        <label><input type="radio" name="q13" value="D"> D．`MODIFY COLUMN ...`</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q13">解</button>
+                    <div class="answer-area" id="answer-q13">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> `ALTER TABLE ... ALTER COLUMN <列名> TYPE <数据类型>;` 是SQL标准中用于修改列数据类型的语法。</p>
+                    </div>
+                </div>
+
+                <!-- 14. 数据库字典的作用 (PPT 3.2.4) -->
+                <div class="question-block" data-question-index="13">
+                    <p class="question-text">14. 数据库管理系统在执行SQL的数据定义语句（如 <code>CREATE TABLE</code>）时，会更新（　　）中的相应信息。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q14" value="A"> A．用户数据文件</label>
+                        <label><input type="radio" name="q14" value="B"> B．数据字典</label>
+                        <label><input type="radio" name="q14" value="C"> C．日志文件</label>
+                        <label><input type="radio" name="q14" value="D"> D．索引文件</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q14">解</button>
+                    <div class="answer-area" id="answer-q14">
+                        <p><strong>正确答案：B</strong></p>
+                        <p><strong>解析：：</strong> 数据字典是RDBMS内部的系统表，存储了数据库中所有的数据定义信息（模式、表、视图、索引、完整性约束、用户权限等）。数据定义语句的执行就是对数据字典进行更新。</p>
+                    </div>
+                </div>
+
+                <!-- 15. 插入数据时未指定列名的行为 (PPT 3.4.1) -->
+                <div class="question-block" data-question-index="14">
+                    <p class="question-text">15. 当使用 <code>INSERT INTO Student VALUES ('20180008', '张成民', '男','2000-4-15','计算机科学与技术');</code> 语句插入数据时，如果 <code>Student</code> 表的列顺序和类型与 `VALUES` 子句不匹配，会发生什么？（　　）</p>
+                    <div class="options">
+                        <label><input type="radio" name="q15" value="A"> A．自动调整顺序以匹配</label>
+                        <label><input type="radio" name="q15" value="B"> B．插入成功，但数据可能错位</label>
+                        <label><input type="radio" name="q15" value="C"> C．报告错误，拒绝插入</label>
+                        <label><input type="radio" name="q15" value="D"> D．使用默认值填充不匹配的列</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q15">解</button>
+                    <div class="answer-area" id="answer-q15">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> 当 `INSERT` 语句没有指定列名时，`VALUES` 子句中的值的顺序和数据类型必须与表定义的列顺序和数据类型完全匹配。如果不匹配，数据库系统会报告错误并拒绝插入。</p>
+                    </div>
+                </div>
+
+                <!-- 16. LIKE谓词的通配符 (PPT 3.3.1) -->
+                <div class="question-block" data-question-index="15">
+                    <p class="question-text">16. 在SQL中，使用 <code>LIKE</code> 谓词进行模式匹配时，表示任意长度字符串的通配符是（　　）。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q16" value="A"> A．`_`</label>
+                        <label><input type="radio" name="q16" value="B"> B．`%`</label>
+                        <label><input type="radio" name="q16" value="C"> C．`?`</label>
+                        <label><input type="radio" name="q16" value="D"> D．`*`</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q16">解</button>
+                    <div class="answer-area" id="answer-q16">
+                        <p><strong>正确答案：B</strong></p>
+                        <p><strong>解析：：</strong> 在SQL的 `LIKE` 谓词中，`%` 表示任意长度（包括零长度）的字符串，`_` 表示任意单个字符。</p>
+                    </div>
+                </div>
+
+                <!-- 17. 聚合函数不能用于的子句 (PPT 3.3.1) -->
+                <div class="question-block" data-question-index="16">
+                    <p class="question-text">17. 下列哪个SQL聚合函数不能用于数值类型以外的列？（　　）</p>
+                    <div class="options">
+                        <label><input type="radio" name="q17" value="A"> A．`COUNT(*)`</label>
+                        <label><input type="radio" name="q17" value="B"> B．`MAX()`</label>
+                        <label><input type="radio" name="q17" value="C"> C．`SUM()`</label>
+                        <label><input type="radio" name="q17" value="D"> D．`MIN()`</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q17">解</button>
+                    <div class="answer-area" id="answer-q17">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> `SUM()` 函数用于计算数值列的总和，因此只能用于数值类型。`COUNT(*)` 计算行数，`MAX()` 和 `MIN()` 可以用于任何可排序的数据类型（数值、字符串、日期等），`AVG()` 也只能用于数值类型。</p>
+                    </div>
+                </div>
+                
+                <!-- 18. FROM子句的作用 (PPT 3.3.1) -->
+                <div class="question-block" data-question-index="17">
+                    <p class="question-text">18. SQL语句的 <code>FROM</code> 子句主要用于（　　）。</p>
+                    <div class="options">
+                        <label><input type="radio" name="q18" value="A"> A．指定查询的条件</label>
+                        <label><input type="radio" name="q18" value="B"> B．指定要查询的列</label>
+                        <label><input type="radio" name="q18" value="C"> C．指定查询的数据源（基本表或视图）</label>
+                        <label><input type="radio" name="q18" value="D"> D．对查询结果进行分组</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q18">解</button>
+                    <div class="answer-area" id="answer-q18">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> `FROM` 子句指定了查询操作所针对的关系，即从哪些基本表或视图中获取数据。</p>
+                    </div>
+                </div>
+
+                <!-- 19. 插入多条元组的语句 (PPT 3.4.1) -->
+                <div class="question-block" data-question-index="18">
+                    <p class="question-text">19. 向表中一次性插入多条元组，可以使用以下哪种方法？（　　）</p>
+                    <div class="options">
+                        <label><input type="radio" name="q19" value="A"> A．多个 `INSERT VALUES` 语句</label>
+                        <label><input type="radio" name="q19" value="B"> B．`INSERT INTO ... SELECT` 语句</label>
+                        <label><input type="radio" name="q19" value="C"> C．`LOAD DATA INFILE` 语句</label>
+                        <label><input type="radio" name="q19" value="D"> D．`BULK INSERT` 语句</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q19">解</button>
+                    <div class="answer-area" id="answer-q19">
+                        <p><strong>正确答案：B</strong></p>
+                        <p><strong>解析：：</strong> `INSERT INTO ... SELECT` 语句允许将一个查询的结果插入到另一个表中，是SQL中一次性插入多条元组的常用且高效的方法。A选项虽然可以插入多条，但需要执行多次语句。C和D是特定数据库系统的批量导入语句，不属于标准SQL。</p>
+                    </div>
+                </div>
+
+                <!-- 20. 删除所有元组但保留表结构 (PPT 3.4.3) -->
+                <div class="question-block" data-question-index="19">
+                    <p class="question-text">20. 如果要删除一个表中的所有元组，但希望保留表结构和索引，以下哪种操作最合适？（　　）</p>
+                    <div class="options">
+                        <label><input type="radio" name="q20" value="A"> A．`DROP TABLE`</label>
+                        <label><input type="radio" name="q20" value="B"> B．`DELETE FROM TableName`</label>
+                        <label><input type="radio" name="q20" value="C"> C．`TRUNCATE TABLE TableName`</label>
+                        <label><input type="radio" name="q20" value="D"> D．`ALTER TABLE ... DELETE ALL`</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q20">解</button>
+                    <div class="answer-area" id="answer-q20">
+                        <p><strong>正确答案：C</strong></p>
+                        <p><strong>解析：：</strong> `TRUNCATE TABLE` 操作可以删除表中的所有行，同时保留表结构和索引，并且通常比 `DELETE FROM` 更快，因为它通常不记录单独的行删除日志。`DROP TABLE` 会删除表结构和数据。`DELETE FROM` 删除行但保留结构，但效率通常低于 `TRUNCATE`。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 填空题 -->
+            <h2 class="section-title"><i class="fas fa-pencil-alt"></i> 二、填空题</h2>
+            <div id="fill-in-the-blank-questions">
+                <!-- 1. SQL的功能 (PPT 3.1.2) -->
+                <div class="question-block" data-question-index="20">
+                    <p class="question-text">1. SQL语言集数据查询、数据操纵、数据定义和<span class="fill-in-the-blank-container"><input type="text" name="fib1" class="fill-in-the-blank-input" data-correct-answer="数据控制"></span>功能于一体。</p>
+                    <button type="button" class="individual-answer-btn" data-target="answer-fib1">解</button>
+                    <div class="answer-area" id="answer-fib1">
+                        <p><strong>正确答案：</strong> 数据控制</p>
+                        <p><strong>解析：：</strong> SQL的四大功能是数据查询（DQL）、数据操纵（DML）、数据定义（DDL）和数据控制（DCL）。</p>
+                    </div>
+                </div>
+
+                <!-- 2. CREATE TABLE中指定主码的关键字 (PPT 3.2.2) -->
+                <div class="question-block" data-question-index="21">
+                    <p class="question-text">2. 在 <code>CREATE TABLE</code> 语句中，用于指定主码的关键字是<span class="fill-in-the-blank-container"><input type="text" name="fib2" class="fill-in-the-blank-input" data-correct-answer="PRIMARY KEY"></span>。</p>
+                    <button type="button" class="individual-answer-btn" data-target="answer-fib2">解</button>
+                    <div class="answer-area" id="answer-fib2">
+                        <p><strong>正确答案：</strong> PRIMARY KEY</p>
+                        <p><strong>解析：：</strong> `PRIMARY KEY` 用于定义表的主码，确保实体完整性。</p>
+                    </div>
+                </div>
+
+                <!-- 3. WHERE子句中的范围查询 (PPT 3.3.1) -->
+                <div class="question-block" data-question-index="22">
+                    <p class="question-text">3. 查询年龄在20到25岁（包含20和25）之间的学生，可以使用谓词<span class="fill-in-the-blank-container"><input type="text" name="fib3" class="fill-in-the-blank-input" data-correct-answer="BETWEEN AND"></span>。</p>
+                    <button type="button" class="individual-answer-btn" data-target="answer-fib3">解</button>
+                    <div class="answer-area" id="answer-fib3">
+                        <p><strong>正确答案：：</strong> BETWEEN AND</p>
+                        <p><strong>解析：：</strong> `BETWEEN ... AND ...` 谓词用于指定一个范围，并且是包含边界的。</p>
+                    </div>
+                </div>
+
+                <!-- 4. NULL值的处理 (PPT 3.5.1) -->
+                <div class="question-block" data-question-index="23">
+                    <p class="question-text">4. 在SQL中，空值（NULL）表示<span class="fill-in-the-blank-container"><input type="text" name="fib4" class="fill-in-the-blank-input" data-correct-answer="不知道"></span>或<span class="fill-in-the-blank-container"><input type="text" name="fib4_2" class="fill-in-the-blank-input" data-correct-answer="无意义"></span>。</p>
+                    <button type="button" class="individual-answer-btn" data-target="answer-fib4">解</button>
+                    <div class="answer-area" id="answer-fib4">
+                        <p><strong>正确答案：：</strong> 不知道 或 无意义</p>
+                        <p><strong>解析：：</strong> 空值是一个特殊的值，表示“不知道”或“不存在”或“无意义”。它不等于任何值，包括它自身。</p>
+                    </div>
+                </div>
+
+                <!-- 5. 视图的定义 (PPT 3.6.1) -->
+                <div class="question-block" data-question-index="24">
+                    <p class="question-text">5. 视图是从一个或几个<span class="fill-in-the-blank-container"><input type="text" name="fib5" class="fill-in-the-blank-input" data-correct-answer="基本表"></span>或<span class="fill-in-the-blank-container"><input type="text" name="fib5_2" class="fill-in-the-blank-input" data-correct-answer="视图"></span>中导出的虚拟的表。</p>
+                    <button type="button" class="individual-answer-btn" data-target="answer-fib5">解</button>
+                    <div class="answer-area" id="answer-fib5">
+                        <p><strong>正确答案：：</strong> 基本表 或 视图</p>
+                        <p><strong>解析：：</strong> 视图是基于现有表或视图的查询结果而创建的虚拟表。</p>
+                    </div>
+                </div>
+                
+                <!-- 6. DELETE语句的执行 (PPT 3.4.3) -->
+                <div class="question-block" data-question-index="25">
+                    <p class="question-text">6. 当使用 <code>DELETE</code> 语句删除基本表中的元组时，如果没有指定 <code>WHERE</code> 子句，则会<span class="fill-in-the-blank-container"><input type="text" name="fib6" class="fill-in-the-blank-input" data-correct-answer="删除所有元组"></span>。</p>
+                    <button type="button" class="individual-answer-btn" data-target="answer-fib6">解</button>
+                    <div class="answer-area" id="answer-fib6">
+                        <p><strong>正确答案：：</strong> 删除所有元组</p>
+                        <p><strong>解析：：：</strong> `DELETE` 语句如果没有 `WHERE` 子句，表示删除表中所有行。</p>
+                    </div>
+                </div>
+
+                <!-- 7. 修改数据的命令 (PPT 3.4.2) -->
+                <div class="question-block" data-question-index="26">
+                    <p class="question-text">7. 在SQL中，修改表中现有数据记录的命令是<span class="fill-in-the-blank-container"><input type="text" name="fib7" class="fill-in-the-blank-input" data-correct-answer="UPDATE"></span>。</p>
+                    <button type="button" class="individual-answer-btn" data-target="answer-fib7">解</button>
+                    <div class="answer-area" id="answer-fib7">
+                        <p><strong>正确答案：：</strong> UPDATE</p>
+                        <p><strong>解析：：</strong> `UPDATE` 语句用于修改表中满足特定条件的现有行。</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 判断题 -->
+            <h2 class="section-title"><i class="fas fa-question-circle"></i> 三、判断题</h2>
+            <div id="true-false-questions">
+                <!-- 1. SQL语句大小写不敏感 (General SQL knowledge) -->
+                <div class="question-block" data-question-index="27">
+                    <p class="question-text">1. SQL语言对关键字和标识符的大小写不敏感。</p>
+                    <div class="true-false-options">
+                        <label><input type="radio" name="tf1" value="true"> 对</label>
+                        <label><input type="radio" name="tf1" value="false"> 错</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-tf1">解</button>
+                    <div class="answer-area" id="answer-tf1">
+                        <p><strong>正确答案：：</strong> 对</p>
+                        <p><strong>解析：：</strong> SQL是大小写不敏感的语言，这意味着 `SELECT`、`select` 和 `Select` 都是等效的。但是，某些数据库系统对于字符串常量或某些特定对象名可能会区分大小写。</p>
+                    </div>
+                </div>
+
+                <!-- 2. NULL参与比较的特点 (PPT 3.5.2) -->
+                <div class="question-block" data-question-index="28">
+                    <p class="question-text">2. 在SQL中，一个空值（NULL）与任何值进行比较（包括与另一个空值比较）的结果都是TRUE或FALSE。</p>
+                    <div class="true-false-options">
+                        <label><input type="radio" name="tf2" value="true"> 对</label>
+                        <label><input type="radio" name="tf2" value="false"> 错</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-tf2">解</button>
+                    <div class="answer-area" id="answer-tf2">
+                        <p><strong>正确答案：：</strong> 错</p>
+                        <p><strong>解析：：</strong> 空值与任何值（包括另一个空值）进行比较的结果都是 `UNKNOWN`（不确定），而不是TRUE或FALSE。因此，需要使用 `IS NULL` 或 `IS NOT NULL` 谓词来判断空值。</p>
+                    </div>
+                </div>
+
+                <!-- 3. 视图的物理存储 (PPT 3.6.1) -->
+                <div class="question-block" data-question-index="29">
+                    <p class="question-text">3. 视图是真实存储在数据库中的，因此对视图的任何操作都会直接修改其存储的数据。</p>
+                    <div class="true-false-options">
+                        <label><input type="radio" name="tf3" value="true"> 对</label>
+                        <label><input type="radio" name="tf3" value="false"> 错</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-tf3">解</button>
+                    <div class="answer-area" id="answer-tf3">
+                        <p><strong>正确答案：：</strong> 错</p>
+                        <p><strong>解析：：</strong> 视图是虚拟的表，它不存储真实的数据。对视图的操作会通过视图消解转换为对基本表的操作。而且，如前面选择题所述，并非所有视图都可更新。</p>
+                    </div>
+                </div>
+
+                <!-- 4. 删除表和删除数据库的区别 (PPT 3.2.3) -->
+                <div class="question-block" data-question-index="30">
+                    <p class="question-text">4. `DROP TABLE` 语句用于删除整个数据库，包括所有表和数据。</p>
+                    <div class="true-false-options">
+                        <label><input type="radio" name="tf4" value="true"> 对</label>
+                        <label><input type="radio" name="tf4" value="false"> 错</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-tf4">解</button>
+                    <div class="answer-area" id="answer-tf4">
+                        <p><strong>正确答案：：</strong> 错</p>
+                        <p><strong>解析：：：</strong> `DROP TABLE` 只用于删除指定的表，而 `DROP DATABASE` 或 `DROP SCHEMA`（在某些系统中）才用于删除整个数据库或模式。</p>
+                    </div>
+                </div>
+
+                <!-- 5. SELECT语句的执行顺序 (Conceptual) -->
+                <div class="question-block" data-question-index="31">
+                    <p class="question-text">5. 在一个完整的 `SELECT` 语句中，`WHERE` 子句总是在 `GROUP BY` 子句之前执行。</p>
+                    <div class="true-false-options">
+                        <label><input type="radio" name="tf5" value="true"> 对</label>
+                        <label><input type="radio" name="tf5" value="false"> 错</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-tf5">解</button>
+                    <div class="answer-area" id="answer-tf5">
+                        <p><strong>正确答案：：</strong> 对</p>
+                        <p><strong>解析：：：</strong> SQL查询的逻辑处理顺序通常是：`FROM` -> `WHERE` -> `GROUP BY` -> `HAVING` -> `SELECT` -> `ORDER BY`。`WHERE` 子句用于筛选原始数据行，然后 `GROUP BY` 再对筛选后的行进行分组。</p>
+                    </div>
+                </div>
+
+                <!-- 6. 外码可以取空值 (Conceptual) -->
+                <div class="question-block" data-question-index="32">
+                    <p class="question-text">6. 外码（Foreign Key）不允许取空值（NULL）。</p>
+                    <div class="true-false-options">
+                        <label><input type="radio" name="tf6" value="true"> 对</label>
+                        <label><input type="radio" name="tf6" value="false"> 错</label>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-tf6">解</button>
+                    <div class="answer-area" id="answer-tf6">
+                        <p><strong>正确答案：：</strong> 错</p>
+                        <p><strong>解析：：：</strong> 外码是可以取空值的，这表示该元组与被参照表中的任何元组都没有关联。只有在定义外码时明确指定 `NOT NULL` 约束，它才不允许为空。</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 综合与编程题 -->
+            <h2 class="section-title"><i class="fas fa-code"></i> 四、综合与编程题</h2>
+
+            <!-- 数据表部分 -->
+            <div class="question-block">
+                <p class="question-text">以下是“看程序写结果”和“SQL编程题”部分将用到的模拟数据表：</p>
+
+                <h3 class="subsection-title mb-4">读者表 (reader)</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>rno</th>
+                            <th>rname</th>
+                            <th>rage</th>
+                            <th>rspecialty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td data-label="rno">R001</td><td data-label="rname">张三</td><td data-label="rage">20</td><td data-label="rspecialty">计算机科学</td></tr>
+                        <tr><td data-label="rno">R002</td><td data-label="rname">李四</td><td data-label="rage">21</td><td data-label="rspecialty">软件工程</td></tr>
+                        <tr><td data-label="rno">R003</td><td data-label="rname">王五</td><td data-label="rage">22</td><td data-label="rspecialty">计算机科学</td></tr>
+                        <tr><td data-label="rno">R004</td><td data-label="rname">赵六</td><td data-label="rage">20</td><td data-label="rspecialty">网络工程</td></tr>
+                        <tr><td data-label="rno">R005</td><td data-label="rname">钱七</td><td data-label="rage">21</td><td data-label="rspecialty">软件工程</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 class="subsection-title mb-4">图书表 (book)</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>bisbn</th>
+                            <th>bname</th>
+                            <th>bauthor</th>
+                            <th>bpublisher</th>
+                            <th>bprice</th>
+                            <th>bcategory</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td data-label="bisbn">B001</td><td data-label="bname">数据库系统概论</td><td data-label="bauthor">王珊</td><td data-label="bpublisher">高等教育出版社</td><td data-label="bprice">65.00</td><td data-label="bcategory">计算机</td></tr>
+                        <tr><td data-label="bisbn">B002</td><td data-label="bname">数据结构</td><td data-label="bauthor">严蔚敏</td><td data-label="bpublisher">清华大学出版社</td><td data-label="bprice">50.00</td><td data-label="bcategory">计算机</td></tr>
+                        <tr><td data-label="bisbn">B003</td><td data-label="bname">算法导论</td><td data-label="bauthor">Cormen</td><td data-label="bpublisher">机械工业出版社</td><td data-label="bprice">120.00</td><td data-label="bcategory">计算机</td></tr>
+                        <tr><td data-label="bisbn">B004</td><td data-label="bname">操作系统</td><td data-label="bauthor">Silberschatz</td><td data-label="bpublisher">电子工业出版社</td><td data-label="bprice">80.00</td><td data-label="bcategory">计算机</td></tr>
+                        <tr><td data-label="bisbn">B005</td><td data-label="bname">计算机组成原理</td><td data-label="bauthor">唐朔飞</td><td data-label="bpublisher">高等教育出版社</td><td data-label="bprice">70.00</td><td data-label="bcategory">计算机</td></tr>
+                        <tr><td data-label="bisbn">B006</td><td data-label="bname">Java编程思想</td><td data-label="bauthor">Bruce Eckel</td><td data-label="bpublisher">机械工业出版社</td><td data-label="bprice">95.00</td><td data-label="bcategory">计算机</td></tr>
+                        <tr><td data-label="bisbn">B007</td><td data-label="bname">离散数学</td><td data-label="bauthor">许全华</td><td data-label="bpublisher">科学出版社</td><td data-label="bprice">55.00</td><td data-label="bcategory">数学</td></tr>
+                        <tr><td data-label="bisbn">B008</td><td data-label="bname">中国历史</td><td data-label="bauthor">钱穆</td><td data-label="bpublisher">商务印书馆</td><td data-label="bprice">30.00</td><td data-label="bcategory">历史</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 class="subsection-title mb-4">借阅表 (borrow)</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>borrow_id</th>
+                            <th>rno</th>
+                            <th>bisbn</th>
+                            <th>startdate</th>
+                            <th>enddate</th>
+                            <th>fine</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td data-label="borrow_id">BR001</td><td data-label="rno">R001</td><td data-label="bisbn">B001</td><td data-label="startdate">2024-01-10</td><td data-label="enddate">2024-02-10</td><td data-label="fine">5.00</td></tr>
+                        <tr><td data-label="borrow_id">BR002</td><td data-label="rno">R002</td><td data-label="bisbn">B001</td><td data-label="startdate">2024-01-12</td><td data-label="enddate">2024-02-12</td><td data-label="fine">0.00</td></tr>
+                        <tr><td data-label="borrow_id">BR003</td><td data-label="rno">R001</td><td data-label="bisbn">B002</td><td data-label="startdate">2024-01-15</td><td data-label="enddate">2024-02-15</td><td data-label="fine">10.00</td></tr>
+                        <tr><td data-label="borrow_id">BR004</td><td data-label="rno">R003</td><td data-label="bisbn">B001</td><td data-label="startdate">2024-01-20</td><td data-label="enddate">2024-02-20</td><td data-label="fine">0.00</td></tr>
+                        <tr><td data-label="borrow_id">BR005</td><td data-label="rno">R005</td><td data-label="bisbn">B005</td><td data-label="startdate">2024-02-01</td><td data-label="enddate">2024-03-01</td><td data-label="fine">15.00</td></tr>
+                        <tr><td data-label="borrow_id">BR006</td><td data-label="rno">R004</td><td data-label="bisbn">B004</td><td data-label="startdate">2024-02-05</td><td data-label="enddate">2024-03-05</td><td data-label="fine">0.00</td></tr>
+                        <tr><td data-label="borrow_id">BR007</td><td data-label="rno">R002</td><td data-label="bisbn">B003</td><td data-label="startdate">2024-02-10</td><td data-label="enddate">2024-03-10</td><td data-label="fine">20.00</td></tr>
+                        <tr><td data-label="borrow_id">BR008</td><td data-label="rno">R005</td><td data-label="bisbn">B007</td><td data-label="startdate">2024-02-15</td><td data-label="enddate">2024-03-15</td><td data-label="fine">0.00</td></tr>
+                        <tr><td data-label="borrow_id">BR009</td><td data-label="rno">R003</td><td data-label="bisbn">B004</td><td data-label="startdate">2024-02-20</td><td data-label="enddate">2024-03-20</td><td data-label="fine">0.00</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="section-title"><i class="fas fa-play-circle"></i> (一) 看程序写结果</h3>
+            <div id="read-program-questions">
+                <!-- Programming Question 1 -->
+                <div class="question-block" data-question-index="33">
+                    <p class="question-text">1. 执行以下SQL代码，并结合提供的<code>reader</code>、<code>book</code>和<code>borrow</code>表数据，写出其结果。</p>
+                    <div class="sql-code-block">
+<pre><code class="language-sql">
+<span class="sql-keyword">SELECT</span> R.rname <span class="sql-string">'读者姓名'</span>, B.bname <span class="sql-string">'借阅书名'</span>
+<span class="sql-keyword">FROM</span> reader R, borrow BO, book B
+<span class="sql-keyword">WHERE</span> R.rno = BO.rno
+<span class="sql-keyword">AND</span> BO.bisbn = B.bisbn
+<span class="sql-keyword">AND</span> R.rspecialty = <span class="sql-string">'软件工程'</span>;
+</code></pre>
+                    </div>
+                    <div class="input-area">
+                        <textarea id="q_prog1_output" placeholder="请在这里写下结果，以表格形式呈现"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog1_output">解</button>
+                    <div class="answer-area" id="answer-q_prog1_output">
+                        <strong>答案：</strong>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>读者姓名</th>
+                                    <th>借阅书名</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td data-label="读者姓名">李四</td><td data-label="借阅书名">数据库系统概论</td></tr>
+                                <tr><td data-label="读者姓名">李四</td><td data-label="借阅书名">算法导论</td></tr>
+                                <tr><td data-label="读者姓名">钱七</td><td data-label="借阅书名">计算机组成原理</td></tr>
+                                <tr><td data-label="读者姓名">钱七</td><td data-label="借阅书名">离散数学</td></tr>
+                            </tbody>
+                        </table>
+                        <strong>解析：</strong>
+                        <p>该查询通过连接读者表（<code>reader</code>）、借阅表（<code>borrow</code>）和图书表（<code>book</code>），找出专业为'软件工程'的读者及其借阅的图书名称。
+                        </p>
+                        <p><strong>分步计算：</strong></p>
+                        <ul>
+                            <li>首先，筛选 `reader` 表中 `rspecialty = '软件工程'` 的读者：`R002 (李四)` 和 `R005 (钱七)`。</li>
+                            <li>然后，将这些读者与 `borrow` 表连接，找出他们的借阅记录：
+                                <ul>
+                                    <li>`R002` 借阅了 `B001` (BR002) 和 `B003` (BR007)</li>
+                                    <li>`R005` 借阅了 `B005` (BR005) 和 `B007` (BR008)</li>
+                                </ul>
+                            </li>
+                            <li>最后，将借阅的 `bisbn` 与 `book` 表连接，获取图书名称。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Programming Question 2 -->
+                <div class="question-block" data-question-index="34">
+                    <p class="question-text">2. 执行以下SQL代码，并结合提供的<code>reader</code>、<code>book</code>和<code>borrow</code>表数据，写出其结果。</p>
+                    <div class="sql-code-block">
+<pre><code class="language-sql">
+<span class="sql-keyword">SELECT</span> B.bname <span class="sql-string">'图书名称'</span>
+<span class="sql-keyword">FROM</span> book B
+<span class="sql-keyword">WHERE</span> B.bisbn <span class="sql-keyword">IN</span> (
+    <span class="sql-keyword">SELECT</span> bisbn
+    <span class="sql-keyword">FROM</span> borrow
+    <span class="sql-keyword">GROUP BY</span> bisbn
+    <span class="sql-keyword">HAVING</span> COUNT(*) &lt; <span class="sql-number">2</span>
+) <span class="sql-keyword">AND</span> B.bprice > <span class="sql-number">60</span>;
+</code></pre>
+                    </div>
+                    <div class="input-area">
+                        <textarea id="q_prog2_output" placeholder="请在这里写下结果，以表格形式呈现"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog2_output">解</button>
+                    <div class="answer-area" id="answer-q_prog2_output">
+                        <strong>答案：</strong>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>图书名称</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td data-label="图书名称">算法导论</td></tr>
+                                <tr><td data-label="图书名称">计算机组成原理</td></tr>
+                            </tbody>
+                        </table>
+                        <strong>解析：</strong>
+                        <p>该查询使用嵌套子查询。内层查询找出被借阅次数少于2次的图书ISBN号。外层查询再从图书表中筛选出这些图书中价格大于60的图书名称。</p>
+                        <p><strong>分步计算：</strong></p>
+                        <ul>
+                            <li><strong>内部子查询结果 (<code>bisbn</code> with COUNT < 2 from `borrow` table):</strong>
+                                <ul>
+                                    <li>`B001`: (BR001, BR002, BR004) -> 3次 (不符合)</li>
+                                    <li>`B002`: (BR003) -> 1次 (符合)</li>
+                                    <li>`B003`: (BR007) -> 1次 (符合)</li>
+                                    <li>`B004`: (BR006, BR009) -> 2次 (不符合)</li>
+                                    <li>`B005`: (BR005) -> 1次 (符合)</li>
+                                    <li>`B007`: (BR008) -> 1次 (符合)</li>
+                                </ul>
+                                因此，内部子查询返回的<code>bisbn</code>为：`'B002', 'B003', 'B005', 'B007'`
+                            </li>
+                            <li><strong>外部查询筛选 (<code>bprice > 60</code> from `book` table, for the `bisbn`s found above):</strong>
+                                <ul>
+                                    <li>`B002` ('数据结构', 50.00) - 价格不大于60 (不符合)</li>
+                                    <li>`B003` ('算法导论', 120.00) - 价格大于60 (符合)</li>
+                                    <li>`B005` ('计算机组成原理', 70.00) - 价格大于60 (符合)</li>
+                                    <li>`B007` ('离散数学', 55.00) - 价格不大于60 (不符合)</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- NEW Programming Question 3 (Publishers with >= 2 books) -->
+                <div class="question-block" data-question-index="35">
+                    <p class="question-text">3. 执行以下SQL代码，并结合提供的<code>book</code>表数据，写出其结果。</p>
+                    <div class="sql-code-block">
+<pre><code class="language-sql">
+<span class="sql-keyword">SELECT</span> bpublisher <span class="sql-string">'出版社'</span>, <span class="sql-keyword">COUNT</span><span class="sql-punctuation">(</span><span class="sql-keyword">*</span><span class="sql-punctuation">)</span> <span class="sql-string">'图书数量'</span>
+<span class="sql-keyword">FROM</span> book
+<span class="sql-keyword">GROUP BY</span> bpublisher
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span><span class="sql-punctuation">(</span><span class="sql-keyword">*</span><span class="sql-punctuation">)</span> <span class="sql-operator">>=</span> <span class="sql-number">2</span>;
+</code></pre>
+                    </div>
+                    <div class="input-area">
+                        <textarea id="q_prog3_output" placeholder="请在这里写下结果，以表格形式呈现"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog3_output">解</button>
+                    <div class="answer-area" id="answer-q_prog3_output">
+                        <strong>答案：</strong>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>出版社</th>
+                                    <th>图书数量</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td data-label="出版社">高等教育出版社</td><td data-label="图书数量">2</td></tr>
+                                <tr><td data-label="出版社">机械工业出版社</td><td data-label="图书数量">2</td></tr>
+                            </tbody>
+                        </table>
+                        <strong>解析：：</strong>
+                        <p>该查询根据出版社对图书进行分组，然后筛选出图书数量大于等于2的出版社及其图书数量。</p>
+                        <p><strong>分步计算：</strong></p>
+                        <ul>
+                            <li>`高等教育出版社`: `数据库系统概论`, `计算机组成原理` (2本) -> 符合</li>
+                            <li>`清华大学出版社`: `数据结构` (1本) -> 不符合</li>
+                            <li>`机械工业出版社`: `算法导论`, `Java编程思想` (2本) -> 符合</li>
+                            <li>`电子工业出版社`: `操作系统` (1本) -> 不符合</li>
+                            <li>`科学出版社`: `离散数学` (1本) -> 不符合</li>
+                            <li>`商务印书馆`: `中国历史` (1本) -> 不符合</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- NEW Programming Question 4 (Readers with total fine > 10) -->
+                <div class="question-block" data-question-index="36">
+                    <p class="question-text">4. 执行以下SQL代码，并结合提供的<code>borrow</code>表数据，写出其结果。</p>
+                    <div class="sql-code-block">
+<pre><code class="language-sql">
+<span class="sql-keyword">SELECT</span> rno <span class="sql-string">'读者编号'</span>, <span class="sql-keyword">SUM</span><span class="sql-punctuation">(</span>fine<span class="sql-punctuation">)</span> <span class="sql-string">'总罚款'</span>
+<span class="sql-keyword">FROM</span> borrow
+<span class="sql-keyword">GROUP BY</span> rno
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">SUM</span><span class="sql-punctuation">(</span>fine<span class="sql-punctuation">)</span> <span class="sql-operator">></span> <span class="sql-number">10</span>;
+</code></pre>
+                    </div>
+                    <div class="input-area">
+                        <textarea id="q_prog4_output" placeholder="请在这里写下结果，以表格形式呈现"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog4_output">解</button>
+                    <div class="answer-area" id="answer-q_prog4_output">
+                        <strong>答案：</strong>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>读者编号</th>
+                                    <th>总罚款</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td data-label="读者编号">R001</td><td data-label="总罚款">15.00</td></tr>
+                                <tr><td data-label="读者编号">R002</td><td data-label="总罚款">20.00</td></tr>
+                                <tr><td data-label="读者编号">R005</td><td data-label="总罚款">15.00</td></tr>
+                            </tbody>
+                        </table>
+                        <strong>解析：：</strong>
+                        <p>该查询根据读者编号对借阅记录进行分组，然后筛选出总罚款金额大于10的读者编号和总罚款。</p>
+                        <p><strong>分步计算：</strong></p>
+                        <ul>
+                            <li>`R001`: 罚款 5.00 + 10.00 = 15.00 -> 符合</li>
+                            <li>`R002`: 罚款 0.00 + 20.00 = 20.00 -> 符合</li>
+                            <li>`R003`: 罚款 0.00 + 0.00 = 0.00 -> 不符合</li>
+                            <li>`R004`: 罚款 0.00 -> 不符合</li>
+                            <li>`R005`: 罚款 15.00 + 0.00 = 15.00 -> 符合</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- NEW Programming Question 5 (Books not borrowed) -->
+                <div class="question-block" data-question-index="37">
+                    <p class="question-text">5. 执行以下SQL代码，并结合提供的<code>book</code>和<code>borrow</code>表数据，写出其结果。</p>
+                    <div class="sql-code-block">
+<pre><code class="language-sql">
+<span class="sql-keyword">SELECT</span> bname <span class="sql-string">'未借出图书'</span>
+<span class="sql-keyword">FROM</span> book
+<span class="sql-keyword">WHERE</span> <span class="sql-keyword">NOT EXISTS</span> <span class="sql-punctuation">(</span>
+    <span class="sql-keyword">SELECT</span> <span class="sql-keyword">*</span>
+    <span class="sql-keyword">FROM</span> borrow
+    <span class="sql-keyword">WHERE</span> bisbn <span class="sql-operator">=</span> book.bisbn
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+</code></pre>
+                    </div>
+                    <div class="input-area">
+                        <textarea id="q_prog5_output" placeholder="请在这里写下结果，以表格形式呈现"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog5_output">解</button>
+                    <div class="answer-area" id="answer-q_prog5_output">
+                        <strong>答案：</strong>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>未借出图书</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td data-label="未借出图书">Java编程思想</td></tr>
+                                <tr><td data-label="未借出图书">中国历史</td></tr>
+                            </tbody>
+                        </table>
+                        <strong>解析：：</strong>
+                        <p>该查询使用 `NOT EXISTS` 谓词，找出在 `borrow` 表中没有对应借阅记录的图书名称。</p>
+                        <p><strong>分步计算：</strong></p>
+                        <ul>
+                            <li>查询 `book` 表中的每一本书。</li>
+                            <li>对于每一本书，检查 `borrow` 表中是否存在 `bisbn` 与当前书的 `bisbn` 匹配的记录。</li>
+                            <li>如果 `NOT EXISTS` 返回真（即 `borrow` 表中没有该书的借阅记录），则该书的名称将被选中。</li>
+                            <li>根据提供的借阅表，`B006` (Java编程思想) 和 `B008` (中国历史) 没有被借阅。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+            <h3 class="section-title"><i class="fas fa-keyboard"></i> (二) SQL编程题</h3>
+            <div id="sql-programming-questions">
+                <!-- SQL编程题 1 (定义表级PRIMARY KEY) -->
+                <div class="question-block" data-question-index="38">
+                    <p class="question-text">1. **请写出SQL语句，创建一个名为 <code>CourseOffering</code> 的表，包含 <code>CourseID</code>, <code>Semester</code> 和 <code>Year</code> 字段，其中 <code>(CourseID, Semester, Year)</code> 组合作为主码。**</p>
+                    <div class="input-area">
+                        <textarea id="q_prog6_code" placeholder="请在这里写下您的SQL代码"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog6_code">解</button>
+                    <div class="answer-area" id="answer-q_prog6_code">
+                        <p><strong>参考答案：</strong></p>
+                        <pre><code class="language-sql">
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">CourseOffering</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">CourseID</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">5</span><span class="sql-punctuation">),</span>
+    <span class="sql-column">Semester</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">),</span>
+    <span class="sql-column">Year</span> <span class="sql-type">SMALLINT</span><span class="sql-punctuation">,</span>
+    <span class="sql-keyword">PRIMARY KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">CourseID</span><span class="sql-punctuation">,</span> <span class="sql-column">Semester</span><span class="sql-punctuation">,</span> <span class="sql-column">Year</span><span class="sql-punctuation">)</span> <span class="sql-comment">-- 复合主码，必须在表级定义</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+                        </pre>
+                        <p><strong>解析：</strong></p>
+                        <ol>
+                            <li>使用 `CREATE TABLE` 语句定义新表 `CourseOffering`。</li>
+                            <li>包含所有指定列及其数据类型。</li>
+                            <li>由于主码由多个属性组成 (`CourseID`, `Semester`, `Year`)，因此必须在表级使用 `PRIMARY KEY (column1, column2, ...)` 语法进行定义。</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- SQL编程题 2 (定义外码并指定违约处理) -->
+                <div class="question-block" data-question-index="39">
+                    <p class="question-text">2. **假设存在 <code>Department</code> 表（<code>DeptID</code> 是主码）。请写出SQL语句，创建一个 <code>Professor</code> 表，包含 <code>ProfID</code> (主码), <code>ProfName</code> 和 <code>DeptID</code>。其中，<code>DeptID</code> 是外码，参照 <code>Department</code> 表的 <code>DeptID</code>。要求：当 <code>Department</code> 表中的部门被删除时，级联删除 <code>Professor</code> 表中对应的教授记录；当 <code>Department</code> 表中的 <code>DeptID</code> 被更新时，级联更新 <code>Professor</code> 表中对应的 <code>DeptID</code>。**</p>
+                    <div class="input-area">
+                        <textarea id="q_prog7_code" placeholder="请在这里写下您的SQL代码"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog7_code">解</button>
+                    <div class="answer-area" id="answer-q_prog7_code">
+                        <p><strong>参考答案：</strong></p>
+                        <pre><code class="language-sql">
+<span class="sql-comment">-- 假设 Department 表已存在</span>
+<span class="sql-comment">-- CREATE TABLE Department (DeptID CHAR(3) PRIMARY KEY, DeptName VARCHAR(50));</span>
+
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Professor</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">ProfID</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">4</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">ProfName</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">DeptID</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">3</span><span class="sql-punctuation">),</span>
+    <span class="sql-keyword">FOREIGN KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">DeptID</span><span class="sql-punctuation">)</span> <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Department</span><span class="sql-punctuation">(</span><span class="sql-column">DeptID</span><span class="sql-punctuation">)</span>
+        <span class="sql-keyword">ON DELETE CASCADE</span> <span class="sql-comment">-- 当部门被删除时，级联删除教授</span>
+        <span class="sql-keyword">ON UPDATE CASCADE</span> <span class="sql-comment">-- 当部门ID被更新时，级联更新教授的部门ID</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+                        </pre>
+                        <p><strong>解析：：</strong></p>
+                        <ol>
+                            <li>使用 `FOREIGN KEY (DeptID) REFERENCES Department(DeptID)` 定义外码关系。</li>
+                            <li>`ON DELETE CASCADE` 指定当父表 `Department` 的元组被删除时，子表 `Professor` 中所有引用该元组的记录也一并删除。</li>
+                            <li>`ON UPDATE CASCADE` 指定当父表 `Department` 的 `DeptID` 被更新时，子表 `Professor` 中所有引用该 `DeptID` 的记录的 `DeptID` 也一并更新。</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- SQL编程题 3 (定义CHECK约束) -->
+                <div class="question-block" data-question-index="40">
+                    <p class="question-text">3. **请写出SQL语句，创建一个 <code>StudentScores</code> 表，包含 <code>StudentID</code> (主码), <code>CourseID</code> 和 <code>Score</code> 字段。要求 <code>Score</code> 字段的值必须在 <code>0</code> 到 <code>100</code> 之间（包含0和100）。**</p>
+                    <div class="input-area">
+                        <textarea id="q_prog8_code" placeholder="请在这里写下您的SQL代码"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog8_code">解</button>
+                    <div class="answer-area" id="answer-q_prog8_code">
+                        <p><strong>参考答案：</strong></p>
+                        <pre><code class="language-sql">
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">StudentScores</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">StudentID</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">8</span><span class="sql-punctuation">)</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">CourseID</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">5</span><span class="sql-punctuation">),</span>
+    <span class="sql-column">Score</span> <span class="sql-type">SMALLINT</span> <span class="sql-keyword">CHECK</span> <span class="sql-punctuation">(</span><span class="sql-column">Score</span> <span class="sql-operator">>=</span> <span class="sql-number">0</span> <span class="sql-keyword">AND</span> <span class="sql-column">Score</span> <span class="sql-operator"><=</span> <span class="sql-number">100</span><span class="sql-punctuation">),</span> <span class="sql-comment">-- 成绩范围约束</span>
+    <span class="sql-keyword">PRIMARY KEY</span> <span class="sql-punctuation">(</span><span class="sql-column">StudentID</span><span class="sql-punctuation">,</span> <span class="sql-column">CourseID</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+                        </pre>
+                        <p><strong>解析：：：</strong></p>
+                        <ol>
+                            <li>使用 `CREATE TABLE` 定义表结构。</li>
+                            <li>在 `Score` 列定义后面添加 `CHECK (Score >= 0 AND Score <= 100)` 来指定分数必须在有效范围内。</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- SQL编程题 4 (定义命名约束并修改) -->
+                <div class="question-block" data-question-index="41">
+                    <p class="question-text">4. **请写出SQL语句，创建一个名为 <code>Employee</code> 的表，包含 <code>EmpID</code> (主码), <code>EmpName</code> 和 <code>Salary</code> 字段。为 <code>Salary</code> 字段添加一个名为 <code>CK_SalaryRange</code> 的约束，要求工资必须大于 <code>0</code>。然后，写出SQL语句，将此约束修改为要求工资必须大于 <code>1000</code>。**</p>
+                    <div class="input-area">
+                        <textarea id="q_prog9_code" placeholder="请在这里写下您的SQL代码"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog9_code">解</button>
+                    <div class="answer-area" id="answer-q_prog9_code">
+                        <p><strong>参考答案：</strong></p>
+                        <pre><code class="language-sql">
+<span class="sql-comment">-- 创建表并定义命名约束</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Employee</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">EmpID</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">5</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">EmpName</span> <span class="sql-type">VARCHAR</span><span class="sql-punctuation">(</span><span class="sql-number">50</span><span class="sql-punctuation">)</span> <span class="sql-keyword">NOT NULL</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">Salary</span> <span class="sql-type">NUMERIC</span><span class="sql-punctuation">(</span><span class="sql-number">10</span><span class="sql-punctuation">,</span><span class="sql-number">2</span><span class="sql-punctuation">)</span>
+        <span class="sql-keyword">CONSTRAINT</span> <span class="sql-column">CK_SalaryRange</span> <span class="sql-keyword">CHECK</span> <span class="sql-punctuation">(</span><span class="sql-column">Salary</span> <span class="sql-operator">></span> <span class="sql-number">0</span><span class="sql-punctuation">)</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+
+<span class="sql-comment">-- 修改约束：先删除原约束，再添加新约束</span>
+<span class="sql-keyword">ALTER TABLE</span> <span class="sql-table">Employee</span>
+<span class="sql-keyword">DROP CONSTRAINT</span> <span class="sql-column">CK_SalaryRange</span><span class="sql-punctuation">;</span>
+
+<span class="sql-keyword">ALTER TABLE</span> <span class="sql-table">Employee</span>
+<span class="sql-keyword">ADD CONSTRAINT</span> <span class="sql-column">CK_SalaryRange</span> <span class="sql-keyword">CHECK</span> <span class="sql-punctuation">(</span><span class="sql-column">Salary</span> <span class="sql-operator">></span> <span class="sql-number">1000</span><span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+                        </pre>
+                        <p><strong>解析：：</strong></p>
+                        <ol>
+                            <li>使用 `CONSTRAINT CK_SalaryRange CHECK (Salary > 0)` 在 `CREATE TABLE` 时为工资范围约束命名。</li>
+                            <li>修改约束通常需要分两步：先使用 `ALTER TABLE ... DROP CONSTRAINT <约束名>` 删除旧约束。</li>
+                            <li>然后使用 `ALTER TABLE ... ADD CONSTRAINT <约束名> <新约束定义>` 添加新的约束。</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- SQL编程题 5 (定义触发器) -->
+                <div class="question-block" data-question-index="42">
+                    <p class="question-text">5. **请写出SQL语句，定义一个名为 <code>CheckStudentMajor</code> 的 <code>BEFORE INSERT</code> 行级触发器，作用于 <code>Student</code> 表。当插入新的学生记录时，如果学生的 <code>Smajor</code> 属性（专业）是 '计算机科学与技术'，并且学生的学号 <code>Sno</code> 以 '2' 开头，则将其 <code>Smajor</code> 自动改为 '软件工程'。**</p>
+                    <div class="input-area">
+                        <textarea id="q_prog10_code" placeholder="请在这里写下您的SQL代码"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog10_code">解</button>
+                    <div class="answer-area" id="answer-q_prog10_code">
+                        <p><strong>参考答案：</strong></p>
+                        <pre><code class="language-sql">
+<span class="sql-keyword">CREATE TRIGGER</span> <span class="sql-column">CheckStudentMajor</span>
+<span class="sql-keyword">BEFORE INSERT ON</span> <span class="sql-table">Student</span> <span class="sql-comment">-- BEFORE INSERT 触发器，作用于Student表</span>
+<span class="sql-keyword">REFERENCING NEW AS</span> <span class="sql-column">newTuple</span> <span class="sql-comment">-- 定义newTuple来引用新插入的行数据</span>
+<span class="sql-keyword">FOR EACH ROW</span> <span class="sql-comment">-- 行级触发器</span>
+<span class="sql-keyword">WHEN</span> <span class="sql-punctuation">(</span><span class="sql-column">newTuple</span><span class="sql-punctuation">.</span><span class="sql-column">Smajor</span> <span class="sql-operator">=</span> <span class="sql-string">'计算机科学与技术'</span> <span class="sql-keyword">AND</span> <span class="sql-column">newTuple</span><span class="sql-punctuation">.</span><span class="sql-column">Sno</span> <span class="sql-keyword">LIKE</span> <span class="sql-string">'2%'</span><span class="sql-punctuation">)</span> <span class="sql-comment">-- 触发条件</span>
+<span class="sql-keyword">BEGIN</span>
+    <span class="sql-column">newTuple</span><span class="sql-punctuation">.</span><span class="sql-column">Smajor</span> <span class="sql-operator">:=</span> <span class="sql-string">'软件工程'</span><span class="sql-punctuation">;</span> <span class="sql-comment">-- 触发动作：修改Smajor为'软件工程'</span>
+<span class="sql-keyword">END</span><span class="sql-punctuation">;</span>
+                        </pre>
+                        <p><strong>解析：：</strong></p>
+                        <ol>
+                            <li>`CREATE TRIGGER CheckStudentMajor` 定义触发器名称。</li>
+                            <li>`BEFORE INSERT ON Student` 指定在 `Student` 表执行 `INSERT` 操作**之前**触发。</li>
+                            <li>`REFERENCING NEW AS newTuple` 允许在触发器中通过 `newTuple` 访问即将插入的新行的数据。</li>
+                            <li>`FOR EACH ROW` 指定这是一个行级触发器，对每一行受影响的数据都会执行一次。</li>
+                            <li>`WHEN (...)` 定义了触发条件：当新行的专业是'计算机科学与技术'且学号以'2'开头时。</li>
+                            <li>`BEGIN ... END;` 包裹触发动作体，其中 `newTuple.Smajor := '软件工程';` 会在实际插入前修改 `Smajor` 的值。</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- NEW SQL编程题 6 (Insert into new table - borrow_count) -->
+                <div class="question-block" data-question-index="43">
+                    <p class="question-text">6. **请写出SQL语句，首先创建一个名为 <code>BorrowCount</code> 的表，包含 <code>rno</code> (主码) 和 <code>amount</code> (借书总数) 字段。然后，汇总每位读者借书总数，插入到 <code>BorrowCount</code> 表中。**</p>
+                    <div class="input-area">
+                        <textarea id="q_prog11_code" placeholder="请在这里写下您的SQL代码"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog11_code">解</button>
+                    <div class="answer-area" id="answer-q_prog11_code">
+                        <p><strong>参考答案：</strong></p>
+                        <pre><code class="language-sql">
+<span class="sql-comment">-- 步骤 1: 创建 BorrowCount 表</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">BorrowCount</span> <span class="sql-punctuation">(</span>
+    <span class="sql-column">rno</span> <span class="sql-type">CHAR</span><span class="sql-punctuation">(</span><span class="sql-number">5</span><span class="sql-punctuation">)</span> <span class="sql-keyword">PRIMARY KEY</span><span class="sql-punctuation">,</span>
+    <span class="sql-column">amount</span> <span class="sql-type">INT</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+
+<span class="sql-comment">-- 步骤 2: 汇总每位读者借书总数，并插入到 BorrowCount 表中</span>
+<span class="sql-keyword">INSERT INTO</span> <span class="sql-table">BorrowCount</span> <span class="sql-punctuation">(</span>rno<span class="sql-punctuation">,</span> amount<span class="sql-punctuation">)</span>
+<span class="sql-keyword">SELECT</span> rno<span class="sql-punctuation">,</span> <span class="sql-keyword">COUNT</span><span class="sql-punctuation">(</span><span class="sql-keyword">*</span><span class="sql-punctuation">)</span>
+<span class="sql-keyword">FROM</span> borrow
+<span class="sql-keyword">GROUP BY</span> rno<span class="sql-punctuation">;</span>
+                        </pre>
+                        <p><strong>解析：：</strong></p>
+                        <ol>
+                            <li>首先使用 `CREATE TABLE` 语句创建 `BorrowCount` 表，定义 `rno` 作为主码和 `amount` 字段。</li>
+                            <li>然后使用 `INSERT INTO ... SELECT` 语句，结合 `GROUP BY` 和 `COUNT(*)` 统计每位读者的借书总数，并将结果插入到新创建的 `BorrowCount` 表中。</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- NEW SQL编程题 7 (Delete borrow records by book name) -->
+                <div class="question-block" data-question-index="44">
+                    <p class="question-text">7. **请写出SQL语句，删除所有书名为 '操作系统' 的借阅记录。**</p>
+                    <div class="input-area">
+                        <textarea id="q_prog12_code" placeholder="请在这里写下您的SQL代码"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog12_code">解</button>
+                    <div class="answer-area" id="answer-q_prog12_code">
+                        <p><strong>参考答案：</strong></p>
+                        <pre><code class="language-sql">
+<span class="sql-comment">-- 删除书名为 '操作系统' 的所有借阅记录</span>
+<span class="sql-keyword">DELETE FROM</span> borrow
+<span class="sql-keyword">WHERE</span> bisbn <span class="sql-operator">=</span> <span class="sql-punctuation">(</span><span class="sql-keyword">SELECT</span> bisbn <span class="sql-keyword">FROM</span> book <span class="sql-keyword">WHERE</span> bname <span class="sql-operator">=</span> <span class="sql-string">'操作系统'</span><span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+                        </pre>
+                        <p><strong>解析：：</strong></p>
+                        <ol>
+                            <li>使用 `DELETE FROM` 语句指定要删除的表 `borrow`。</li>
+                            <li>`WHERE` 子句通过一个子查询来确定需要删除哪些记录。</li>
+                            <li>子查询 `(SELECT bisbn FROM book WHERE bname = '操作系统')` 首先从 `book` 表中找出书名为 '操作系统' 的 `bisbn`。</li>
+                            <li>然后，外部 `DELETE` 语句会删除 `borrow` 表中所有匹配到这个 `bisbn` 的记录。</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- NEW SQL编程题 8 (Update fine with join/subquery) -->
+                <div class="question-block" data-question-index="45">
+                    <p class="question-text">8. **请写出SQL语句，将同时借阅了 '数据库系统概论' (ISBN: B001) 和 '数据结构' (ISBN: B002) 两本书的读者的所有借阅记录的罚款金额提高10%。**</p>
+                    <div class="input-area">
+                        <textarea id="q_prog13_code" placeholder="请在这里写下您的SQL代码"></textarea>
+                    </div>
+                    <button type="button" class="individual-answer-btn" data-target="answer-q_prog13_code">解</button>
+                    <div class="answer-area" id="answer-q_prog13_code">
+                        <p><strong>参考答案：</strong></p>
+                        <pre><code class="language-sql">
+<span class="sql-comment">-- 将同时借阅了指定两本书的读者的罚款金额提高10%</span>
+<span class="sql-keyword">UPDATE</span> borrow
+<span class="sql-keyword">SET</span> fine <span class="sql-operator">=</span> fine <span class="sql-operator">*</span> <span class="sql-number">1.1</span>
+<span class="sql-keyword">WHERE</span> rno <span class="sql-keyword">IN</span> <span class="sql-punctuation">(</span>
+    <span class="sql-keyword">SELECT</span> b1<span class="sql-punctuation">.</span>rno
+    <span class="sql-keyword">FROM</span> borrow b1
+    <span class="sql-keyword">JOIN</span> borrow b2 <span class="sql-keyword">ON</span> b1<span class="sql-punctuation">.</span>rno <span class="sql-operator">=</span> b2<span class="sql-punctuation">.</span>rno
+    <span class="sql-keyword">WHERE</span> b1<span class="sql-punctuation">.</span>bisbn <span class="sql-operator">=</span> <span class="sql-string">'B001'</span> <span class="sql-keyword">AND</span> b2<span class="sql-punctuation">.</span>bisbn <span class="sql-operator">=</span> <span class="sql-string">'B002'</span>
+<span class="sql-punctuation">)</span><span class="sql-punctuation">;</span>
+                        </pre>
+                        <p><strong>解析：：</strong></p>
+                        <ol>
+                            <li>`UPDATE borrow SET fine = fine * 1.1` 指定对 `borrow` 表进行更新，将 `fine` 字段值增加10%。</li>
+                            <li>`WHERE rno IN (...)` 子句用于筛选需要更新的记录，只更新那些同时借阅了两本书的读者的记录。</li>
+                            <li>内部子查询通过自连接 `borrow` 表 (`b1` 和 `b2`) 来找到同时借阅了 `B001` 和 `B002` 的读者 `rno`。在这个例子中，只有 `R001` 同时借阅了这两本书。</li>
+                            <li>因此，`R001` 的所有借阅记录的罚款金额都会提高10%。</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 总体的“查看答案与解析”按钮 -->
+            <div class="button-container">
+                <button type="button" class="global-control-btn show-all-answers-btn mt-10">查看所有答案与解析</button>
+                <button type="button" class="global-control-btn hide-all-answers-btn bg-gray-500 hover:bg-gray-700 text-white mt-4" style="display: none;">隐藏所有答案</button>
+                <button type="button" class="reset-btn" onclick="resetQuiz()" style="display:none;">重新测试</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select individual buttons (excluding global ones)
+            const individualAnswerButtons = document.querySelectorAll('.individual-answer-btn');
+            const showAllAnswersBtn = document.querySelector('.show-all-answers-btn');
+            const hideAllAnswersBtn = document.querySelector('.hide-all-answers-btn');
+            const resetButton = document.querySelector('.reset-btn');
+            
+            // Get containers for shuffling
+            const mcqContainer = document.getElementById('multiple-choice-questions');
+            const fibContainer = document.getElementById('fill-in-the-blank-questions');
+            const rpwqContainer = document.getElementById('read-program-questions'); // Read Program Write Result Questions
+            const sqlpContainer = document.getElementById('sql-programming-questions'); // SQL Programming Questions
+
+            // Fisher-Yates (Knuth) shuffle algorithm
+            function shuffleArray(array) {
+                let currentIndex = array.length, randomIndex;
+
+                // While there remain elements to shuffle.
+                while (currentIndex != 0) {
+                    // Pick a remaining element.
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+
+                    // And swap it with the current element.
+                    [array[currentIndex], array[randomIndex]] = [
+                        array[randomIndex], array[currentIndex]];
+                }
+                return array;
+            }
+
+            // Function to shuffle and re-append questions within a container
+            function shuffleAndReappendQuestions(container) {
+                if (!container) return;
+                const questionBlocks = Array.from(container.children);
+                const shuffledBlocks = shuffleArray(questionBlocks);
+                shuffledBlocks.forEach(block => container.appendChild(block));
+            }
+
+            // Shuffle questions on load
+            shuffleAndReappendQuestions(mcqContainer);
+            shuffleAndReappendQuestions(fibContainer);
+            shuffleAndReappendQuestions(rpwqContainer);
+            shuffleAndReappendQuestions(sqlpContainer);
+
+
+            // Function to toggle individual answer visibility
+            function toggleAnswer(button) {
+                const targetId = button.dataset.target;
+                const answerArea = document.getElementById(targetId);
+
+                if (answerArea.style.display === 'block') {
+                    answerArea.style.display = 'none';
+                    button.textContent = '解'; // Reset text
+                } else {
+                    answerArea.style.display = 'block';
+                    button.textContent = '收起'; // Change text
+                }
+            }
+
+            // Individual "查看答案与解析" button functionality
+            individualAnswerButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    toggleAnswer(this);
+                    updateMasterButtonsVisibility(); // Update master buttons visibility
+                });
+            });
+
+            // "查看所有答案与解析" button functionality
+            showAllAnswersBtn.addEventListener('click', function() {
+                individualAnswerButtons.forEach(button => {
+                    const targetId = button.dataset.target;
+                    const answerArea = document.getElementById(targetId);
+                    if (answerArea.style.display !== 'block') {
+                        answerArea.style.display = 'block';
+                        button.textContent = '收起';
+                    }
+                });
+                updateMasterButtonsVisibility();
+            });
+
+            // "隐藏所有答案" button functionality
+            hideAllAnswersBtn.addEventListener('click', function() {
+                individualAnswerButtons.forEach(button => {
+                    const targetId = button.dataset.target;
+                    const answerArea = document.getElementById(targetId);
+                    if (answerArea.style.display === 'block') {
+                        answerArea.style.display = 'none';
+                        button.textContent = '解';
+                    }
+                });
+                updateMasterButtonsVisibility();
+            });
+
+            // Function to reset the quiz
+            function resetQuiz() {
+                document.getElementById('quizForm').reset(); // Reset form inputs
+
+                document.querySelectorAll('.question-block').forEach(questionBlock => {
+                    // Reset styling for radio buttons/labels
+                    questionBlock.querySelectorAll('input[type="radio"]').forEach(radio => {
+                        radio.checked = false;
+                    });
+                    questionBlock.querySelectorAll('.options label, .true-false-options label').forEach(label => {
+                        label.style.backgroundColor = '';
+                        label.style.border = '';
+                    });
+
+                    // Reset text inputs for fill-in-the-blank questions
+                    questionBlock.querySelectorAll('.fill-in-the-blank-input').forEach(input => {
+                        input.value = '';
+                        input.style.borderColor = 'var(--border-card)'; // Reset border color
+                        input.style.boxShadow = 'none'; // Remove focus shadow
+                    });
+
+                    // Reset textarea for programming questions
+                    questionBlock.querySelectorAll('textarea').forEach(textarea => {
+                        textarea.value = '';
+                    });
+
+                    // Hide answer areas
+                    const answerArea = questionBlock.querySelector('.answer-area');
+                    if (answerArea) {
+                        answerArea.style.display = 'none';
+                    }
+
+                    // Reset individual answer button text
+                    const individualBtn = questionBlock.querySelector('.individual-answer-btn');
+                    if (individualBtn) {
+                        individualBtn.textContent = '解';
+                    }
+                });
+                updateMasterButtonsVisibility(); // Ensure master buttons are updated after reset
+            }
+
+            // Add reset functionality to the reset button
+            resetButton.addEventListener('click', resetQuiz);
+
+            // Update visibility of "Show All" and "Hide All" buttons
+            function updateMasterButtonsVisibility() {
+                let anyAnswerShown = false;
+                let allAnswersShown = true;
+
+                individualAnswerButtons.forEach(button => {
+                    const targetId = button.dataset.target;
+                    const answerArea = document.getElementById(targetId);
+                    if (answerArea && answerArea.style.display === 'block') {
+                        anyAnswerShown = true;
+                    } else {
+                        allAnswersShown = false;
+                    }
+                });
+
+                if (anyAnswerShown) {
+                    hideAllAnswersBtn.style.display = 'block';
+                    resetButton.style.display = 'inline-block'; // Show reset button if any answer is shown
+                } else {
+                    hideAllAnswersBtn.style.display = 'none';
+                    resetButton.style.display = 'none'; // Hide reset button if no answers are shown
+                }
+
+                if (allAnswersShown) {
+                    showAllAnswersBtn.style.display = 'none';
+                } else {
+                    showAllAnswersBtn.style.display = 'block';
+                }
+            }
+            
+            // Initial update of master buttons
+            updateMasterButtonsVisibility();
+
+            // Event listeners for option labels (to apply selected style)
+            document.querySelectorAll('.options label').forEach(label => {
+                label.addEventListener('click', function() {
+                    const questionBlock = this.closest('.question-block');
+                    questionBlock.querySelectorAll('.options label').forEach(opt => {
+                        opt.style.backgroundColor = '';
+                        opt.style.border = '';
+                    });
+                    this.style.backgroundColor = 'var(--bg-light)';
+                    this.style.border = '2px solid var(--primary-main)';
+                });
+            });
+
+            // Event listeners for true/false labels (to apply selected style)
+            document.querySelectorAll('.true-false-options label').forEach(label => {
+                label.addEventListener('click', function() {
+                    const questionBlock = this.closest('.question-block');
+                    questionBlock.querySelectorAll('.true-false-options label').forEach(opt => {
+                        opt.style.backgroundColor = '';
+                        opt.style.border = '';
+                    });
+                    this.style.backgroundColor = 'var(--bg-light)';
+                    this.style.border = '2px solid var(--primary-main)';
+                });
+            });
+
+
+            // Fill-in-the-blank input focus/blur effects
+            document.querySelectorAll('.fill-in-the-blank-input').forEach(input => {
+                // Set initial width based on placeholder or data-correct-answer length
+                const initialWidth = (input.getAttribute('placeholder') || input.dataset.correctAnswer || '').length * 15 + 20; // Approx 15px per char + padding
+                input.style.width = `${Math.max(initialWidth, 80)}px`; // Ensure min-width of 80px
+
+                input.addEventListener('input', function() {
+                    // Adjust width dynamically as user types
+                    const textWidth = this.value.length * 15 + 20; // Adjust multiplier as needed
+                    this.style.width = `${Math.max(textWidth, 80)}px`;
+                });
+
+                input.addEventListener('focus', function() {
+                    this.style.borderColor = 'var(--primary-main)';
+                    boxShadow: '0 0 0 3px rgba(76, 175, 80, 0.2)'; /* Green focus shadow */
+                });
+                input.addEventListener('blur', function() {
+                    this.style.borderColor = 'var(--border-card)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

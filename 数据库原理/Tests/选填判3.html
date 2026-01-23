@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库原理期末测试卷 - 关系代数专项</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f5ff 0%, #e6f0ff 100%);
+            color: #2c3e50;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, #1a2980, #26d0ce);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .exam-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+        }
+        
+        .exam-btn {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 12px rgba(106, 17, 203, 0.35);
+            position: relative;
+            overflow: hidden;
+            font-weight: 600;
+        }
+        
+        .exam-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(106, 17, 203, 0.45);
+        }
+        
+        .exam-btn.active {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            box-shadow: 0 6px 12px rgba(255, 65, 108, 0.4);
+        }
+        
+        .exam-btn::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20px;
+            height: 200%;
+            background: rgba(255,255,255,0.3);
+            transform: rotate(25deg);
+            transition: all 0.7s;
+        }
+        
+        .exam-btn:hover::after {
+            left: 120%;
+        }
+        
+        .exam-section {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 15px;
+            padding: 35px;
+            margin-bottom: 35px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .exam-section:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            font-size: 1.9rem;
+            color: #1a2980;
+            margin-bottom: 30px;
+            padding-bottom: 18px;
+            border-bottom: 3px solid #e0e6ed;
+            position: relative;
+        }
+        
+        .section-title i {
+            margin-right: 15px;
+            color: #2575fc;
+            background: linear-gradient(135deg, #e0eaff 0%, #d6e4ff 100%);
+            padding: 12px;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(37, 117, 252, 0.2);
+        }
+        
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            border-radius: 3px;
+        }
+        
+        .question-block {
+            background: #f8faff;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-left: 5px solid #6a11cb;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .question-block:hover {
+            background: #f0f5ff;
+            box-shadow: 0 6px 15px rgba(106, 17, 203, 0.1);
+        }
+        
+        .question-text {
+            font-size: 1.15rem;
+            margin-bottom: 18px;
+            font-weight: 500;
+            line-height: 1.7;
+            color: #1a2980;
+        }
+        
+        .question-number {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(106, 17, 203, 0.3);
+            font-size: 1.1rem;
+        }
+        
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .option {
+            padding: 15px 20px;
+            background: white;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.05rem;
+        }
+        
+        .option:hover {
+            border-color: #6a11cb;
+            background: #e6eeff;
+            transform: translateX(5px);
+        }
+        
+        .option.selected {
+            background: #dbe5ff;
+            border-color: #2575fc;
+            font-weight: 500;
+            box-shadow: 0 4px 8px rgba(37, 117, 252, 0.15);
+        }
+        
+        .fill-blank {
+            display: inline-block;
+            margin: 0 8px;
+        }
+        
+        .fill-input {
+            padding: 10px 15px;
+            border: 2px solid #d0d8e8;
+            border-radius: 8px;
+            min-width: 150px;
+            font-size: 1.05rem;
+            background: white;
+            transition: all 0.3s;
+        }
+        
+        .fill-input:focus {
+            outline: none;
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 4px rgba(106, 17, 203, 0.15);
+        }
+        
+        .true-false {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .tf-option {
+            flex: 1;
+            text-align: center;
+            padding: 18px;
+            background: white;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .tf-option:hover {
+            border-color: #6a11cb;
+            background: #e6eeff;
+            transform: scale(1.03);
+        }
+        
+        .tf-option.selected {
+            background: #dbe5ff;
+            border-color: #2575fc;
+            box-shadow: 0 6px 12px rgba(37, 117, 252, 0.15);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 16px 35px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.15rem;
+            cursor: pointer;
+            transition: all 0.4s;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+            color: white;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 176, 155, 0.4);
+        }
+        
+        .reset-btn {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(255, 65, 108, 0.4);
+        }
+        
+        .answer-btn {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+        }
+        
+        .answer-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(106, 17, 203, 0.4);
+        }
+        
+        .answer-area {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e0eaff 0%, #d6e4ff 100%);
+            border-radius: 12px;
+            display: none;
+            border: 2px solid #c0d0ff;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .answer-text {
+            font-weight: 700;
+            color: #1a2980;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        
+        .explanation {
+            margin-top: 12px;
+            color: #2c3e50;
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+        
+        .score-container {
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            color: white;
+            display: none;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .score-title {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .score-value {
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin: 25px 0;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #ffeb3b 0%, #ff9800 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        
+        .score-details {
+            font-size: 1.25rem;
+            margin-top: 15px;
+            opacity: 0.9;
+        }
+        
+        .relation-algebra {
+            background: #fff8e1;
+            border: 2px solid #ffd54f;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+        
+        .relation-algebra .symbol {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        
+        .relation-algebra .attribute {
+            color: #1976d2;
+            font-weight: bold;
+        }
+        
+        .relation-algebra .relation {
+            color: #388e3c;
+            font-weight: bold;
+            font-style: italic;
+        }
+        
+        .relation-algebra .condition {
+            color: #7b1fa2;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 1.6rem;
+            }
+            
+            .control-btn {
+                padding: 14px 25px;
+                font-size: 1rem;
+            }
+            
+            .true-false {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .exam-btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>数据库原理期末测试卷</h1>
+            <p class="subtitle">关系代数专项测试</p>
+        </header>
+        
+        <div class="exam-controls">
+            <button class="exam-btn active" data-exam="1">试卷一</button>
+            <button class="exam-btn" data-exam="2">试卷二</button>
+            <button class="exam-btn" data-exam="3">试卷三</button>
+        </div>
+        
+        <div id="exam-content">
+            <!-- 试卷内容将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        // 试卷数据
+        const exams = {
+            1: {
+                choices: [
+                    {
+                        question: "关系代数中的选择操作对应SQL中的什么子句？",
+                        options: ["SELECT", "FROM", "WHERE", "GROUP BY"],
+                        answer: 2,
+                        explanation: "选择操作（σ）在SQL中对应WHERE子句，用于筛选满足条件的元组。"
+                    },
+                    {
+                        question: "在关系代数中，自然连接操作会如何处理同名属性？",
+                        options: ["保留两个属性", "自动去重", "自动重命名", "只保留一个属性"],
+                        answer: 3,
+                        explanation: "自然连接会自动比较两个关系中所有同名的属性，并在结果中只保留一个副本。"
+                    },
+                    {
+                        question: "以下哪个关系代数操作是二元的？",
+                        options: ["投影", "选择", "更名", "自然连接"],
+                        answer: 3,
+                        explanation: "自然连接需要两个关系作为输入，因此是二元操作。"
+                    },
+                    {
+                        question: "关系代数表达式 π_{姓名, 年龄}(σ_{专业='计算机'}(学生)) 表示什么？",
+                        options: [
+                            "查询计算机专业学生的所有信息",
+                            "查询所有学生的姓名和年龄",
+                            "查询计算机专业学生的姓名和年龄",
+                            "查询计算机专业学生的姓名"
+                        ],
+                        answer: 2,
+                        explanation: "该表达式先选择专业为计算机的学生，然后投影姓名和年龄属性。"
+                    },
+                    {
+                        question: "在关系模型中，主码的作用是什么？",
+                        options: [
+                            "标识关系中的属性",
+                            "唯一标识关系中的元组",
+                            "建立表之间的关联",
+                            "定义完整性约束"
+                        ],
+                        answer: 1,
+                        explanation: "主码用于唯一标识关系中的每个元组，确保实体完整性。"
+                    },
+                    {
+                        question: "关系代数中的投影操作对应SQL中的什么子句？",
+                        options: ["SELECT", "FROM", "WHERE", "GROUP BY"],
+                        answer: 0,
+                        explanation: "投影操作（π）在SQL中对应SELECT子句，用于选择需要的属性列。"
+                    },
+                    {
+                        question: "以下哪个不是基本的关系代数操作？",
+                        options: ["选择", "投影", "笛卡尔积", "自然连接"],
+                        answer: 3,
+                        explanation: "自然连接是派生操作，可以用选择和笛卡尔积来定义。"
+                    },
+                    {
+                        question: "关系代数表达式 R ÷ S 表示什么操作？",
+                        options: [
+                            "选择",
+                            "除法",
+                            "连接",
+                            "差集"
+                        ],
+                        answer: 1,
+                        explanation: "除法操作用于查询满足特定条件的所有元组，例如'查询选修了所有课程的学生'。"
+                    },
+                    {
+                        question: "在关系代数中，外连接操作不包括以下哪种？",
+                        options: ["左外连接", "右外连接", "全外连接", "内连接"],
+                        answer: 3,
+                        explanation: "内连接是基本连接操作，外连接包括左外连接、右外连接和全外连接。"
+                    },
+                    {
+                        question: "关系代数操作的结果是什么？",
+                        options: [
+                            "一个数值",
+                            "一个新的关系",
+                            "一个布尔值",
+                            "一个元组"
+                        ],
+                        answer: 1,
+                        explanation: "关系代数操作的结果总是另一个关系，满足闭包性质。"
+                    }
+                ],
+                fills: [
+                    { 
+                        question: "关系代数中，选择操作的符号是", 
+                        answer: "σ",
+                        explanation: "选择操作使用希腊字母sigma(σ)表示，后面跟选择条件。"
+                    },
+                    { 
+                        question: "投影操作的符号是", 
+                        answer: "π",
+                        explanation: "投影操作使用希腊字母pi(π)表示，后面跟属性列表。"
+                    },
+                    { 
+                        question: "自然连接的符号是", 
+                        answer: "⋈",
+                        explanation: "自然连接使用⋈符号表示，它会自动匹配相同属性名的属性。"
+                    },
+                    { 
+                        question: "查询'计算机'专业学生的姓名和年龄的关系代数表达式是：π_{姓名,年龄}(_______(学生))",
+                        answer: "σ_{专业='计算机'}",
+                        explanation: "先使用选择操作筛选专业为计算机的学生，然后投影姓名和年龄属性。"
+                    },
+                    { 
+                        question: "查询选修了'CS101'课程的学生的学号：π_{学号}(σ_{课程号='CS101'}(______))",
+                        answer: "选课",
+                        explanation: "在选课关系中选择课程号为CS101的元组，然后投影学号属性。"
+                    },
+                    { 
+                        question: "关系代数表达式：学生 ⋈ 选课 表示什么操作？",
+                        answer: "自然连接",
+                        explanation: "⋈符号表示自然连接操作，它会自动匹配学生和选课关系中相同属性名的属性。"
+                    },
+                    { 
+                        question: "查询没有选修任何课程的学生：π_{学号}(学生) - ________",
+                        answer: "π_{学号}(选课)",
+                        explanation: "使用差集操作，从所有学生中学号减去已选课学生的学号。"
+                    },
+                    { 
+                        question: "关系R和S的并操作要求它们必须具有相同的______",
+                        answer: "属性集",
+                        explanation: "并操作要求两个关系具有相同的属性集（属性名和类型相同）。"
+                    },
+                    { 
+                        question: "笛卡尔积操作的符号是",
+                        answer: "×",
+                        explanation: "笛卡尔积使用乘号(×)表示，将两个关系的所有元组进行组合。"
+                    },
+                    { 
+                        question: "关系代数表达式 σ_{成绩>90}(选课) 表示什么？",
+                        answer: "成绩大于90分的选课记录",
+                        explanation: "选择操作σ用于筛选满足条件的元组，这里选择成绩大于90的选课记录。"
+                    },
+                    { 
+                        question: "更名操作的符号是",
+                        answer: "ρ",
+                        explanation: "更名操作使用希腊字母rho(ρ)表示，用于更改关系名或属性名。"
+                    },
+                    { 
+                        question: "查询所有课程都被选修的学生需要使用______操作",
+                        answer: "除法",
+                        explanation: "除法操作用于查询满足'所有'条件的情况，例如选修了所有课程的学生。"
+                    },
+                    { 
+                        question: "关系代数表达式 π_{学号,姓名}(学生 ⋈ σ_{课程名='数据库'}(课程 ⋈ 选课)) 中，最外层的操作是______",
+                        answer: "投影",
+                        explanation: "最外层的π表示投影操作，选择学号和姓名属性。"
+                    },
+                    { 
+                        question: "左外连接的符号是",
+                        answer: "⟕",
+                        explanation: "左外连接使用⟕符号表示，保留左侧关系的所有元组。"
+                    },
+                    { 
+                        question: "关系代数中，交操作的符号是",
+                        answer: "∩",
+                        explanation: "交操作使用∩符号表示，返回两个关系中都存在的元组。"
+                    }
+                ],
+                judgments: [
+                    { 
+                        question: "选择操作会改变关系的属性结构。", 
+                        answer: false, 
+                        explanation: "选择操作只改变元组数量（行），不改变属性结构（列）。" 
+                    },
+                    { 
+                        question: "投影操作会消除重复的元组。", 
+                        answer: true, 
+                        explanation: "关系是集合，投影操作后会自动消除重复元组。" 
+                    },
+                    { 
+                        question: "自然连接要求两个关系有相同的属性名。", 
+                        answer: true, 
+                        explanation: "自然连接会自动比较两个关系中所有同名的属性。" 
+                    },
+                    { 
+                        question: "笛卡尔积操作要求两个关系没有同名属性。", 
+                        answer: true, 
+                        explanation: "如果存在同名属性，笛卡尔积操作无法进行，需要先使用更名操作。" 
+                    },
+                    { 
+                        question: "关系代数中的除法操作可以用其他基本操作表示。", 
+                        answer: true, 
+                        explanation: "除法操作不是基本操作，可以用投影、笛卡尔积和差集等操作表示。" 
+                    },
+                    { 
+                        question: "外连接操作会保留未匹配的元组。", 
+                        answer: true, 
+                        explanation: "外连接操作会保留至少一个关系中未匹配的元组，并用空值填充。" 
+                    },
+                    { 
+                        question: "选择操作可以出现在投影操作之后。", 
+                        answer: true, 
+                        explanation: "关系代数操作可以组合使用，顺序取决于具体需求。" 
+                    },
+                    { 
+                        question: "关系代数表达式 π_A(σ_B>10(R)) 等价于 σ_B>10(π_A(R))。", 
+                        answer: false, 
+                        explanation: "如果B不在投影属性A中，那么第二个表达式将无效。投影可能会删除B属性。" 
+                    },
+                    { 
+                        question: "自然连接是等值连接的一种特殊情况。", 
+                        answer: true, 
+                        explanation: "自然连接是等值连接在相同属性名上的特例，且自动去除重复列。" 
+                    },
+                    { 
+                        question: "关系代数支持聚合函数如SUM、AVG等。", 
+                        answer: false, 
+                        explanation: "基本关系代数不包含聚合函数，扩展的关系代数才支持分组和聚合。" 
+                    }
+                ]
+            },
+            2: {
+                choices: [
+                    {
+                        question: "关系代数中的差操作对应SQL中的什么关键字？",
+                        options: ["UNION", "INTERSECT", "EXCEPT", "MINUS"],
+                        answer: 2,
+                        explanation: "差操作在SQL中对应EXCEPT关键字（某些数据库使用MINUS）。"
+                    },
+                    {
+                        question: "在关系代数中，θ连接是什么操作的组合？",
+                        options: ["选择和投影", "选择和笛卡尔积", "投影和笛卡尔积", "差集和并集"],
+                        answer: 1,
+                        explanation: "θ连接是笛卡尔积后跟选择操作的组合。"
+                    },
+                    {
+                        question: "关系代数表达式 R ∩ S 等价于什么？",
+                        options: [
+                            "R ∪ S",
+                            "R - (R - S)",
+                            "R × S",
+                            "R ⋈ S"
+                        ],
+                        answer: 1,
+                        explanation: "交操作可以用差操作表示：R ∩ S = R - (R - S)。"
+                    },
+                    {
+                        question: "查询选修了'数据库'课程的学生姓名，正确的关系代数表达式是：",
+                        options: [
+                            "π_{姓名}(σ_{课程名='数据库'}(课程) ⋈ 选课 ⋈ 学生)",
+                            "π_{姓名}(学生 ⋈ 选课 ⋈ σ_{课程名='数据库'}(课程))",
+                            "π_{姓名}(学生 × 选课 × σ_{课程名='数据库'}(课程))",
+                            "σ_{课程名='数据库'}(π_{姓名}(学生 ⋈ 选课 ⋈ 课程))"
+                        ],
+                        answer: 1,
+                        explanation: "先选择课程名为数据库的课程，然后与选课、学生关系自然连接，最后投影姓名属性。"
+                    },
+                    {
+                        question: "在关系代数中，更名操作的主要作用是什么？",
+                        options: [
+                            "更改元组的值",
+                            "更改关系或属性的名称",
+                            "添加新的属性",
+                            "删除现有属性"
+                        ],
+                        answer: 1,
+                        explanation: "更名操作ρ用于更改关系名或属性名，常用于自连接或解决命名冲突。"
+                    },
+                    {
+                        question: "关系代数表达式 π_{学号}(选课) ÷ π_{课程号}(选课) 表示什么？",
+                        options: [
+                            "选修了所有课程的学生",
+                            "选修了某些课程的学生",
+                            "没有选修任何课程的学生",
+                            "选修了特定课程的学生"
+                        ],
+                        answer: 0,
+                        explanation: "除法操作返回选修了所有课程（在除数的关系中）的学生学号。"
+                    },
+                    {
+                        question: "以下哪个关系代数操作不满足交换律？",
+                        options: ["并", "交", "差", "自然连接"],
+                        answer: 2,
+                        explanation: "差操作不满足交换律：R - S ≠ S - R（除非R和S相同）。"
+                    },
+                    {
+                        question: "在关系代数中，外连接操作的主要特点是什么？",
+                        options: [
+                            "只返回匹配的元组",
+                            "返回所有元组，未匹配的用空值填充",
+                            "返回两个关系的笛卡尔积",
+                            "返回匹配的元组和部分未匹配的元组"
+                        ],
+                        answer: 1,
+                        explanation: "外连接返回至少一个关系中的所有元组，未匹配的部分用空值填充。"
+                    },
+                    {
+                        question: "关系代数表达式 σ_{A>5∧B<10}(R) 中，∧表示什么操作？",
+                        options: ["或", "与", "非", "异或"],
+                        answer: 1,
+                        explanation: "∧表示逻辑与操作，即两个条件都必须满足。"
+                    },
+                    {
+                        question: "查询平均成绩大于85分的学生的学号，需要使用什么扩展操作？",
+                        options: [
+                            "选择",
+                            "投影",
+                            "分组和聚合",
+                            "连接"
+                        ],
+                        answer: 2,
+                        explanation: "基本关系代数不直接支持聚合操作，需要扩展的关系代数或SQL的分组聚合功能。"
+                    }
+                ],
+                fills: [
+                    { 
+                        question: "关系代数中，并操作的符号是", 
+                        answer: "∪",
+                        explanation: "并操作使用∪符号表示，返回两个关系的所有元组（去重）。"
+                    },
+                    { 
+                        question: "差操作的符号是", 
+                        answer: "-",
+                        explanation: "差操作使用减号(-)表示，返回属于第一个关系但不属于第二个关系的元组。"
+                    },
+                    { 
+                        question: "查询教师和其讲授课程的关系代数表达式：教师 ⋈ ______",
+                        answer: "讲授",
+                        explanation: "自然连接教师和讲授关系，得到教师和其讲授课程的关联。"
+                    },
+                    { 
+                        question: "查询没有讲授任何课程的教师：π_{教师号}(教师) - ______",
+                        answer: "π_{教师号}(讲授)",
+                        explanation: "使用差集操作，从所有教师中减去已讲授课程的教师。"
+                    },
+                    { 
+                        question: "关系代数表达式 π_{课程名}(σ_{学分>3}(课程)) 表示什么？",
+                        answer: "学分大于3的课程名称",
+                        explanation: "先选择学分大于3的课程，然后投影课程名属性。"
+                    },
+                    { 
+                        question: "θ连接使用符号表示为 R ⋈_{AθB} S，其中θ可以是______、<、>、≤、≥、≠等",
+                        answer: "=",
+                        explanation: "θ连接中的θ可以是任何比较运算符，如=、<、>等。"
+                    },
+                    { 
+                        question: "更名操作 ρ_{新名称}(R) 或 ρ_{新名称/旧名称}(R) 用于______",
+                        answer: "更改关系或属性名",
+                        explanation: "更名操作用于解决命名冲突或为中间结果命名。"
+                    },
+                    { 
+                        question: "关系代数表达式 σ_{工资>5000}(教师) ∪ σ_{工资>6000}(教师) 等价于______",
+                        answer: "σ_{工资>5000}(教师)",
+                        explanation: "因为工资>6000是工资>5000的子集，所以并集就是工资>5000的教师。"
+                    },
+                    { 
+                        question: "半连接操作的符号是",
+                        answer: "⋉",
+                        explanation: "半连接使用⋉符号表示，返回左侧关系中与右侧关系匹配的元组。"
+                    },
+                    { 
+                        question: "查询选修了'张老师'讲授的所有课程的学生需要使用______操作",
+                        answer: "除法",
+                        explanation: "除法操作用于查询满足'所有'条件的情况。"
+                    },
+                    { 
+                        question: "关系代数表达式 R × S 中，结果关系的属性数为______",
+                        answer: "|Attr(R)| + |Attr(S)|",
+                        explanation: "笛卡尔积的结果包含两个关系的所有属性，属性数为两者之和。"
+                    },
+                    { 
+                        question: "自然连接 R ⋈ S 要求R和S有______",
+                        answer: "共同的属性名",
+                        explanation: "自然连接自动比较两个关系中所有同名的属性。"
+                    },
+                    { 
+                        question: "关系代数表达式 π_{A,B}(R) ⋈ π_{B,C}(S) 要求R和S有共同的属性______",
+                        answer: "B",
+                        explanation: "自然连接基于共同的属性名，这里是属性B。"
+                    },
+                    { 
+                        question: "外连接包括左外连接、右外连接和______",
+                        answer: "全外连接",
+                        explanation: "全外连接保留两个关系中所有的元组。"
+                    },
+                    { 
+                        question: "关系代数是SQL查询的______基础",
+                        answer: "理论基础",
+                        explanation: "关系代数为SQL查询语言提供了理论基础。"
+                    }
+                ],
+                judgments: [
+                    { 
+                        question: "投影操作会改变关系的元组数量。", 
+                        answer: false, 
+                        explanation: "投影操作只改变属性结构，不会改变元组数量（除非有重复元组被消除）。" 
+                    },
+                    { 
+                        question: "自然连接是等值连接的一种特例。", 
+                        answer: true, 
+                        explanation: "自然连接是等值连接在相同属性名上的特例，且自动去除重复列。" 
+                    },
+                    { 
+                        question: "关系代数中的除法操作是二元的。", 
+                        answer: true, 
+                        explanation: "除法操作需要两个关系作为输入，因此是二元操作。" 
+                    },
+                    { 
+                        question: "选择操作可以基于多个条件组合。", 
+                        answer: true, 
+                        explanation: "选择条件可以使用逻辑运算符AND、OR、NOT组合多个条件。" 
+                    },
+                    { 
+                        question: "笛卡尔积操作的结果元组数是|R| × |S|。", 
+                        answer: true, 
+                        explanation: "笛卡尔积将R的每个元组与S的每个元组组合，因此元组数是|R|×|S|。" 
+                    },
+                    { 
+                        question: "关系代数支持递归查询。", 
+                        answer: false, 
+                        explanation: "基本关系代数不支持递归，这是其局限性之一。" 
+                    },
+                    { 
+                        question: "外连接操作可以用基本的关系代数操作表示。", 
+                        answer: true, 
+                        explanation: "外连接可以用并、差和笛卡尔积等基本操作表示。" 
+                    },
+                    { 
+                        question: "关系代数表达式 R ∪ R = R。", 
+                        answer: true, 
+                        explanation: "并操作会消除重复元组，因此R与自身的并仍是R。" 
+                    },
+                    { 
+                        question: "选择操作 σ_{A=5}(R) 等价于 σ_{5=A}(R)。", 
+                        answer: true, 
+                        explanation: "等值比较满足交换律，因此两者等价。" 
+                    },
+                    { 
+                        question: "关系代数表达式 π_{A}(R) × π_{B}(S) 等价于 π_{A,B}(R × S)。", 
+                        answer: false, 
+                        explanation: "如果R和S有共同属性，两者不等价；即使没有，结果元组数也不同。" 
+                    }
+                ]
+            },
+            3: {
+                choices: [
+                    {
+                        question: "在关系代数中，半连接操作的主要作用是什么？",
+                        options: [
+                            "返回两个关系的所有元组",
+                            "返回左侧关系中与右侧关系匹配的元组",
+                            "返回匹配的元组和部分未匹配的元组",
+                            "返回两个关系的笛卡尔积"
+                        ],
+                        answer: 1,
+                        explanation: "半连接返回左侧关系中与右侧关系至少匹配一次的元组。"
+                    },
+                    {
+                        question: "关系代数表达式 R ÷ S 中，R和S的关系模式必须满足什么条件？",
+                        options: [
+                            "R包含S的所有属性",
+                            "S包含R的所有属性",
+                            "R和S有相同的属性",
+                            "S的属性是R属性的子集"
+                        ],
+                        answer: 3,
+                        explanation: "除法操作要求S的属性集是R属性集的子集。"
+                    },
+                    {
+                        question: "以下哪个关系代数操作是幂等的？",
+                        options: ["选择", "投影", "并", "差"],
+                        answer: 0,
+                        explanation: "选择操作是幂等的：σ_C(σ_C(R)) = σ_C(R)。"
+                    },
+                    {
+                        question: "查询选修了'王老师'讲授的所有课程的学生姓名，正确的关系代数表达式是：",
+                        options: [
+                            "π_{姓名}(学生 ⋈ (选课 ÷ π_{课程号}(σ_{教师='王老师'}(讲授))))",
+                            "π_{姓名}(σ_{教师='王老师'}(学生 ⋈ 选课 ⋈ 讲授))",
+                            "π_{姓名}(学生) × (选课 ÷ π_{课程号}(σ_{教师='王老师'}(讲授)))",
+                            "σ_{教师='王老师'}(π_{姓名}(学生 ⋈ 选课 ⋈ 讲授))"
+                        ],
+                        answer: 0,
+                        explanation: "先找到王老师讲授的所有课程，然后用除法找到选修了这些课程的学生，最后与学生关系连接并投影姓名。"
+                    },
+                    {
+                        question: "在关系代数中，重命名操作ρ可以用于什么？",
+                        options: [
+                            "更改元组的值",
+                            "更改关系名或属性名",
+                            "添加新的属性",
+                            "删除现有属性"
+                        ],
+                        answer: 1,
+                        explanation: "重命名操作ρ用于更改关系名或属性名，常用于自连接或解决命名冲突。"
+                    },
+                    {
+                        question: "关系代数表达式 π_{A}(R) ∩ π_{A}(S) 等价于什么？",
+                        options: [
+                            "π_{A}(R ∪ S)",
+                            "π_{A}(R) ∪ π_{A}(S)",
+                            "π_{A}(R - S)",
+                            "π_{A}(R × S)"
+                        ],
+                        answer: 0,
+                        explanation: "交操作可以用并和差表示：π_A(R) ∩ π_A(S) = π_A(R) - (π_A(R) - π_A(S))。"
+                    },
+                    {
+                        question: "以下哪个不是关系代数的基本操作？",
+                        options: ["选择", "投影", "差", "自然连接"],
+                        answer: 3,
+                        explanation: "自然连接是派生操作，可以用选择和笛卡尔积定义。"
+                    },
+                    {
+                        question: "关系代数表达式 R ⋈_{R.A=S.B} S 表示什么操作？",
+                        options: [
+                            "自然连接",
+                            "等值连接",
+                            "半连接",
+                            "外连接"
+                        ],
+                        answer: 1,
+                        explanation: "这是等值连接，基于条件R.A = S.B连接两个关系。"
+                    },
+                    {
+                        question: "在关系代数中，扩展操作包括什么？",
+                        options: [
+                            "分组和聚合",
+                            "外连接",
+                            "递归查询",
+                            "以上都是"
+                        ],
+                        answer: 3,
+                        explanation: "扩展的关系代数包括分组聚合、外连接、递归查询等操作。"
+                    },
+                    {
+                        question: "关系代数表达式 σ_{A>10}(R) ⋈ σ_{B<5}(S) 等价于什么？",
+                        options: [
+                            "σ_{A>10 ∧ B<5}(R ⋈ S)",
+                            "σ_{A>10}(R) × σ_{B<5}(S)",
+                            "σ_{A>10}(R) ⋈ σ_{B<5}(S)",
+                            "σ_{A>10}(R) ∪ σ_{B<5}(S)"
+                        ],
+                        answer: 0,
+                        explanation: "选择操作可以下推到连接操作之前，但前提是条件只涉及各自关系的属性。"
+                    }
+                ],
+                fills: [
+                    { 
+                        question: "关系代数中，交操作的符号是", 
+                        answer: "∩",
+                        explanation: "交操作使用∩符号表示，返回两个关系中都存在的元组。"
+                    },
+                    { 
+                        question: "除法操作的符号是", 
+                        answer: "÷",
+                        explanation: "除法操作使用÷符号表示，用于查询满足'所有'条件的元组。"
+                    },
+                    { 
+                        question: "查询'计算机'专业且年龄大于20岁的学生：σ_{专业='计算机' AND ______}(学生)",
+                        answer: "年龄>20",
+                        explanation: "选择操作的条件可以包含多个条件，用AND连接。"
+                    },
+                    { 
+                        question: "关系代数表达式 学生 × 课程 表示什么？",
+                        answer: "笛卡尔积",
+                        explanation: "×符号表示笛卡尔积，将学生和课程的每个元组进行组合。"
+                    },
+                    { 
+                        question: "查询至少选修一门'张老师'讲授课程的学生：π_{学号}(选课 ⋈ ______(讲授))",
+                        answer: "σ_{教师='张老师'}",
+                        explanation: "先选择张老师的讲授记录，然后与选课连接，最后投影学号。"
+                    },
+                    { 
+                        question: "关系代数表达式 R - (R - S) 等价于______",
+                        answer: "R ∩ S",
+                        explanation: "差操作的组合可以实现交操作。"
+                    },
+                    { 
+                        question: "更名操作 ρ_{新关系名}(R) 用于______",
+                        answer: "更改关系名",
+                        explanation: "更名操作用于为关系指定新的名称。"
+                    },
+                    { 
+                        question: "半连接 R ⋉ S 等价于 π_{R.*}(______)",
+                        answer: "R ⋈ S",
+                        explanation: "半连接可以定义为在共同属性上的连接后投影左侧关系的属性。"
+                    },
+                    { 
+                        question: "关系代数表达式 π_{学号, 课程号}(选课) ÷ π_{课程号}(课程) 表示什么？",
+                        answer: "选修了所有课程的学生学号",
+                        explanation: "除法操作用于查询选修了所有课程的学生。"
+                    },
+                    { 
+                        question: "外连接包括______、右外连接和全外连接",
+                        answer: "左外连接",
+                        explanation: "左外连接保留左侧关系的所有元组。"
+                    },
+                    { 
+                        question: "关系代数中，θ连接是______和选择的组合",
+                        answer: "笛卡尔积",
+                        explanation: "θ连接可以定义为笛卡尔积后跟选择操作。"
+                    },
+                    { 
+                        question: "关系代数表达式 R ∪ ∅ = ______",
+                        answer: "R",
+                        explanation: "任何关系与空关系的并仍是原关系。"
+                    },
+                    { 
+                        question: "投影操作 π_{A1,A2,...,An}(R) 会保留指定的______",
+                        answer: "属性",
+                        explanation: "投影操作选择指定的属性，删除其他属性。"
+                    },
+                    { 
+                        question: "在关系代数中，关系是______的集合",
+                        answer: "元组",
+                        explanation: "关系由元组组成，每个元组表示一个实体或联系。"
+                    },
+                    { 
+                        question: "自然连接 R ⋈ S 要求R和S有______",
+                        answer: "共同的属性名",
+                        explanation: "自然连接自动比较两个关系中所有同名的属性。"
+                    }
+                ],
+                judgments: [
+                    { 
+                        question: "选择操作可以基于派生属性进行。", 
+                        answer: false, 
+                        explanation: "基本关系代数的选择操作只能基于现有属性，不能基于计算值。" 
+                    },
+                    { 
+                        question: "投影操作后，关系的元组数量可能减少。", 
+                        answer: true, 
+                        explanation: "投影后如果有重复元组，会被自动消除，因此元组数量可能减少。" 
+                    },
+                    { 
+                        question: "自然连接是交换的：R ⋈ S = S ⋈ R。", 
+                        answer: true, 
+                        explanation: "自然连接满足交换律，结果与连接顺序无关。" 
+                    },
+                    { 
+                        question: "关系代数中的除法操作是基本的、不可再分的操作。", 
+                        answer: false, 
+                        explanation: "除法操作可以用其他基本操作（投影、笛卡尔积、差集）表示。" 
+                    },
+                    { 
+                        question: "关系代数表达式 π_{A}(σ_{B=10}(R)) 等价于 σ_{B=10}(π_{A}(R))。", 
+                        answer: false, 
+                        explanation: "如果B不在投影属性A中，那么第二个表达式无效。" 
+                    },
+                    { 
+                        question: "外连接操作会改变结果关系的属性数量。", 
+                        answer: false, 
+                        explanation: "外连接不改变属性数量，只是用空值填充未匹配的属性。" 
+                    },
+                    { 
+                        question: "关系代数支持空值（NULL）的处理。", 
+                        answer: false, 
+                        explanation: "基本关系代数不支持空值，这是其局限性之一。" 
+                    },
+                    { 
+                        question: "选择操作 σ_{A=5 AND B=10}(R) 等价于 σ_{A=5}(σ_{B=10}(R))。", 
+                        answer: true, 
+                        explanation: "选择操作的条件可以通过连续应用选择操作实现。" 
+                    },
+                    { 
+                        question: "关系代数是关系数据库管理系统的理论基础。", 
+                        answer: true, 
+                        explanation: "关系代数为关系数据库的查询处理提供了理论基础。" 
+                    },
+                    { 
+                        question: "笛卡尔积操作满足交换律：R × S = S × R。", 
+                        answer: true, 
+                        explanation: "笛卡尔积满足交换律，但结果中的属性顺序可能不同。" 
+                    }
+                ]
+            }
+        };
+        
+        // 当前试卷
+        let currentExam = 1;
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            renderExam(currentExam);
+            
+            // 试卷切换按钮事件
+            document.querySelectorAll('.exam-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    // 更新按钮状态
+                    document.querySelectorAll('.exam-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    button.classList.add('active');
+                    
+                    // 加载新试卷
+                    currentExam = parseInt(button.dataset.exam);
+                    renderExam(currentExam);
+                });
+            });
+        });
+        
+        // 渲染试卷
+        function renderExam(examNum) {
+            const exam = exams[examNum];
+            let html = '';
+            
+            // 选择题部分
+            html += `<div class="exam-section">
+                <h2 class="section-title"><i class="fas fa-list-ol"></i> 一、单项选择题（每题2分，共20分）</h2>`;
+            
+            exam.choices.forEach((q, i) => {
+                html += `<div class="question-block">
+                    <div class="question-number">${i+1}</div>
+                    <p class="question-text">${q.question}</p>
+                    <div class="options">`;
+                
+                q.options.forEach((opt, j) => {
+                    html += `<div class="option" data-type="choice" data-qindex="${i}" data-option="${j}">${String.fromCharCode(65+j)}. ${opt}</div>`;
+                });
+                
+                html += `</div>
+                    <div class="answer-area">
+                        <p class="answer-text">正确答案：${String.fromCharCode(65+q.answer)}. ${q.options[q.answer]}</p>
+                        <p class="explanation">解析：${q.explanation}</p>
+                    </div>
+                </div>`;
+            });
+            
+            html += `</div>`;
+            
+            // 填空题部分
+            html += `<div class="exam-section">
+                <h2 class="section-title"><i class="fas fa-edit"></i> 二、填空题（每空1分，共20分）</h2>`;
+            
+            exam.fills.forEach((q, i) => {
+                html += `<div class="question-block">
+                    <div class="question-number">${i+1}</div>
+                    <p class="question-text">${q.question}</p>
+                    <div class="answer-area">
+                        <p class="answer-text">正确答案：${q.answer}</p>
+                        <p class="explanation">解析：${q.explanation}</p>
+                    </div>
+                </div>`;
+            });
+            
+            html += `</div>`;
+            
+            // 判断题部分
+            html += `<div class="exam-section">
+                <h2 class="section-title"><i class="fas fa-check-double"></i> 三、判断题（每题2分，共20分）</h2>`;
+            
+            exam.judgments.forEach((q, i) => {
+                html += `<div class="question-block">
+                    <div class="question-number">${i+1}</div>
+                    <p class="question-text">${q.question}</p>
+                    <div class="true-false">
+                        <div class="tf-option" data-type="judgment" data-qindex="${i}" data-option="true">正确</div>
+                        <div class="tf-option" data-type="judgment" data-qindex="${i}" data-option="false">错误</div>
+                    </div>
+                    <div class="answer-area">
+                        <p class="answer-text">正确答案：${q.answer ? '正确' : '错误'}</p>
+                        <p class="explanation">解析：${q.explanation}</p>
+                    </div>
+                </div>`;
+            });
+            
+            html += `</div>`;
+            
+            // 控制按钮
+            html += `<div class="controls">
+                <button class="control-btn submit-btn" id="submit-exam"><i class="fas fa-paper-plane"></i> 提交试卷</button>
+                <button class="control-btn reset-btn" id="reset-exam"><i class="fas fa-redo"></i> 重新答题</button>
+                <button class="control-btn answer-btn" id="show-answers"><i class="fas fa-eye"></i> 显示答案</button>
+            </div>
+            
+            <div class="score-container" id="score-container">
+                <h2 class="score-title">您的成绩</h2>
+                <div class="score-value" id="score-value">0</div>
+                <p class="score-details" id="score-details"></p>
+            </div>`;
+            
+            document.getElementById('exam-content').innerHTML = html;
+            
+            // 添加事件监听器
+            addEventListeners();
+        }
+        
+        // 添加事件监听器
+        function addEventListeners() {
+            // 选择题选项点击
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const qindex = this.dataset.qindex;
+                    const options = this.parentElement.querySelectorAll('.option');
+                    
+                    // 移除同问题的其他选中状态
+                    options.forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // 设置当前选中状态
+                    this.classList.add('selected');
+                });
+            });
+            
+            // 判断题选项点击
+            document.querySelectorAll('.tf-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const qindex = this.dataset.qindex;
+                    const options = this.parentElement.querySelectorAll('.tf-option');
+                    
+                    // 移除同问题的其他选中状态
+                    options.forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // 设置当前选中状态
+                    this.classList.add('selected');
+                });
+            });
+            
+            // 提交试卷
+            document.getElementById('submit-exam').addEventListener('click', calculateScore);
+            
+            // 重新答题
+            document.getElementById('reset-exam').addEventListener('click', resetExam);
+            
+            // 显示答案
+            document.getElementById('show-answers').addEventListener('click', showAnswers);
+        }
+        
+        // 计算分数
+        function calculateScore() {
+            const exam = exams[currentExam];
+            let score = 0;
+            let correctCount = 0;
+            let totalCount = exam.choices.length + exam.fills.length + exam.judgments.length;
+            
+            // 选择题评分
+            document.querySelectorAll('.option.selected').forEach(option => {
+                const qindex = option.dataset.qindex;
+                const selectedOption = option.dataset.option;
+                
+                if (parseInt(selectedOption) === exam.choices[qindex].answer) {
+                    correctCount++;
+                    option.style.backgroundColor = '#d4edda';
+                } else {
+                    option.style.backgroundColor = '#f8d7da';
+                }
+            });
+            
+            // 判断题评分
+            document.querySelectorAll('.tf-option.selected').forEach(option => {
+                const qindex = option.dataset.qindex;
+                const userAnswer = option.dataset.option === 'true';
+                const correctAnswer = exam.judgments[qindex].answer;
+                
+                if (userAnswer === correctAnswer) {
+                    correctCount++;
+                    option.style.backgroundColor = '#d4edda';
+                } else {
+                    option.style.backgroundColor = '#f8d7da';
+                }
+            });
+            
+            // 计算分数（选择题每题2分，判断题每题2分，填空题每题1分）
+            score = (correctCount * 2) - exam.fills.length;
+            
+            // 显示成绩
+            document.getElementById('score-value').textContent = score;
+            document.getElementById('score-details').textContent = 
+                `答对 ${correctCount} 题，总分 ${totalCount * 2} 分`;
+            document.getElementById('score-container').style.display = 'block';
+            
+            // 显示所有答案
+            showAnswers();
+            
+            // 滚动到成绩区域
+            document.getElementById('score-container').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 重置试卷
+        function resetExam() {
+            // 重置选择题
+            document.querySelectorAll('.option.selected').forEach(option => {
+                option.classList.remove('selected');
+                option.style.backgroundColor = '';
+            });
+            
+            // 重置判断题
+            document.querySelectorAll('.tf-option.selected').forEach(option => {
+                option.classList.remove('selected');
+                option.style.backgroundColor = '';
+            });
+            
+            // 隐藏成绩
+            document.getElementById('score-container').style.display = 'none';
+            
+            // 隐藏答案
+            document.querySelectorAll('.answer-area').forEach(area => {
+                area.style.display = 'none';
+            });
+        }
+        
+        // 显示答案
+        function showAnswers() {
+            document.querySelectorAll('.answer-area').forEach(area => {
+                area.style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>

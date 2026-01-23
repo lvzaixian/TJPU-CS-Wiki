@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第十二章--并发控制</title>
+    <!-- Tailwind CSS CDN for utility-first styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Noto Sans SC (Chinese) and Inter (general) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- MathJax for LaTeX rendering of mathematical formulas (unlikely to be used here) -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        /* CSS Variables for a consistent orange theme */
+        :root {
+            --primary-main: #FF8C00; /* Dark Orange - vibrant main accent */
+            --primary-dark: #CC7000; /* Slightly darker orange for strong highlights */
+            --secondary-main: #FFA000; /* Brighter Orange - for lighter accents, icons */
+            --accent-soft: #FFECB3; /* Very light yellow for subtle contrast */
+            --text-default: #333333; /* Darker gray for main content text - improved contrast */
+            --text-light-gray: #555555; /* Lighter gray for explanations - improved contrast */
+            --bg-light: #FFF3E0; /* Very light orange-tinted background */
+            --bg-lighter: #FFE0B2; /* Slightly darker light orange background */
+            --card-bg: #FFFFFF; /* White card background */
+            --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.08); /* Soft shadow */
+            --border-color: rgba(0, 0, 0, 0.05); /* Subtle border color */
+            --code-bg: #4A2C00; /* Deepest orange-brown for code background */
+            --code-text: #FFF3E0; /* Lightest orange for code text */
+            --code-header-bg: linear-gradient(90deg, #FF6F00, #C25C00); /* Dark orange gradient for code header */
+            --code-line-hover: rgba(255, 140, 0, 0.1); /* Orange hover effect for code lines */
+            --syntax-keyword: #FFD580; /* Lighter orange */
+            --syntax-function: #FFE8B3; /* Lightest orange */
+            --syntax-string: #A0D468; /* Green for strings (complementary) */
+            --syntax-comment: #FFB300; /* Mid orange */
+            --syntax-operator: #FFCC80; /* Light orange */
+            --syntax-punctuation: #FFE8B3; /* Light orange */
+            --syntax-table-name: #FF7043; /* Deep orange */
+            --syntax-column-name: #FFAB91; /* Lighter deep orange */
+            --syntax-number: #9CCC65; /* Light Green (complementary) */
+        }
+
+        /* Base styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-lighter) 100%);
+            color: var(--primary-dark);
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
+            font-size: 1.15rem; /* Increased base font size for better readability */
+            line-height: 2; /* Increased line height for better readability */
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 15% 25%, rgba(255, 140, 0, 0.08) 0%, transparent 20%),
+                radial-gradient(circle at 85% 35%, rgba(255, 165, 0, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 45% 75%, rgba(204, 112, 0, 0.08) 0%, transparent 30%);
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px; /* Reduced max-width as requested */
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.03);
+        }
+
+        .main-header {
+            text-align: center;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 1100px; /* Matched container width */
+        }
+
+        .main-header h1 {
+            font-size: 3.6rem; /* Slightly larger for emphasis */
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, var(--primary-main), var(--secondary-main));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-header .subtitle {
+            font-size: 1.45rem; /* Slightly larger */
+            color: var(--primary-main);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .section-container {
+            padding: 2.2rem; /* Slightly increased padding */
+        }
+
+        .section-title {
+            font-size: 3rem; /* Slightly larger */
+            font-weight: 700;
+            color: var(--primary-main);
+            margin-bottom: 1.8rem; /* Increased margin */
+            text-align: center;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .subsection {
+            margin-bottom: 3.5rem; /* Increased margin */
+            padding-left: 1.2rem; /* Slightly increased padding */
+        }
+
+        .subsection-title {
+            font-size: 2.3rem; /* Slightly larger */
+            color: var(--primary-main);
+            margin-bottom: 1.2rem; /* Increased margin */
+            display: flex;
+            align-items: center;
+            gap: 12px; /* Increased gap */
+        }
+
+        .subsection-title i {
+            font-size: 2rem; /* Adjusted icon size */
+            color: var(--secondary-main);
+        }
+
+        .content-block {
+            background: var(--card-bg);
+            padding: 1.8rem; /* Increased padding */
+            border-radius: 12px;
+            margin-bottom: 1.8rem; /* Increased margin */
+            border-left: 4px solid var(--primary-main); /* Slightly thicker border */
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.09); /* Softer, larger shadow */
+        }
+
+        .content-block h3 {
+            font-size: 1.9rem; /* Slightly larger */
+            color: var(--primary-dark);
+            margin-bottom: 1.2rem; /* Increased margin */
+            display: flex;
+            align-items: center;
+            gap: 12px; /* Increased gap */
+        }
+
+        .content-block h3 i {
+            color: var(--accent-soft);
+        }
+
+        .content-block p {
+            color: var(--text-default);
+            font-size: 1.15rem; /* Ensured consistent font size */
+            line-height: 2; /* Increased line height */
+            margin-bottom: 1.2rem; /* Increased margin */
+        }
+
+        .content-block p.explanation {
+            color: var(--text-light-gray);
+            font-style: italic;
+            font-size: 1.1rem; /* Adjusted for better legibility when lighter */
+            margin-top: -0.6rem; /* Pull up closer to previous paragraph */
+            margin-bottom: 1.2rem; /* Increased margin */
+            line-height: 1.9; /* Slightly tighter for italic text */
+        }
+
+        .content-block ul, .content-block ol {
+            color: var(--text-default);
+            list-style-position: inside;
+            font-size: 1.15rem; /* Ensured consistent font size */
+            line-height: 2; /* Increased line height */
+            padding-left: 1rem; /* Added left padding for list markers */
+        }
+
+        .content-block ul li, .content-block ol li {
+            margin-bottom: 0.6rem; /* Increased margin */
+        }
+
+        .content-block ul li p.explanation {
+            margin-left: 2em; /* Indent explanations under list items */
+        }
+
+        .content-block ul.list-circle {
+            list-style-type: circle;
+        }
+
+        .content-block ul.list-square {
+            list-style-type: square;
+        }
+
+        .content-block strong {
+            color: var(--primary-dark);
+        }
+
+        /* SQL Code Styling */
+        .sql-container {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            margin-top: 1.8rem; /* Increased margin */
+            background: var(--code-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sql-header {
+            background: var(--code-header-bg);
+            color: var(--code-text);
+            padding: 14px 20px; /* Increased padding */
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem; /* Slightly increased for code header */
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Increased gap */
+            font-weight: 500;
+        }
+
+        .file-info i {
+            font-size: 1.3rem; /* Slightly larger icon */
+            color: var(--secondary-main);
+        }
+
+        .sql-content {
+            position: relative;
+            padding: 1.2rem; /* Increased padding */
+            overflow: auto;
+            max-height: 550px; /* Slightly increased max height */
+            font-family: 'Fira Code', monospace;
+            font-size: 1.05rem; /* Slightly increased code font size */
+            line-height: 1.7; /* Adjusted code line height */
+            background:
+                linear-gradient(rgba(74, 44, 0, 0.98), rgba(74, 44, 0, 0.98)),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none" stroke="rgba(255,255,255,0.025)" stroke-width="0.5"/></svg>');
+            border-radius: 0 0 12px 12px;
+            color: var(--code-text);
+        }
+
+        .sql-code {
+            counter-reset: line;
+            position: relative;
+            padding-left: 3.5em; /* Increased padding for line numbers */
+        }
+
+        .sql-code .line:before {
+            counter-increment: line;
+            content: counter(line);
+            position: absolute;
+            left: -3.5em; /* Adjusted position */
+            width: 2.5em; /* Adjusted width */
+            text-align: right;
+            padding-right: 0.7em; /* Increased padding */
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9em;
+            user-select: none;
+        }
+        
+        .sql-code .line:hover {
+            background-color: var(--code-line-hover);
+        }
+
+        /* Syntax Highlighting */
+        .keyword { color: var(--syntax-keyword); font-weight: 500; }
+        .function { color: var(--syntax-function); }
+        .string { color: var(--syntax-string); }
+        .comment { color: var(--syntax-comment); font-style: italic; }
+        .operator { color: var(--syntax-operator); }
+        .punctuation { color: var(--syntax-punctuation); }
+        .table-name { color: var(--syntax-table-name); }
+        .column-name { color: var(--syntax-column-name); }
+        .number { color: var(--syntax-number); }
+        
+        /* Specificity for code line spans */
+        .sql-code .line .keyword { color: var(--syntax-keyword); font-weight: 500; }
+        .sql-code .line .function { color: var(--syntax-function); }
+        .sql-code .line .string { color: var(--syntax-string); }
+        .sql-code .line .comment { color: var(--syntax-comment); font-style: italic; }
+        .sql-code .line .operator { color: var(--syntax-operator); }
+        .sql-code .line .punctuation { color: var(--syntax-punctuation); }
+        .sql-code .line .table-name { color: var(--syntax-table-name); }
+        .sql-code .line .column-name { color: var(--syntax-column-name); }
+        .sql-code .line .number { color: var(--syntax-number); }
+
+        .highlight {
+            background: rgba(255, 202, 40, 0.2);
+            box-shadow: 0 0 0 2px rgba(255, 202, 40, 0.4);
+            border-radius: 2px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 2px rgba(255, 202, 40, 0.4); }
+            50% { box-shadow: 0 0 0 4px rgba(255, 202, 40, 0.2); }
+            100% { box-shadow: 0 0 0 2px rgba(255, 202, 40, 0.4); }
+        }
+
+        /* SQL Result Table Styling */
+        .sql-result {
+            margin-top: 1.8rem; /* Increased margin */
+            margin-bottom: 2.2rem; /* Increased margin */
+            background: rgba(245, 245, 245, 0.9);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .sql-result-header {
+            background: rgba(230, 230, 230, 0.95);
+            color: var(--primary-dark);
+            padding: 12px 18px; /* Increased padding */
+            font-weight: 600;
+            font-size: 1.15rem; /* Slightly larger */
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sql-result table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem; /* Adjusted for better readability in tables */
+            color: var(--text-default);
+        }
+
+        .sql-result th, .sql-result td {
+            padding: 14px 18px; /* Increased padding */
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            white-space: nowrap;
+        }
+
+        .sql-result th {
+            background: rgba(220, 220, 220, 0.95);
+            color: var(--primary-dark);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .sql-result tbody tr:nth-child(even) {
+            background: rgba(240, 240, 240, 0.8);
+        }
+
+        .sql-result tbody tr:hover {
+            background: rgba(220, 220, 220, 0.9);
+            color: var(--primary-dark);
+        }
+
+        .sql-message {
+            padding: 18px; /* Increased padding */
+            background: var(--accent-soft);
+            color: var(--primary-dark);
+            border-radius: 8px;
+            margin-top: 1.8rem; /* Increased margin */
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            font-style: italic;
+        }
+
+        .sql-error {
+            padding: 18px; /* Increased padding */
+            background: rgba(255, 205, 210, 0.9);
+            color: var(--primary-main);
+            border-radius: 8px;
+            margin-top: 1.8rem; /* Increased margin */
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            font-style: italic;
+        }
+
+        /* Importance Tags */
+        .importance-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35em 0.9em; /* Slightly increased padding */
+            border-radius: 9999px;
+            font-size: 0.95rem; /* Slightly increased for tags */
+            font-weight: 600;
+            margin-left: 12px; /* Increased margin */
+            vertical-align: middle;
+            gap: 6px; /* Increased gap */
+            border-width: 1px;
+            border-style: solid;
+        }
+
+        .importance-必考 {
+            background-color: rgba(255, 140, 0, 0.15); /* Orange for必考 */
+            color: #FF8C00;
+            border-color: #FF8C00;
+        }
+
+        .importance-重要 {
+            background-color: rgba(255, 213, 79, 0.15); /* Gold for重要 */
+            color: #FFD700;
+            border-color: #FFD700;
+        }
+
+        .importance-了解 {
+            background-color: rgba(171, 71, 188, 0.15); /* Purple for了解 */
+            color: #AB47BC;
+            border-color: #AB47BC;
+        }
+
+        .footer {
+            margin-top: 2.5rem; /* Increased margin */
+            text-align: center;
+            color: var(--primary-main);
+            font-size: 1rem; /* Slightly larger */
+            width: 100%;
+            padding: 1.8rem; /* Increased padding */
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 768px) {
+            body {
+                font-size: 1.05rem; /* Adjusted for mobile */
+                line-height: 1.9;
+            }
+            .main-header h1 {
+                font-size: 2.4rem;
+            }
+            .main-header .subtitle {
+                font-size: 1.1rem;
+            }
+            .section-title {
+                font-size: 2.2rem;
+            }
+            .subsection-title {
+                font-size: 1.8rem;
+            }
+            .content-block h3 {
+                font-size: 1.5rem;
+            }
+            .content-block p {
+                font-size: 1.05rem;
+                line-height: 1.9;
+            }
+            .content-block p.explanation {
+                font-size: 1rem;
+                line-height: 1.8;
+            }
+            .sql-content {
+                font-size: 1rem;
+                padding: 1rem;
+            }
+            .sql-code {
+                padding-left: 3em;
+            }
+            .sql-code .line:before {
+                left: -3em;
+                width: 2.5em;
+                font-size: 0.85em;
+            }
+            .sql-result th, .sql-result td {
+                padding: 10px 12px;
+                font-size: 0.95rem;
+            }
+            .importance-tag {
+                font-size: 0.9rem;
+            }
+            .container {
+                padding: 1.2rem;
+            }
+        }
+
+        /* Visualizations */
+        .concurrency-illustration {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px; /* Increased gap */
+            margin: 2.2rem 0; /* Increased margin */
+            padding: 1.8rem; /* Increased padding */
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.12); /* Softer, larger shadow */
+        }
+
+        .concurrency-illustration h4 {
+            font-size: 1.5rem; /* Slightly larger */
+            color: var(--primary-dark);
+            margin-bottom: 1.2rem; /* Increased margin */
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 25px; /* Increased gap */
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 12px; /* Increased padding */
+        }
+
+        .transaction-lane {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 110px; /* Slightly wider */
+        }
+
+        .transaction-label {
+            font-weight: bold;
+            color: var(--primary-main);
+            margin-bottom: 12px; /* Increased margin */
+            font-size: 1.2rem; /* Slightly larger */
+        }
+
+        .op-box {
+            background: var(--secondary-main);
+            color: white;
+            padding: 10px 14px; /* Increased padding */
+            margin-bottom: 10px; /* Increased margin */
+            border-radius: 8px; /* Slightly more rounded */
+            box-shadow: 0 3px 6px rgba(0,0,0,0.25); /* Stronger shadow */
+            text-align: center;
+            min-width: 90px; /* Slightly wider */
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .op-box:hover {
+            transform: translateY(-4px); /* Slightly more lift */
+            background: var(--primary-dark);
+        }
+
+        .op-connector {
+            width: 3px; /* Slightly thicker */
+            height: 18px; /* Slightly taller */
+            background: var(--primary-main);
+            margin-bottom: 10px; /* Increased margin */
+        }
+
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent; /* Larger arrow */
+            border-right: 8px solid transparent; /* Larger arrow */
+            border-top: 12px solid var(--primary-main); /* Larger arrow */
+            margin-bottom: 10px; /* Increased margin */
+        }
+
+        .conflict-line {
+            position: absolute;
+            height: 3px; /* Thicker line */
+            background: #e74c3c; /* Red for conflict */
+            z-index: 0;
+        }
+
+        .conflict-text {
+            color: #e74c3c;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 12px; /* Increased margin */
+            font-size: 1rem; /* Consistent font size */
+        }
+
+        /* Specific styles for problem illustrations */
+        .problem-scenario {
+            background: #FFF8E1; /* Light yellow background */
+            border: 1px dashed #FFD700;
+            padding: 1.8rem; /* Increased padding */
+            border-radius: 12px; /* More rounded */
+            margin-top: 1.8rem; /* Increased margin */
+            margin-bottom: 1.8rem; /* Increased margin */
+        }
+        .problem-scenario h4 {
+            color: var(--primary-dark);
+            font-size: 1.4rem; /* Slightly larger */
+            margin-bottom: 1.2rem; /* Increased margin */
+            text-align: center;
+        }
+        .problem-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* Increased gap */
+        }
+        .problem-step {
+            background: #FFE0B2; /* Lighter orange */
+            padding: 12px 18px; /* Increased padding */
+            border-radius: 10px; /* More rounded */
+            font-size: 1.1rem; /* Ensured font size for problem steps */
+            color: var(--text-default);
+            display: flex;
+            align-items: center;
+            gap: 12px; /* Increased gap */
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15); /* Stronger shadow */
+        }
+        .problem-step i {
+            color: var(--primary-main);
+            font-size: 1.2rem; /* Slightly larger icon */
+        }
+
+        /* Lock Compatibility Matrix */
+        .lock-matrix-container {
+            background: var(--card-bg);
+            padding: 1.8rem; /* Increased padding */
+            border-radius: 12px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.09); /* Softer, larger shadow */
+            margin-top: 1.8rem; /* Increased margin */
+            text-align: center;
+        }
+        .lock-matrix-container h4 {
+            font-size: 1.5rem; /* Slightly larger */
+            color: var(--primary-dark);
+            margin-bottom: 1.2rem; /* Increased margin */
+        }
+        .lock-table {
+            width: 85%; /* Slightly wider table */
+            margin: 0 auto;
+            border-collapse: collapse;
+            font-size: 1.1rem; /* Ensured consistent font size for tables */
+        }
+        .lock-table th, .lock-table td {
+            border: 1px solid var(--border-color);
+            padding: 12px; /* Increased padding */
+            text-align: center;
+        }
+        .lock-table th {
+            background: var(--bg-lighter);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        .lock-table td {
+            background: var(--bg-light);
+            color: var(--text-default);
+        }
+        .lock-table td.compatible {
+            background-color: #D4EDDA; /* Light green */
+            color: #155724; /* Dark green text */
+        }
+        .lock-table td.incompatible {
+            background-color: #F8D7DA; /* Light red */
+            color: #721C24; /* Dark red text */
+        }
+        
+        /* Additional styles for examples and summaries */
+        .quick-example {
+            background: #FFF8F0;
+            border-left: 4px solid var(--secondary-main);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .summary-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .summary-table th {
+            background: var(--primary-main);
+            color: white;
+            padding: 14px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .summary-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .summary-table tr:nth-child(even) {
+            background: rgba(255, 236, 179, 0.2);
+        }
+        .summary-table tr:hover {
+            background: rgba(255, 236, 179, 0.3);
+        }
+        .concept-highlight {
+            background: linear-gradient(120deg, rgba(255,140,0,0.15), rgba(255,140,0,0.05));
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+            color: var(--primary-dark);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="main-header">
+        <h1>第十二章 并发控制</h1>
+        <p class="subtitle">协调多用户操作，确保数据库数据正确性</p>
+    </div>
+
+    <div class="container">
+        <div class="section-container">
+
+            <!-- 12.1 并发控制概述 -->
+            <div class="subsection">
+                <h2 class="subsection-title">
+                    <i class="fas fa-sync-alt"></i> 12.1 并发控制概述
+                    <span class="importance-tag importance-必考"><i class="fas fa-fire"></i> 必考</span>
+                </h2>
+                <div class="content-block">
+                    <h3><i class="fas fa-users"></i> 多用户数据库系统与并发操作 <span class="importance-tag importance-重要"><i class="fas fa-star"></i> 重要</span></h3>
+                    <p>在多用户数据库系统中，许多用户可能同时访问和操作数据库。例如，飞机订票系统、银行交易系统、网上购物系统等，在同一时刻可能有成千上万个事务并发运行。</p>
+                    <p class="explanation">想象一下，一个热门商品的库存只剩下最后一件，好几个人同时点击"购买"。如果没有并发控制，就可能出现问题。</p>
+
+                    <h4>多事务执行方式：<span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h4>
+                    <ul class="list-disc list-inside">
+                        <li><strong>(1) 事务串行执行 (Serial Execution)：</strong>
+                            <p class="explanation">在任意时刻只有一个事务在运行，其他事务必须等待当前事务结束后才能开始。这种方式能保证数据一致性，但效率极低，不能充分利用系统资源。</p>
+                            <div class="concurrency-illustration">
+                                <h4>串行执行示意图</h4>
+                                <div class="timeline">
+                                    <div class="transaction-lane">
+                                        <div class="transaction-label">T1</div>
+                                        <div class="op-box">Op A</div>
+                                        <div class="op-connector"></div>
+                                        <div class="op-box">Op B</div>
+                                    </div>
+                                    <div class="transaction-lane">
+                                        <div class="transaction-label">T2</div>
+                                        <div class="op-connector" style="height: 60px;"></div>
+                                        <div class="op-box">Op X</div>
+                                        <div class="op-connector"></div>
+                                        <div class="op-box">Op Y</div>
+                                    </div>
+                                    <div class="transaction-lane">
+                                        <div class="transaction-label">T3</div>
+                                        <div class="op-connector" style="height: 120px;"></div>
+                                        <div class="op-box">Op M</div>
+                                    </div>
+                                </div>
+                                <p class="explanation">T1执行完所有操作后，T2才开始，T2执行完T3才开始，以此类推。</p>
+                            </div>
+                        </li>
+                        <li><strong>(2) 交叉并发方式 (Interleaved Concurrency)：</strong>
+                            <p class="explanation">在单处理机系统中，多个并发事务的操作轮流交叉运行。虽然不是真正的同时执行，但通过快速切换（CPU调度），可以减少处理器的空闲时间，提高系统效率。</p>
+                            <div class="concurrency-illustration">
+                                <h4>交叉并发执行示意图</h4>
+                                <div class="timeline">
+                                    <div class="transaction-lane">
+                                        <div class="transaction-label">T1</div>
+                                        <div class="op-box">R(A)</div>
+                                        <div class="op-connector"></div>
+                                        <div class="op-box">W(A)</div>
+                                        <div class="op-connector"></div>
+                                        <div class="op-box">R(B)</div>
+                                    </div>
+                                    <div class="transaction-lane">
+                                        <div class="transaction-label">T2</div>
+                                        <div class="op-connector" style="height: 30px;"></div>
+                                        <div class="op-box">R(A)</div>
+                                        <div class="op-connector"></div>
+                                        <div class="op-box">W(A)</div>
+                                        <div class="op-connector"></div>
+                                        <div class="op-box">Commit</div>
+                                    </div>
+                                </div>
+                                <p class="explanation">T1读取A，然后CPU切换到T2，T2也读取A并修改，再切换回T1。操作在时间上交错进行。</p>
+                            </div>
+                        </li>
+                        <li><strong>(3) 同时并发方式 (Simultaneous Concurrency)：</strong>
+                            <p class="explanation">在多处理机系统中，每个处理器可以运行一个事务，从而实现多个事务真正的并行运行。这种方式能最大化利用硬件资源，但需要更复杂的并发控制机制。</p>
+                            <div class="concurrency-illustration">
+                                <h4>同时并发执行示意图</h4>
+                                <div class="timeline">
+                                    <div class="transaction-lane">
+                                        <div class="transaction-label">CPU 1 (T1)</div>
+                                        <div class="op-box">R(A)</div>
+                                        <div class="op-connector"></div>
+                                        <div class="op-box">W(A)</div>
+                                    </div>
+                                    <div class="transaction-lane">
+                                        <div class="transaction-label">CPU 2 (T2)</div>
+                                        <div class="op-box">R(X)</div>
+                                        <div class="op-connector"></div>
+                                        <div class="op-box">W(Y)</div>
+                                    </div>
+                                </div>
+                                <p class="explanation">T1和T2在不同的CPU上同时执行，互不等待。</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="content-block">
+                    <h3><i class="fas fa-exclamation-triangle"></i> 事务并发执行带来的数据不一致性 <span class="importance-tag importance-必考"><i class="fas fa-fire"></i> 必考</span></h3>
+                    <p>并发操作虽然提高了系统效率，但也可能导致多个事务同时存取或修改同一数据，从而破坏事务的隔离性，进而导致数据库数据的不一致性。数据库管理系统必须提供并发控制机制来解决这些问题。</p>
+                    <p class="explanation">并发控制机制是衡量一个数据库管理系统性能的重要标志之一。</p>
+
+                    <h4>并发操作可能导致的不一致性问题类型：</h4>
+                    <p class="explanation">以下是几种经典的，由于并发操作而破坏事务隔离性，导致数据不一致性的情况。记住它们的定义和产生原因非常重要。</p>
+                    <ul class="list-disc list-inside">
+                        <li><strong>1. 丢失修改 (Lost Update)：</strong>
+                            <p>两个事务T1和T2读入同一数据并修改，T2的提交结果破坏了T1提交的结果，导致T1的修改被丢失。</p>
+                            <p class="explanation">就像两个人同时编辑一份文档，甲修改后保存，但乙并不知道甲的修改，也修改了同一部分并保存，结果甲的修改就被乙覆盖了，永久丢失。</p>
+                            <div class="problem-scenario">
+                                <h4>丢失修改示例：飞机订票系统</h4>
+                                <div class="problem-steps">
+                                    <div class="problem-step"><i class="fas fa-plane-departure"></i> 初始状态：某航班机票余额 A = 16</div>
+                                    <div class="problem-step"><i class="fas fa-user-tie"></i> 事务T1 (甲售票点) 读取 A = 16</div>
+                                    <div class="problem-step"><i class="fas fa-user-ninja"></i> 事务T2 (乙售票点) 读取 A = 16</div>
+                                    <div class="problem-step"><i class="fas fa-pencil-alt"></i> T1 卖出一张票，计算 A = 15，并写回数据库 (A = 15)</div>
+                                    <div class="problem-step"><i class="fas fa-exclamation-circle"></i> T2 卖出一张票，计算 A = 15 (基于它读到的旧值)，并写回数据库 (A = 15)</div>
+                                    <div class="problem-step"><i class="fas fa-times-circle"></i> <strong>结果：</strong> 实际卖出两张票，但数据库余额只减少了1张 (T1的修改被T2覆盖丢失)。</div>
+                                </div>
+                                <div class="concurrency-illustration mt-4">
+                                    <div class="timeline">
+                                        <div class="transaction-lane">
+                                            <div class="transaction-label">T1</div>
+                                            <div class="op-box">R(A)=16</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box">A←A-1</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box">W(A)=15</div>
+                                        </div>
+                                        <div class="transaction-lane">
+                                            <div class="transaction-label">T2</div>
+                                            <div class="op-connector" style="height: 30px;"></div>
+                                            <div class="op-box">R(A)=16</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box">A←A-1</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box">W(A)=15</div>
+                                        </div>
+                                    </div>
+                                    <div class="conflict-text">T1的修改被T2覆盖！</div>
+                                </div>
+                            </div>
+                        </li>
+                        <li><strong>2. 脏读 (Dirty Read)：</strong>
+                            <p>指一个事务T1修改了某一数据，并将其写回磁盘（但尚未提交），而另一个事务T2读取了同一数据。随后，T1由于某种原因被撤销（回滚），这时T1已修改过的数据恢复原值，导致T2读到的数据是"脏"数据，即不正确的数据。</p>
+                            <p class="explanation">就像你读了一本还没写完的书的某个章节，结果作者觉得不满，把那章删了。你读到的内容就是"脏"的，因为最后它根本不存在。</p>
+                            <div class="problem-scenario">
+                                <h4>脏读示例：商品价格调整</h4>
+                                <div class="problem-steps">
+                                    <div class="problem-step"><i class="fas fa-box"></i> 初始状态：商品C价格 = 100</div>
+                                    <div class="problem-step"><i class="fas fa-calculator"></i> 事务T1 修改C的价格为 200 (W(C)=200)，但**未提交**</div>
+                                    <div class="problem-step"><i class="fas fa-eye"></i> 事务T2 读取 C = 200</div>
+                                    <div class="problem-step"><i class="fas fa-undo-alt"></i> T1 因为某种原因回滚 (ROLLBACK)，C的价格恢复为 100</div>
+                                    <div class="problem-step"><i class="fas fa-times-circle"></i> <strong>结果：</strong> T2 读到的 C 价格是 200，但数据库中实际价格已恢复为 100。T2读到了"脏数据"。</div>
+                                </div>
+                                <div class="concurrency-illustration mt-4">
+                                    <div class="timeline">
+                                        <div class="transaction-lane">
+                                            <div class="transaction-label">T1</div>
+                                            <div class="op-box">R(C)=100</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box">C←C*2</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box">W(C)=200</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box bg-red-500">ROLLBACK</div>
+                                        </div>
+                                        <div class="transaction-lane">
+                                            <div class="transaction-label">T2</div>
+                                            <div class="op-connector" style="height: 90px;"></div>
+                                            <div class="op-box">R(C)=200</div>
+                                        </div>
+                                    </div>
+                                    <div class="conflict-text">T2读到T1未提交的数据，T1回滚后T2的数据就"脏了"！</div>
+                                </div>
+                            </div>
+                        </li>
+                        <li><strong>3. 不可重复读 (Non-Repeatable Read)：</strong>
+                            <p>指事务T1读取数据后，事务T2执行**更新**操作（修改或删除）同一数据，使T1无法再现前一次读取结果。即事务T1在两次读取同一数据时，得到了不同的值。</p>
+                            <p class="explanation">你第一次看某篇文章，文章说"XX有100个优点"。过了一会儿你再看同一篇文章，它更新了，变成了"XX只有50个优点"。你两次读到的不一样，这就是不可重复读。</p>
+                            <div class="problem-scenario">
+                                <h4>不可重复读示例：数据验证</h4>
+                                <div class="problem-steps">
+                                    <div class="problem-step"><i class="fas fa-chart-line"></i> 初始状态：A=50, B=100</div>
+                                    <div class="problem-step"><i class="fas fa-eye"></i> 事务T1 第一次读取 A=50, B=100，计算和为150</div>
+                                    <div class="problem-step"><i class="fas fa-edit"></i> 事务T2 读取 B=100，修改B为 200，并提交</div>
+                                    <div class="problem-step"><i class="fas fa-sync-alt"></i> T1 再次读取 A=50, B=200，计算和为250</div>
+                                    <div class="problem-step"><i class="fas fa-times-circle"></i> <strong>结果：</strong> T1 两次读取B的值不一致，第一次是100，第二次是200。</div>
+                                </div>
+                                <div class="concurrency-illustration mt-4">
+                                    <div class="timeline">
+                                        <div class="transaction-lane">
+                                            <div class="transaction-label">T1</div>
+                                            <div class="op-box">R(A)=50</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box">R(B)=100</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box">Sum=150</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box">R(A)=50</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box">R(B)=200</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box bg-red-500">Sum=250</div>
+                                        </div>
+                                        <div class="transaction-lane">
+                                            <div class="transaction-label">T2</div>
+                                            <div class="op-connector" style="height: 60px;"></div>
+                                            <div class="op-box">R(B)=100</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box">B←B*2</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box">W(B)=200</div>
+                                            <div class="op-connector"></div>
+                                            <div class="op-box bg-green-500">Commit</div>
+                                        </div>
+                                    </div>
+                                    <div class="conflict-text">T1两次读取同一数据B，结果不一致！</div>
+                                </div>
+                            </div>
+                        </li>
+                        <li><strong>4. 幻读 (Phantom Read)：</strong><span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span>
+                            <p>指事务T1按一定条件从数据库中读取某些数据记录后，事务T2执行**插入或删除**操作，使T1无法再现前一次读取结果。</p>
+                            <ul class="list-circle list-inside ml-5 mt-2">
+                                <li><strong>插入幻影：</strong> T1 第一次读取时没有满足某些条件的数据，T2 插入了满足条件的新数据。T1 再次按相同条件查询，发现"多了一些"记录。</li>
+                                <li><strong>删除幻影：</strong> T1 第一次读取时有满足条件的数据，T2 删除了其中部分记录。T1 再次按相同条件查询，发现"少了一些"记录。</li>
+                            </ul>
+                            <p class="explanation">你数了一下房间里有10个人。过了一会儿，另一个人又带进来了2个人，或者带走了2个人。你再数，人数就不对了，但你感觉像"幻影"一样，多出来或少掉的这些人是在你眼皮子底下变化的。</p>
+                            
+                            <div class="quick-example">
+                                <h4><i class="fas fa-lightbulb"></i> 幻读示例：用户注册系统</h4>
+                                <p>事务T1查询用户表："SELECT * FROM users WHERE age > 18" → 返回10条记录</p>
+                                <p>事务T2插入一个新用户：INSERT INTO users (name, age) VALUES ('新用户', 20)</p>
+                                <p>事务T1再次执行相同查询："SELECT * FROM users WHERE age > 18" → 返回11条记录</p>
+                                <p class="explanation">T1在同一个事务中执行相同的查询，却得到了不同的结果集，就像"幻影"一样多出了一条记录。</p>
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <!-- 新增：数据不一致性问题总结表格 -->
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th>问题类型</th>
+                                <th>原因</th>
+                                <th>典型场景</th>
+                                <th>后果</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>丢失修改</strong></td>
+                                <td>多个事务同时修改同一数据</td>
+                                <td>库存更新、余额修改</td>
+                                <td>部分修改被覆盖丢失</td>
+                            </tr>
+                            <tr>
+                                <td><strong>脏读</strong></td>
+                                <td>读取到未提交的数据</td>
+                                <td>读取事务中的中间状态</td>
+                                <td>基于无效数据做出决策</td>
+                            </tr>
+                            <tr>
+                                <td><strong>不可重复读</strong></td>
+                                <td>同一事务中多次读取结果不同</td>
+                                <td>数据验证、统计计算</td>
+                                <td>事务内部数据不一致</td>
+                            </tr>
+                            <tr>
+                                <td><strong>幻读</strong></td>
+                                <td>结果集中记录数量变化</td>
+                                <td>范围查询、条件统计</td>
+                                <td>结果集不一致</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 12.2 事务的隔离级别 -->
+            <div class="subsection">
+                <h2 class="subsection-title">
+                    <i class="fas fa-shield-alt"></i> 12.2 事务的隔离级别
+                    <span class="importance-tag importance-必考"><i class="fas fa-fire"></i> 必考</span>
+                </h2>
+                <div class="content-block">
+                    <p>为了防止数据不一致性，SQL标准定义了四种事务隔离级别，以在并发性和数据一致性之间进行权衡。隔离级别越高，事务的隔离性越强，数据一致性越有保障，但系统的并发性能和效率会随之下降。</p>
+                    <p class="explanation">就像给事务提供不同的"保护罩"，保护罩越厚，越安全，但同时也会限制事务的行动自由（影响效率）。</p>
+                    <p>四类隔离级别由低到高分别是：<strong>读未提交 (READ UNCOMMITTED)</strong>、<strong>读已提交 (READ COMMITTED)</strong>、<strong>可重复读 (REPEATABLE READ)</strong>、<strong>可串行化 (SERIALIZABLE)</strong>。</p>
+
+                    <h4>四类隔离级别与不一致性问题的关系：</h4>
+                    <div class="lock-matrix-container">
+                        <h4>事务隔离级别与数据不一致性问题</h4>
+                        <table class="lock-table">
+                            <thead>
+                                <tr>
+                                    <th>隔离级别</th>
+                                    <th>丢失修改</th>
+                                    <th>脏读</th>
+                                    <th>不可重复读</th>
+                                    <th>幻读</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>读未提交</strong></td>
+                                    <td class="compatible">否 (No)</td>
+                                    <td class="incompatible">是 (Yes)</td>
+                                    <td class="incompatible">是 (Yes)</td>
+                                    <td class="incompatible">是 (Yes)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>读已提交</strong></td>
+                                    <td class="compatible">否 (No)</td>
+                                    <td class="compatible">否 (No)</td>
+                                    <td class="incompatible">是 (Yes)</td>
+                                    <td class="incompatible">是 (Yes)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>可重复读</strong></td>
+                                    <td class="compatible">否 (No)</td>
+                                    <td class="compatible">否 (No)</td>
+                                    <td class="compatible">否 (No)</td>
+                                    <td class="incompatible">是 (Yes)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>可串行化</strong></td>
+                                    <td class="compatible">否 (No)</td>
+                                    <td class="compatible">否 (No)</td>
+                                    <td class="compatible">否 (No)</td>
+                                    <td class="compatible">否 (No)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation mt-4">
+                            上表中，"是"表示该隔离级别下可能出现该不一致性问题，"否"表示不会出现。
+                            可见，<strong>可串行化</strong>是最高的隔离级别，能避免所有三类不一致性（包括幻读），因为它强制事务串行执行。而<strong>读未提交</strong>隔离级别最低，效率最高，但可能出现所有问题。
+                        </p>
+                    </div>
+                    
+                    <!-- 新增：隔离级别使用场景总结 -->
+                    <div class="quick-example">
+                        <h4><i class="fas fa-cogs"></i> 隔离级别使用场景</h4>
+                        <ul class="list-disc list-inside">
+                            <li><strong>读未提交</strong>：仅用于临时数据分析，对数据准确性要求不高的场景</li>
+                            <li><strong>读已提交</strong>：大多数应用场景（默认级别），如银行账户余额查询</li>
+                            <li><strong>可重复读</strong>：需要事务内数据一致的场景，如对账、报表生成</li>
+                            <li><strong>可串行化</strong>：对数据一致性要求极高的场景，如金融交易、库存管理</li>
+                        </ul>
+                    </div>
+
+                    <h4>隔离级别的选择：<span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h4>
+                    <p class="explanation">事务隔离级别并不是越高越好，应根据应用的特点和需求选择合适的隔离级别。例如，对于需要高并发的统计报表（即使读到少量"脏数据"对结果影响不大），可以选择较低的隔离级别以提高效率；而对于银行转账等对数据一致性要求极高的场景，则需要选择较高的隔离级别。</p>
+                    <ul class="list-disc list-inside">
+                        <li>目前大多数数据库（如KingBase、SQL Server、Oracle）默认的事务隔离级别是<strong>"读已提交"</strong>。</li>
+                        <li>MySQL的默认级别是<strong>"可重复读"</strong>。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 12.3 封锁 -->
+            <div class="subsection">
+                <h2 class="subsection-title">
+                    <i class="fas fa-lock"></i> 12.3 封锁
+                    <span class="importance-tag importance-重要"><i class="fas fa-star"></i> 重要</span>
+                </h2>
+                <div class="content-block">
+                    <h3><i class="fas fa-key"></i> 什么是封锁？ <span class="importance-tag importance-重要"><i class="fas fa-star"></i> 重要</span></h3>
+                    <p>封锁（Locking）是实现并发控制的一种重要技术。它要求事务在对某个数据对象（如表、行、页等）进行操作之前，先向系统发出请求，对其施加锁。一旦加锁，事务就对该数据对象拥有了一定的控制权，在事务释放其锁之前，其他事务不能对其进行特定的操作（取决于锁的类型）。</p>
+                    <p class="explanation">可以把锁想象成现实生活中的"门锁"。当你需要独占某个房间（数据对象）时，你先把它锁起来，别人就不能随便进来了。当你用完后，再把锁打开，让别人可以使用。</p>
+                </div>
+                <div class="content-block">
+                    <h3><i class="fas fa-fingerprint"></i> 基本封锁类型 <span class="importance-tag importance-必考"><i class="fas fa-fire"></i> 必考</span></h3>
+                    <p>数据库中最基本的两种封锁类型是：</p>
+                    <ul class="list-disc list-inside">
+                        <li><strong>1. 排它型锁 (Exclusive Locks, 简记为 X 锁)：</strong>
+                            <p>若事务T对数据对象A加上X锁，则只允许T读取和修改A。在T释放X锁之前，任何其他事务都不能再对A加任何类型的锁（无论是X锁还是S锁）。</p>
+                            <p class="explanation">X锁是"独占锁"或"写锁"。一旦有人（事务）对数据加了X锁，其他人就都不能再碰这个数据了，无论是读还是写，必须等它释放。这确保了修改数据时的唯一性。</p>
+                            
+                            <div class="quick-example">
+                                <h4><i class="fas fa-pen"></i> X锁使用示例</h4>
+                                <p>事务T1：</p>
+                                <pre>BEGIN;
+SELECT * FROM accounts WHERE id = 1 FOR UPDATE; -- 加X锁
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+COMMIT;</pre>
+                                <p class="explanation">T1执行期间，其他事务无法读取或修改id=1的账户数据，直到T1提交释放锁。</p>
+                            </div>
+                        </li>
+                        <li><strong>2. 共享型锁 (Share Locks, 简记为 S 锁)：</strong>
+                            <p>若事务T对数据对象A加上S锁，则只允许T读取A。在T释放S锁之前，其他事务可以对A再加S锁（允许多个事务共享读），但不能加X锁（不能修改）。</p>
+                            <p class="explanation">S锁是"共享锁"或"读锁"。允许多个人（事务）同时阅读一份资料（数据），但任何人都不能在阅读期间修改这份资料。只有当所有阅读者都离开后，才能允许修改。</p>
+                            
+                            <div class="quick-example">
+                                <h4><i class="fas fa-book-reader"></i> S锁使用示例</h4>
+                                <p>事务T1：</p>
+                                <pre>BEGIN;
+SELECT * FROM products WHERE category = '电子' LOCK IN SHARE MODE; -- 加S锁
+-- 读取产品数据...
+COMMIT;</pre>
+                                <p class="explanation">T1执行期间，其他事务也可以加S锁读取相同产品数据，但无法修改这些数据。</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="content-block">
+                    <h3><i class="fas fa-handshake"></i> 锁的相容矩阵 <span class="importance-tag importance-必考"><i class="fas fa-fire"></i> 必考</span></h3>
+                    <p>锁的相容性决定了在同一数据对象上，不同事务可以同时持有的锁类型。如果两种锁是相容的，则可以并发执行；如果不相容，则一个事务必须等待另一个事务释放锁。</p>
+                    <p class="explanation">就像"红绿灯"，告诉你哪些操作可以同时进行，哪些必须排队。</p>
+                    <div class="lock-matrix-container">
+                        <h4>基本锁类型相容矩阵</h4>
+                        <table class="lock-table">
+                            <thead>
+                                <tr>
+                                    <th>请求方\被占用方</th>
+                                    <th>无锁</th>
+                                    <th>S锁 (共享)</th>
+                                    <th>X锁 (排他)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>S锁 (共享)</strong></td>
+                                    <td class="compatible">Y</td>
+                                    <td class="compatible">Y</td>
+                                    <td class="incompatible">N</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>X锁 (排他)</strong></td>
+                                    <td class="compatible">Y</td>
+                                    <td class="incompatible">N</td>
+                                    <td class="incompatible">N</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation mt-4">
+                            <strong>Y = Yes (相容)，N = No (不相容)</strong><br>
+                            这个矩阵表明：<br>
+                            - 多个事务可以同时对同一数据对象加 S 锁 (共享读)。<br>
+                            - 任何事务要加 X 锁时，必须等待其他所有锁（S锁和X锁）释放。
+                        </p>
+                    </div>
+                    
+                    <!-- 新增：锁相容性总结 -->
+                    <div class="quick-example">
+                        <h4><i class="fas fa-lightbulb"></i> 锁相容性快速记忆</h4>
+                        <ul class="list-disc list-inside">
+                            <li>S锁之间是相容的（多个读操作可以同时进行）</li>
+                            <li>S锁和X锁不相容（读时不能写，写时不能读）</li>
+                            <li>X锁之间不相容（同一时间只能有一个写操作）</li>
+                            <li>X锁与其他任何锁都不相容（写操作需要完全独占）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 12.4 封锁协议 -->
+            <div class="subsection">
+                <h2 class="subsection-title">
+                    <i class="fas fa-handcuffs"></i> 12.4 封锁协议
+                    <span class="importance-tag importance-重要"><i class="fas fa-star"></i> 重要</span>
+                </h2>
+                <div class="content-block">
+                    <p>只靠基本封锁（S锁和X锁）并不能解决所有并发问题。DBMS需要一套规则来指导事务如何申请和释放锁，以确保并发操作的正确性。这套规则就是封锁协议。</p>
+                    <p class="explanation">就像光有锁（S/X锁）还不够，还得有"使用说明书"和"规矩"，告诉大家什么时候能上锁，什么时候能开锁，才能真正避免混乱。</p>
+                    <h3><i class="fas fa-book-open"></i> 1. 1级封锁协议 <span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h3>
+                    <ul class="list-disc list-inside">
+                        <li>事务T在修改数据R之前必须对其加X锁，直到事务结束才释放。</li>
+                        <li><strong>可避免：</strong> 丢失修改。</li>
+                        <li><strong>不能避免：</strong> 脏读和不可重复读。</li>
+                    </ul>
+                    <h3><i class="fas fa-book"></i> 2. 2级封锁协议 <span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h3>
+                    <ul class="list-disc list-inside">
+                        <li>在1级封锁协议的基础上增加：事务T在读取数据R之前必须对其加S锁，读完即可释放S锁。</li>
+                        <li><strong>可避免：</strong> 丢失修改、脏读。</li>
+                        <li><strong>不能避免：</strong> 不可重复读和幻读。</li>
+                    </ul>
+                    <h3><i class="fas fa-book-reader"></i> 3. 3级封锁协议 <span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h3>
+                    <ul class="list-disc list-inside">
+                        <li>在2级封锁协议的基础上增加：事务T在读取数据R之前必须对其加S锁，直到事务结束才释放。</li>
+                        <li><strong>可避免：</strong> 丢失修改、脏读、不可重复读。</li>
+                        <li><strong>不能避免：</strong> 幻读。</li>
+                    </ul>
+                    
+                    <!-- 新增：封锁协议总结表格 -->
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th>封锁协议</th>
+                                <th>加锁规则</th>
+                                <th>解决的问题</th>
+                                <th>未解决的问题</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1级封锁协议</strong></td>
+                                <td>写前加X锁，事务结束释放</td>
+                                <td>丢失修改</td>
+                                <td>脏读、不可重复读</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2级封锁协议</strong></td>
+                                <td>读前加S锁，读完释放；写前加X锁，事务结束释放</td>
+                                <td>丢失修改、脏读</td>
+                                <td>不可重复读、幻读</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3级封锁协议</strong></td>
+                                <td>读前加S锁，事务结束释放；写前加X锁，事务结束释放</td>
+                                <td>丢失修改、脏读、不可重复读</td>
+                                <td>幻读</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 12.5 活锁和死锁 -->
+            <div class="subsection">
+                <h2 class="subsection-title">
+                    <i class="fas fa-dizzy"></i> 12.5 活锁和死锁
+                    <span class="importance-tag importance-重要"><i class="fas fa-star"></i> 重要</span>
+                </h2>
+                <div class="content-block">
+                    <h3><i class="fas fa-running"></i> 1. 活锁 (Livelock) <span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h3>
+                    <p>活锁是指事务T1请求封锁，但事务T2、T3等一系列事务持续请求并获得封锁，导致T1一直无法获得所需封锁而永远处于等待状态，虽然T1没有被阻塞，但它永远无法完成。</p>
+                    <p class="explanation">想象一下：你（T1）想从一扇门进去，但有很多人（T2, T3...）不停地插队先进去。虽然门没锁死，你也在努力尝试，但因为总有人插队，你永远也进不去。</p>
+                    <p class="explanation"><strong>解决方法：</strong> 采用"先来先服务"的公平策略，避免饥饿（starvation）。</p>
+                </div>
+                <div class="content-block">
+                    <h3><i class="fas fa-skull-crossbones"></i> 2. 死锁 (Deadlock) <span class="importance-tag importance-必考"><i class="fas fa-fire"></i> 必考</span></h3>
+                    <p>死锁是指两个或多个事务在执行过程中，因互相请求对方已持有的锁而造成的一种无限期等待的僵局状态。</p>
+                    <p class="explanation">最经典的例子是"资源交叉占用"：事务A拿着资源X等着资源Y，而事务B拿着资源Y等着资源X。双方都在等对方释放资源，谁也无法继续，形成僵局。</p>
+                    <h4>死锁的产生：</h4>
+                    <p class="explanation">通常由于以下条件同时满足：</p>
+                    <ul class="list-disc list-inside">
+                        <li><strong>互斥条件：</strong> 资源不能共享。</li>
+                        <li><strong>请求和保持条件：</strong> 事务在持有某些资源的同时，又请求新的资源。</li>
+                        <li><strong>不剥夺条件：</strong> 资源只能被持有者自愿释放。</li>
+                        <li><strong>环路等待条件：</strong> 存在一个等待资源的循环链。</li>
+                    </ul>
+                    <p class="text-center my-4 font-bold text-lg text-primary-dark">死锁示意图</p>
+                    <div class="concurrency-illustration">
+                        <div class="timeline" style="position: relative;">
+                            <div class="transaction-lane">
+                                <div class="transaction-label">事务 T1</div>
+                                <div class="op-box">获得 A 的锁</div>
+                                <div class="op-connector"></div>
+                                <div class="op-box bg-yellow-500">请求 B 的锁</div>
+                            </div>
+                            <div class="transaction-lane">
+                                <div class="transaction-label">事务 T2</div>
+                                <div class="op-box">获得 B 的锁</div>
+                                <div class="op-connector"></div>
+                                <div class="op-box bg-yellow-500">请求 A 的锁</div>
+                            </div>
+                            <!-- Visualize the deadlock with connecting lines -->
+                            <div style="position: absolute; width: 100%; height: 100%;">
+                                <!-- T1 requests B, B is held by T2 -->
+                                <div class="conflict-line" style="top: 100px; left: 30%; width: 40%; transform: rotate(10deg);"></div>
+                                <!-- T2 requests A, A is held by T1 -->
+                                <div class="conflict-line" style="top: 150px; left: 30%; width: 40%; transform: rotate(-10deg);"></div>
+                            </div>
+                        </div>
+                        <div class="conflict-text">T1 等待 B，T2 等待 A，形成循环等待，进入死锁！</div>
+                    </div>
+                    
+                    <div class="quick-example">
+                        <h4><i class="fas fa-code"></i> 死锁示例代码</h4>
+                        <pre>
+-- 事务T1
+BEGIN;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1; -- 锁住账户1
+-- 此时T1持有账户1的锁，请求账户2的锁
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+
+-- 事务T2 (与T1并发执行)
+BEGIN;
+UPDATE accounts SET balance = balance - 200 WHERE id = 2; -- 锁住账户2
+-- 此时T2持有账户2的锁，请求账户1的锁
+UPDATE accounts SET balance = balance + 200 WHERE id = 1;</pre>
+                        <p class="explanation">T1持有账户1的锁并等待账户2的锁，T2持有账户2的锁并等待账户1的锁，形成死锁循环。</p>
+                    </div>
+
+                    <h4>死锁的解决方法：<span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h4>
+                    <p class="explanation">解决死锁主要有三种方法：</p>
+                    <ul class="list-disc list-inside">
+                        <li><strong>死锁预防：</strong> 破坏死锁产生的四个必要条件之一。例如，一次封锁法（事务必须一次性申请所有需要的锁）、顺序封锁法（规定所有事务按固定顺序申请锁）。</li>
+                        <li><strong>死锁检测：</strong> 允许死锁发生，但系统会周期性地检查是否存在死锁（例如，通过构建等待图），一旦检测到死锁，就进入死锁解除阶段。</li>
+                        <li><strong>死锁解除：</strong> 当检测到死锁时，选择一个或多个死锁事务作为"牺牲品"（代价最小的事务），强制其回滚，释放锁，从而打破僵局。</li>
+                    </ul>
+                    
+                    <!-- 新增：死锁解决方法比较 -->
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th>解决方法</th>
+                                <th>机制</th>
+                                <th>优点</th>
+                                <th>缺点</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>死锁预防</strong></td>
+                                <td>破坏死锁必要条件</td>
+                                <td>完全避免死锁发生</td>
+                                <td>降低并发度，实现复杂</td>
+                            </tr>
+                            <tr>
+                                <td><strong>死锁检测</strong></td>
+                                <td>定期检测死锁存在</td>
+                                <td>不影响正常事务执行</td>
+                                <td>检测开销大，可能遗漏</td>
+                            </tr>
+                            <tr>
+                                <td><strong>死锁解除</strong></td>
+                                <td>回滚部分事务解除死锁</td>
+                                <td>实现相对简单</td>
+                                <td>导致部分事务失败</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 12.6 并发调度的可串行性 -->
+            <div class="subsection">
+                <h2 class="subsection-title">
+                    <i class="fas fa-project-diagram"></i> 12.6 并发调度的可串行性
+                    <span class="importance-tag importance-重要"><i class="fas fa-star"></i> 重要</span>
+                </h2>
+                <div class="content-block">
+                    <h3><i class="fas fa-stream"></i> 1. 调度 (Schedule) <span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h3>
+                    <p class="explanation">调度是指并发事务的并发执行次序。DBMS并发控制的主要任务就是对并发操作进行正确调度，保证事务的隔离性和数据库的一致性。</p>
+                </div>
+                <div class="content-block">
+                    <h3><i class="fas fa-random"></i> 2. 可串行化 (Serializable) 调度 <span class="importance-tag importance-必考"><i class="fas fa-fire"></i> 必考</span></h3>
+                    <p>可串行化调度是指：多个事务的并发执行是正确的，当且仅当其<strong>结果与这些事务的某一个串行执行结果相同</strong>。</p>
+                    <p class="explanation">可串行性是并发事务正确调度的<strong>最高准则</strong>。这意味着，即使事务是并发执行的，从最终结果来看，它们就像是串行地一个接一个执行完成的，确保了数据的一致性。</p>
+                    
+                    <div class="quick-example">
+                        <h4><i class="fas fa-sort-numeric-down"></i> 可串行化调度示例</h4>
+                        <p>假设有两个事务：</p>
+                        <p>T1: R(A), W(A)</p>
+                        <p>T2: R(B), W(B)</p>
+                        <p>并发调度：R1(A), R2(B), W1(A), W2(B) 是可串行化的，因为它等价于先执行T1再执行T2</p>
+                        <p class="explanation">虽然T1和T2的操作交叉执行，但最终结果与串行执行T1→T2的结果相同。</p>
+                    </div>
+                </div>
+                <div class="content-block">
+                    <h3><i class="fas fa-exchange-alt"></i> 3. 冲突可串行化 (Conflict Serializable) 调度 <span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h3>
+                    <p class="explanation">如果一个调度可以通过交换不冲突的操作对（即不涉及同一数据的读写操作）转换为一个串行调度，那么它就是冲突可串行化调度。</p>
+                    <ul class="list-disc list-inside">
+                        <li><strong>冲突操作：</strong> 针对同一数据项的读-写、写-读、写-写操作。</li>
+                        <li><strong>冲突可串行化是可串行化的一个充分条件，但不是必要条件。</strong> （即，冲突可串行化调度一定是可串行化调度，但可串行化调度不一定是冲突可串行化调度）</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 12.7 两段锁协议 -->
+            <div class="subsection">
+                <h2 class="subsection-title">
+                    <i class="fas fa-lock-open"></i> 12.7 两段锁协议 (Two-Phase Locking Protocol, 2PL)
+                    <span class="importance-tag importance-必考"><i class="fas fa-fire"></i> 必考</span>
+                </h2>
+                <div class="content-block">
+                    <h3><i class="fas fa-gavel"></i> 定义 <span class="importance-tag importance-必考"><i class="fas fa-fire"></i> 必考</span></h3>
+                    <p>两段锁协议 (2PL) 是一个广泛使用的并发控制策略，它将事务的锁操作分为两个阶段：</p>
+                    <ul class="list-disc list-inside">
+                        <li><strong>1. 扩展阶段 (Growing Phase)：</strong>
+                            <p>事务可以申请新的锁，但不能释放任何已持有的锁。</p>
+                            <p class="explanation">就像"只进不出"：你可以不断地拿新钥匙（申请锁），但不能把已经拿到的钥匙（持有的锁）还回去。</p>
+                        </li>
+                        <li><strong>2. 收缩阶段 (Shrinking Phase)：</strong>
+                            <p>事务可以释放已持有的锁，但不能再申请新的锁。</p>
+                            <p class="explanation">就像"只出不进"：你可以不断地还钥匙（释放锁），但不能再拿新钥匙了。</p>
+                        </li>
+                    </ul>
+                    <p>事务必须在提交或回滚后才能释放所有锁，且一旦进入收缩阶段，就不能再回到扩展阶段。</p>
+                    
+                    <div class="quick-example">
+                        <h4><i class="fas fa-list-ol"></i> 两段锁协议示例</h4>
+                        <p>事务T1执行流程：</p>
+                        <ol class="list-decimal list-inside ml-4">
+                            <li>申请数据A的S锁（扩展阶段）</li>
+                            <li>读取数据A</li>
+                            <li>申请数据B的X锁（扩展阶段）</li>
+                            <li>修改数据B</li>
+                            <li>释放数据A的S锁（收缩阶段）</li>
+                            <li>提交事务，释放数据B的X锁（收缩阶段）</li>
+                        </ol>
+                        <p class="explanation">一旦T1在第5步释放了A的S锁（进入收缩阶段），就不能再申请其他锁。</p>
+                    </div>
+                </div>
+                <div class="content-block">
+                    <h3><i class="fas fa-award"></i> 两段锁协议的优点 <span class="importance-tag importance-必考"><i class="fas fa-fire"></i> 必考</span></h3>
+                    <p><strong>遵循两段锁协议的并发调度都是可串行化调度。</strong> 这是2PL最重要的性质。</p>
+                    <p class="explanation">这意味着只要所有事务都严格遵守这个"先拿再放"的规矩，那么无论它们怎么交叉执行，最终的结果都一定和它们串行执行的结果一样，从而保证了数据库的一致性。</p>
+                </div>
+                <div class="content-block">
+                    <h3><i class="fas fa-exclamation-triangle"></i> 两段锁协议的缺点 <span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h3>
+                    <ul class="list-disc list-inside">
+                        <li><strong>可能产生死锁：</strong> 尽管2PL保证了可串行性，但它不能避免死锁。例如，事务T1持有A的X锁并请求B的X锁，同时T2持有B的X锁并请求A的X锁，就会导致死锁。</li>
+                        <li><strong>降低并发度：</strong> 由于事务可能长时间持有锁（尤其是直到提交才释放），这会限制其他事务对数据的访问，从而降低系统的并发度。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 12.8 封锁的粒度 -->
+            <div class="subsection">
+                <h2 class="subsection-title">
+                    <i class="fas fa-layer-group"></i> 12.8 封锁的粒度 (Granularity of Locking)
+                    <span class="importance-tag importance-重要"><i class="fas fa-star"></i> 重要</span>
+                </h2>
+                <div class="content-block">
+                    <p>封锁粒度是指并发控制过程中可锁定的数据单元大小，它可以是数据库、表、页（数据块）、行（记录）甚至更小的字段。</p>
+                    <p class="explanation">这就像"借书"：你可以借一整套丛书（数据库粒度大），也可以只借一本书（表），也可以只借书中的一页（页），甚至只借书中的一句话（行或字段）。</p>
+                    <ul class="list-disc list-inside">
+                        <li><strong>粒度大（如数据库、表级锁）：</strong>
+                            <p class="explanation">优点是管理开销小，因为需要管理的锁数量少。缺点是并发度低，因为一旦锁定了整个大对象，其他事务就无法访问其中的任何小部分。</p>
+                        </li>
+                        <li><strong>粒度小（如行级锁、字段级锁）：</strong>
+                            <p class="explanation">优点是并发度高，因为可以更精细地控制锁定范围，允许多个事务同时访问同一大对象中的不同小部分。缺点是管理开销大，因为需要管理的锁数量多，系统用于锁管理的时间和空间资源增加。</p>
+                        </li>
+                    </ul>
+                    <p><strong>选择合适的封锁粒度是提高数据库性能的关键。</strong> DBMS通常采用<strong>多粒度封锁 (Multiple Granularity Locking)</strong> 来兼顾并发度和开销。</p>
+                    
+                    <!-- 新增：封锁粒度比较表格 -->
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th>封锁粒度</th>
+                                <th>锁定对象</th>
+                                <th>并发度</th>
+                                <th>系统开销</th>
+                                <th>适用场景</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>数据库级</strong></td>
+                                <td>整个数据库</td>
+                                <td>最低</td>
+                                <td>最小</td>
+                                <td>数据库备份/恢复</td>
+                            </tr>
+                            <tr>
+                                <td><strong>表级</strong></td>
+                                <td>整个表</td>
+                                <td>低</td>
+                                <td>小</td>
+                                <td>批量数据操作</td>
+                            </tr>
+                            <tr>
+                                <td><strong>页级</strong></td>
+                                <td>数据页（块）</td>
+                                <td>中</td>
+                                <td>中</td>
+                                <td>传统数据库系统</td>
+                            </tr>
+                            <tr>
+                                <td><strong>行级</strong></td>
+                                <td>单行记录</td>
+                                <td>高</td>
+                                <td>大</td>
+                                <td>OLTP系统（默认）</td>
+                            </tr>
+                            <tr>
+                                <td><strong>字段级</strong></td>
+                                <td>单个字段</td>
+                                <td>最高</td>
+                                <td>最大</td>
+                                <td>特殊应用场景</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 12.9 其他并发控制机制 -->
+            <div class="subsection">
+                <h2 class="subsection-title">
+                    <i class="fas fa-cogs"></i> *12.9 其他并发控制机制
+                    <span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span>
+                </h2>
+                <div class="content-block">
+                    <p class="explanation">除了封锁，还有其他一些并发控制方法，它们在特定场景下有其优势。</p>
+                    <h3><i class="fas fa-hourglass-half"></i> 1. 时间戳 (Timestamp) 方法 <span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h3>
+                    <p class="explanation">为每个事务分配一个唯一的时间戳，并为每个数据项维护读时间戳和写时间戳。事务在执行操作前，根据时间戳和数据项的时间戳来判断是否允许操作。如果发生冲突，就回滚冲突的事务。这种方法<strong>不会发生死锁</strong>，但可能会导致更多的事务回滚。</p>
+                    
+                    <div class="quick-example">
+                        <h4><i class="fas fa-clock"></i> 时间戳方法示例</h4>
+                        <p>事务T1 (TS=100) 尝试读取数据A</p>
+                        <p>数据A的写时间戳(WTS)=90</p>
+                        <p>因为100 > 90，允许读取，并更新A的读时间戳为100</p>
+                        <p>事务T2 (TS=95) 尝试写数据A</p>
+                        <p>因为95 < 100（A的读时间戳），回滚T2</p>
+                    </div>
+                </div>
+                <div class="content-block">
+                    <h3><i class="fas fa-balance-scale"></i> 2. 乐观方法 (Optimistic Scheduling) <span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h3>
+                    <p class="explanation">假设事务之间冲突的可能性很小，因此事务在执行过程中不加锁。事务在提交之前进行验证，检查是否与其他并发事务发生冲突。如果发生冲突，则回滚当前事务。这种方法适合冲突较少的应用场景，可以实现较高的并发度，但在冲突频繁时效率会降低。</p>
+                </div>
+                <div class="content-block">
+                    <h3><i class="fas fa-copy"></i> 3. 多版本并发控制 (Multi-Version Concurrency Control, MVCC) <span class="importance-tag importance-了解"><i class="fas fa-info-circle"></i> 了解</span></h3>
+                    <p class="explanation">MVCC为每个被修改的数据项维护多个版本。当一个事务读取数据时，它读取的是数据的一个旧版本，而不是当前正在被修改的版本。这样，读操作和写操作之间不会互相阻塞，大大提高了读操作的并发性。写操作会创建新的数据版本。这种机制广泛应用于现代数据库系统（如PostgreSQL、Oracle、MySQL的InnoDB）。</p>
+                    <p class="explanation">就像给数据拍照，每次修改都生成一张新照片。读取的人看到的是旧照片，写的人修改的是新照片，互不影响。</p>
+                    
+                    <div class="quick-example">
+                        <h4><i class="fas fa-history"></i> MVCC示例</h4>
+                        <p>初始状态：数据X=10（版本V1）</p>
+                        <p>事务T1开始，读取X=10（V1）</p>
+                        <p>事务T2修改X=20（创建新版本V2）</p>
+                        <p>事务T1再次读取X，仍然得到10（V1）</p>
+                        <p>事务T2提交后，新事务读取X得到20（V2）</p>
+                    </div>
+                </div>
+                
+                <!-- 新增：并发控制方法比较 -->
+                <div class="content-block">
+                    <h3><i class="fas fa-balance-scale"></i> 并发控制方法比较</h3>
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th>方法</th>
+                                <th>机制</th>
+                                <th>优点</th>
+                                <th>缺点</th>
+                                <th>适用场景</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>封锁机制</strong></td>
+                                <td>加锁控制访问权限</td>
+                                <td>保证强一致性</td>
+                                <td>可能死锁，开销大</td>
+                                <td>传统OLTP系统</td>
+                            </tr>
+                            <tr>
+                                <td><strong>时间戳</strong></td>
+                                <td>基于时间戳顺序控制</td>
+                                <td>避免死锁</td>
+                                <td>回滚多，实现复杂</td>
+                                <td>分布式系统</td>
+                            </tr>
+                            <tr>
+                                <td><strong>乐观控制</strong></td>
+                                <td>提交时验证冲突</td>
+                                <td>高并发，无锁</td>
+                                <td>冲突多时效率低</td>
+                                <td>冲突少的系统</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MVCC</strong></td>
+                                <td>维护多个数据版本</td>
+                                <td>读写不冲突</td>
+                                <td>存储开销大</td>
+                                <td>读多写少系统</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div> <!-- Close section-container -->
+    </div> <!-- Close main container -->
+
+    <!-- Footer Section -->
+    <div class="footer">
+        <p>数据库并发控制学习指南 | 掌握数据库与应用程序交互的关键</p>
+    </div>
+
+    <!-- JavaScript for interactivity (tooltips, hover effects) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tooltip functionality for elements with the 'tooltip-signal' class
+            document.querySelectorAll('.tooltip-signal').forEach(signal => {
+                let tooltipElem = null; // Variable to hold the tooltip element
+
+                // Create and show tooltip on mouse enter
+                signal.addEventListener('mouseenter', (e) => {
+                    // Prevent multiple tooltips if mouse quickly re-enters
+                    if (tooltipElem) return;
+
+                    // Create the tooltip element
+                    tooltipElem = document.createElement('div');
+                    tooltipElem.className = 'tooltip';
+                    tooltipElem.textContent = signal.dataset.tooltip; // Get tooltip text from data-tooltip attribute
+
+                    // Append to body to ensure it's on top of other content
+                    document.body.appendChild(tooltipElem);
+
+                    // Function to update tooltip position based on mouse cursor
+                    const updateTooltipPosition = (mouseEvent) => {
+                        // Position 15px to the right and 15px downwards from the cursor
+                        tooltipElem.style.left = (mouseEvent.clientX + 15) + 'px';
+                        tooltipElem.style.top = (mouseEvent.clientY + 15) + 'px';
+                        tooltipElem.style.opacity = '1'; // Make visible
+                    };
+
+                    updateTooltipPosition(e); // Set initial position
+
+                    // Listen for mousemove to keep tooltip following the cursor
+                    document.addEventListener('mousemove', updateTooltipPosition);
+
+                    // Define a handler for mouse leaving the signal
+                    const onMouseLeaveHandler = function() {
+                        if (tooltipElem) {
+                            tooltipElem.remove(); // Remove tooltip from DOM
+                            tooltipElem = null; // Reset tooltip element
+                        }
+                        // Remove event listeners to prevent memory leaks
+                        document.removeEventListener('mousemove', updateTooltipPosition);
+                        signal.removeEventListener('mouseleave', onMouseLeaveHandler); // Remove itself
+                    };
+                    // Bind the mouseleave event
+                    signal.addEventListener('mouseleave', onMouseLeaveHandler);
+                });
+            });
+
+            // Interactive "concept-highlight" text - subtle pop effect on hover
+            document.querySelectorAll('.concept-highlight').forEach(element => {
+                element.style.transition = 'transform 0.1s ease-out, color 0.1s ease-out';
+                element.addEventListener('mouseenter', () => {
+                    element.style.transform = 'scale(1.05)'; // Slightly enlarge
+                    element.style.color = 'var(--primary-main)'; // Change color to primary orange
+                });
+                element.addEventListener('mouseleave', () => {
+                    element.style.transform = 'scale(1)'; // Revert size
+                    element.style.color = 'var(--primary-dark)'; /* Revert to default highlight color */
+                });
+            });
+            
+            // Add hover effect to summary table rows
+            document.querySelectorAll('.summary-table tr').forEach(row => {
+                row.style.transition = 'background-color 0.2s ease';
+                row.addEventListener('mouseenter', () => {
+                    row.style.backgroundColor = 'rgba(255, 165, 0, 0.1)';
+                });
+                row.addEventListener('mouseleave', () => {
+                    row.style.backgroundColor = '';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

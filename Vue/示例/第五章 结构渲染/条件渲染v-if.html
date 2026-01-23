@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>事件处理</title>
+   <!--引入Vue -->
+  <script src="../vue.js"></script>
+</head>
+<body>
+   <!--准备一个容器 -->
+    <div id="root">
+      小明的学习评定等级为：
+      <p v-if="type === 'A'">优秀</p>
+      <p v-else-if="type === 'B'">良好</p>
+      <p v-else>差</p>
+      <button @click="type = 'A'">切换成优秀</button>
+      <button @click="type = 'B'">切换成良好</button>
+      <button @click="type = 'C'">切换成差</button>
+    </div>
+   
+   <script >
+     new Vue({
+        el:'#root',  
+        data:{ 
+        type:'B'
+       }
+     })
+   </script>
+</body>
+</html>

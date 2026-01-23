@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U5--结构渲染</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.36/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4A90E2; /* 海马蓝 */
+            --secondary-color: #FFC107; /* 杏仁核黄 */
+            --accent-color: #8BC34A; /* 树突绿 */
+            --text-color: #2C3E50;
+            --light-text: #FFFFFF;
+            --border-color: #8BC34A;
+            --code-bg: #f0f8ff;
+            --shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+            --card-bg: rgba(255, 255, 255, 0.92);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background: linear-gradient(15deg, 
+                rgba(234,244,255,0.98) 0%, 
+                rgba(255,248,225,0.95) 100%
+            );
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+        
+        /* 导航栏样式 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            color: var(--text-color);
+            padding: 15px 20px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            letter-spacing: 1px;
+            color: var(--primary-color);
+        }
+        
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            animation: pulse 2s infinite;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 15px;
+        }
+        
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 8px 15px;
+            border-radius: 30px;
+            background: rgba(139, 195, 74, 0.1);
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .nav-links a:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .nav-links a i {
+            margin-right: 8px;
+        }
+        
+        /* 主内容容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 章节样式 */
+        .chapter {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chapter:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(74, 144, 226, 0.2);
+        }
+        
+        .chapter h2 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border-color);
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            position: relative;
+        }
+        
+        .chapter h2 i {
+            margin-right: 15px;
+            background: var(--primary-color);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+        }
+        
+        .chapter h3 {
+            color: var(--primary-color);
+            margin: 35px 0 20px;
+            padding: 10px 15px;
+            background: linear-gradient(90deg, rgba(139, 195, 74, 0.1), transparent);
+            border-left: 3px solid var(--accent-color);
+            font-size: 1.6rem;
+            position: relative;
+        }
+        
+        /* 知识点卡片 */
+        .knowledge-card {
+            background: linear-gradient(135deg, rgba(234, 244, 255, 0.6), rgba(255, 248, 225, 0.6));
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: var(--shadow);
+            border: 1px dashed var(--border-color);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .knowledge-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 195, 74, 0.2);
+        }
+        
+        .knowledge-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .knowledge-card h4 i {
+            margin-right: 12px;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        .knowledge-card p, .knowledge-card ol, .knowledge-card ul {
+            position: relative;
+            z-index: 2;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .knowledge-card ol, .knowledge-card ul {
+            padding-left: 25px;
+            margin: 15px 0;
+        }
+        
+        .knowledge-card li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+            position: relative;
+        }
+        
+        .knowledge-card li::before {
+            content: '•';
+            color: var(--accent-color);
+            font-weight: bold;
+            position: absolute;
+            left: -15px;
+            top: 0;
+            font-size: 1.2rem;
+        }
+        
+        /* 代码块样式 */
+        .code-container {
+            position: relative;
+            margin: 30px 0;
+            background: linear-gradient(135deg, rgba(234, 244, 255, 0.7), rgba(255, 248, 225, 0.7));
+            color: var(--text-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px dashed var(--border-color);
+        }
+        
+        .code-header {
+            background: linear-gradient(135deg, rgba(139, 195, 74, 0.1), rgba(74, 144, 226, 0.1));
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        
+        .code-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .code-title i {
+            margin-right: 12px;
+            color: var(--primary-color);
+            font-size: 1.3rem;
+        }
+        
+        .run-btn {
+            background: linear-gradient(135deg, var(--primary-color), #3a7bc8);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
+        }
+        
+        .run-btn i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .run-btn:hover {
+            background: linear-gradient(135deg, #3a7bc8, var(--primary-color));
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.5);
+        }
+        
+        pre {
+            margin: 0;
+            padding: 30px;
+            overflow-x: auto;
+            background: var(--code-bg);
+        }
+        
+        code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        
+        .comment { color: #5E7C8C; }
+        .keyword { color: #2C6A8F; }
+        .string { color: #1A5276; }
+        .function { color: #5D8CAE; }
+        .variable { color: #3D85C6; }
+        .property { color: #2C6A8F; }
+        
+        /* 结果容器 */
+        .result-container {
+            background: linear-gradient(135deg, rgba(234, 244, 255, 0.7), rgba(255, 248, 225, 0.7));
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 25px;
+            display: none;
+            box-shadow: var(--shadow);
+        }
+        
+        .result-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-header {
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        
+        .result-header::before {
+            content: "►";
+            margin-right: 12px;
+            font-size: 1.3em;
+            color: var(--accent-color);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .chapter {
+                padding: 20px;
+            }
+            
+            .navbar {
+                padding: 10px 15px;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+                font-size: 1.4rem;
+                justify-content: center;
+            }
+            
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .nav-links li {
+                margin: 5px;
+            }
+            
+            .chapter h2 {
+                font-size: 1.6rem;
+            }
+            
+            .chapter h2 i {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* 示例样式 */
+        .example-container {
+            padding: 20px;
+            border: 1px dashed var(--border-color);
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(234, 244, 255, 0.6), rgba(255, 248, 225, 0.6));
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+        }
+        
+        .example-container button, .example-container input {
+            margin: 12px;
+            padding: 10px 18px;
+            border: 1px dashed var(--border-color);
+            border-radius: 6px;
+            background: white;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+        
+        .example-container button:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(74, 144, 226, 0.3);
+        }
+        
+        .example-container input {
+            padding: 10px;
+            width: 220px;
+            font-size: 1.1rem;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .example-container a {
+            color: var(--primary-color);
+            text-decoration: underline;
+            margin: 12px;
+            display: inline-block;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .example-container h3, .example-container h4 {
+            margin: 15px 10px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .example-container span {
+            display: inline-block;
+            margin: 12px;
+            padding: 8px 15px;
+            background: white;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .highlight {
+            background-color: rgba(74, 144, 226, 0.15);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        /* 动画效果 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-top: 1px dashed var(--border-color);
+        }
+        
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* 比较表格 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            font-size: 1.1rem;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary-color), #3a7bc8);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            padding: 18px;
+            border-bottom: 1px dashed var(--border-color);
+            position: relative;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: rgba(234, 244, 255, 0.3);
+        }
+        
+        .comparison-table td:first-child {
+            font-weight: bold;
+            color: var(--primary-color);
+            width: 25%;
+        }
+        
+        /* 提示框 */
+        .tip-box {
+            background: linear-gradient(135deg, rgba(234, 244, 255, 0.6), rgba(255, 248, 225, 0.6));
+            border-left: 4px solid var(--accent-color);
+            padding: 25px;
+            margin: 35px 0;
+            border-radius: 0 15px 15px 0;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .tip-icon {
+            font-size: 28px;
+            color: var(--accent-color);
+            margin-right: 20px;
+            min-width: 40px;
+        }
+        
+        .tip-content {
+            flex: 1;
+        }
+        
+        .tip-box h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .tip-box p {
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        /* 可视化元素 */
+        .visual-box {
+            display: flex;
+            justify-content: space-around;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .visual-item {
+            text-align: center;
+            width: 220px;
+            margin: 15px;
+            padding: 25px;
+            border-radius: 15px;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .visual-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(74, 144, 226, 0.2);
+        }
+        
+        .visual-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .visual-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .visual-desc {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #5E7C8C;
+        }
+        
+        /* 过程流程图 */
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px 0;
+        }
+        
+        .process-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            position: relative;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .step-desc {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        /* 列表样式 */
+        .list-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border: 1px dashed var(--border-color);
+        }
+        
+        .list-key {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .memory-science {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 12px;
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon"><i class="fab fa-vuejs"></i></span>
+            <span>Vue.js 结构渲染教程</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#conditional"><i class="fas fa-code-branch"></i> 条件渲染</a></li>
+            <li><a href="#list"><i class="fas fa-list"></i> 列表渲染</a></li>
+            <li><a href="#comparison"><i class="fas fa-balance-scale"></i> v-if vs v-show</a></li>
+            <li><a href="#practice"><i class="fas fa-code"></i> 练习</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- 介绍 -->
+        <div class="chapter">
+            <h2><i class="fas fa-book-open"></i> Vue.js 结构渲染</h2>
+            <p>结构渲染是Vue.js的核心功能之一，它允许开发者根据数据状态动态控制DOM元素的显示和渲染方式。</p>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-lightbulb"></i> 什么是结构渲染？</h4>
+                <p>结构渲染是指根据应用程序的状态动态生成和更新DOM元素的过程。Vue.js提供了两种主要的结构渲染指令：</p>
+                <ul>
+                    <li><span class="highlight">条件渲染</span> - 根据条件显示或隐藏元素（v-if, v-show）</li>
+                    <li><span class="highlight">列表渲染</span> - 根据数组或对象动态生成列表（v-for）</li>
+                </ul>
+                <p>这些指令使开发者能够创建动态、响应式的用户界面，根据数据变化自动更新DOM结构。</p>
+            </div>
+            
+            <div class="visual-box">
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <div class="visual-title">条件渲染</div>
+                    <div class="visual-desc">根据条件显示或隐藏元素</div>
+                </div>
+                
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="visual-title">列表渲染</div>
+                    <div class="visual-desc">动态生成列表元素</div>
+                </div>
+                
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="visual-title">记忆增强</div>
+                    <div class="visual-desc">神经科学配色方案</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 条件渲染 -->
+        <div class="chapter" id="conditional">
+            <h2><i class="fas fa-code-branch"></i> 条件渲染</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-question-circle"></i> 什么是条件渲染？</h4>
+                <p>条件渲染允许你根据特定条件显示或隐藏DOM元素。在Vue中，主要通过两个指令实现：</p>
+                <ul>
+                    <li><span class="highlight">v-if</span> - 根据条件在DOM树中添加或移除元素</li>
+                    <li><span class="highlight">v-show</span> - 通过CSS的display属性控制元素的显示/隐藏</li>
+                </ul>
+                <p>条件渲染在需要根据不同状态显示不同UI元素的场景中非常有用，例如用户登录状态、权限控制、表单步骤等。</p>
+            </div>
+            
+            <h3>1. v-if 指令</h3>
+            <p>v-if 指令根据表达式的值（真/假）来决定是否渲染元素。当条件为false时，元素不会出现在DOM树中。</p>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> v-if 基本用法</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="vif-example"&gt;
+  &lt;p v-if="isVisible"&gt;这个段落会根据条件显示或隐藏&lt;/p&gt;
+  &lt;button @click="toggleVisibility"&gt;
+    {{ isVisible ? '隐藏' : '显示' }}内容
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+Vue.createApp({
+  data() {
+    return {
+      isVisible: true
+    }
+  },
+  methods: {
+    toggleVisibility() {
+      this.isVisible = !this.isVisible;
+    }
+  }
+}).mount('#vif-example');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="vif-example" class="example-container">
+                    <p v-if="isVisible">这个段落会根据条件显示或隐藏</p>
+                    <button @click="toggleVisibility">
+                        {{ isVisible ? '隐藏' : '显示' }}内容
+                    </button>
+                </div>
+            </div>
+            
+            <h3>2. v-else 和 v-else-if</h3>
+            <p>v-if 可以与 v-else-if 和 v-else 配合使用，实现更复杂的条件逻辑。</p>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> v-if 结合 v-else-if 和 v-else</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="vif-else-example"&gt;
+  &lt;div&gt;小明的学习评定等级为：&lt;/div&gt;
+  &lt;p v-if="type === 'A'"&gt;优秀&lt;/p&gt;
+  &lt;p v-else-if="type === 'B'"&gt;良好&lt;/p&gt;
+  &lt;p v-else&gt;差&lt;/p&gt;
+  
+  &lt;button @click="type = 'A'"&gt;切换成优秀&lt;/button&gt;
+  &lt;button @click="type = 'B'"&gt;切换成良好&lt;/button&gt;
+  &lt;button @click="type = 'C'"&gt;切换成差&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+Vue.createApp({
+  data() {
+    return {
+      type: 'B'
+    }
+  }
+}).mount('#vif-else-example');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="vif-else-example" class="example-container">
+                    <div>小明的学习评定等级为：</div>
+                    <p v-if="type === 'A'">优秀</p>
+                    <p v-else-if="type === 'B'">良好</p>
+                    <p v-else>差</p>
+                    
+                    <button @click="type = 'A'">切换成优秀</button>
+                    <button @click="type = 'B'">切换成良好</button>
+                    <button @click="type = 'C'">切换成差</button>
+                </div>
+            </div>
+            
+            <h3>3. v-show 指令</h3>
+            <p>v-show 与 v-if 类似，但不会从DOM中移除元素，而是通过CSS的display属性控制元素的显示/隐藏。</p>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> v-show 基本用法</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="vshow-example"&gt;
+  &lt;p v-show="isVisible"&gt;这个段落通过v-show控制显示/隐藏&lt;/p&gt;
+  &lt;p v-if="isVisible"&gt;这个段落通过v-if控制显示/隐藏&lt;/p&gt;
+  &lt;button @click="isVisible = !isVisible"&gt;
+    显示/隐藏
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+Vue.createApp({
+  data() {
+    return {
+      isVisible: true
+    }
+  }
+}).mount('#vshow-example');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="vshow-example" class="example-container">
+                    <p v-show="isVisible">这个段落通过v-show控制显示/隐藏</p>
+                    <p v-if="isVisible">这个段落通过v-if控制显示/隐藏</p>
+                    <button @click="isVisible = !isVisible">
+                        显示/隐藏
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 列表渲染 -->
+        <div class="chapter" id="list">
+            <h2><i class="fas fa-list"></i> 列表渲染</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-list-ol"></i> 什么是列表渲染？</h4>
+                <p>列表渲染允许你基于数组或对象动态生成DOM元素列表。Vue中通过 <span class="highlight">v-for</span> 指令实现列表渲染。</p>
+                <p>v-for 指令的基本语法：</p>
+                <ul>
+                    <li>遍历数组：<code>v-for="(item, index) in items"</code></li>
+                    <li>遍历对象：<code>v-for="(value, key, index) in object"</code></li>
+                    <li>遍历数字：<code>v-for="n in 10"</code> (生成1-10)</li>
+                </ul>
+                <p>列表渲染在需要展示动态数据集合的场景中非常有用，如商品列表、用户列表、消息列表等。</p>
+            </div>
+            
+            <h3>1. 使用 v-for 遍历数组</h3>
+            <p>v-for 最常用于遍历数组，为每个数组项生成对应的DOM元素。</p>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 遍历一维数组</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="vfor-array-example"&gt;
+  &lt;div v-for="(item, index) in list" :key="index"&gt;
+    索引: {{ index }} --- 内容: {{ item }}
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+Vue.createApp({
+  data() {
+    return {
+      list: ['HTML', 'CSS', 'JavaScript']
+    }
+  }
+}).mount('#vfor-array-example');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="vfor-array-example" class="example-container">
+                    <div v-for="(item, index) in list" :key="index" class="list-item">
+                        索引: {{ index }} --- 内容: {{ item }}
+                    </div>
+                </div>
+            </div>
+            
+            <h3>2. 使用 v-for 遍历对象数组</h3>
+            <p>在实际应用中，我们经常需要遍历对象数组，每个对象包含多个属性。</p>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 遍历对象数组</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="vfor-object-array-example"&gt;
+  &lt;div v-for="item in list" :key="item.id"&gt;
+    ID: {{ item.id }} --- 内容: {{ item.message }}
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+Vue.createApp({
+  data() {
+    return {
+      list: [
+        { id: 1, message: '梅' },
+        { id: 2, message: '兰' },
+        { id: 3, message: '竹' },
+        { id: 4, message: '菊' }
+      ]
+    }
+  }
+}).mount('#vfor-object-array-example');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="vfor-object-array-example" class="example-container">
+                    <div v-for="item in list" :key="item.id" class="list-item">
+                        ID: {{ item.id }} --- 内容: {{ item.message }}
+                    </div>
+                </div>
+            </div>
+            
+            <h3>3. 使用 v-for 遍历对象</h3>
+            <p>v-for 也可以用于遍历对象的属性，获取键名和键值。</p>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 遍历对象</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="vfor-object-example"&gt;
+  &lt;div v-for="(value, name) in user" :key="name"&gt;
+    属性名: {{ name }} --- 属性值: {{ value }}
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+Vue.createApp({
+  data() {
+    return {
+      user: {
+        id: 11, 
+        name: '小明', 
+        gender: '男',
+        age: 20
+      }
+    }
+  }
+}).mount('#vfor-object-example');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="vfor-object-example" class="example-container">
+                    <div v-for="(value, name) in user" :key="name" class="list-item">
+                        属性名: <span class="list-key">{{ name }}</span> --- 属性值: {{ value }}
+                    </div>
+                </div>
+            </div>
+            
+            <h3>4. 使用 key 属性</h3>
+            <p>在 v-for 中使用 <span class="highlight">:key</span> 属性非常重要，它可以帮助Vue高效地更新DOM。</p>
+            
+            <div class="tip-box">
+                <div class="tip-icon"><i class="fas fa-key"></i></div>
+                <div class="tip-content">
+                    <h4>为什么需要key属性？</h4>
+                    <p>key属性为每个列表项提供唯一的标识符，当列表发生变化时，Vue可以：</p>
+                    <ul>
+                        <li>精确识别哪些元素被添加、删除或重新排序</li>
+                        <li>重用和重新排序现有元素而不是重新渲染整个列表</li>
+                        <li>避免不必要的DOM操作，提高性能</li>
+                    </ul>
+                    <p>最佳实践：使用唯一值作为key（如ID），避免使用索引作为key（当列表顺序可能变化时）</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- v-if vs v-show -->
+        <div class="chapter" id="comparison">
+            <h2><i class="fas fa-balance-scale"></i> v-if 与 v-show 比较</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-compress-arrows-alt"></i> 如何选择？</h4>
+                <p>v-if 和 v-show 都可以控制元素的显示/隐藏，但它们的实现方式和适用场景不同：</p>
+                <ul>
+                    <li><span class="highlight">v-if</span> - 是"真正的"条件渲染，元素会被完全销毁和重建</li>
+                    <li><span class="highlight">v-show</span> - 只是简单地切换CSS的display属性</li>
+                </ul>
+                <p class="explanation">简单来说：v-if有更高的切换开销，v-show有更高的初始渲染开销。</p>
+            </div>
+            
+            <h3>关键区别</h3>
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>特性</th>
+                            <th>v-if</th>
+                            <th>v-show</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>实现方式</td>
+                            <td>条件为false时从DOM中移除元素</td>
+                            <td>使用CSS display: none 隐藏元素</td>
+                        </tr>
+                        <tr>
+                            <td>初始渲染</td>
+                            <td>惰性渲染，条件为true才渲染</td>
+                            <td>无论条件如何都渲染，只是显示/隐藏</td>
+                        </tr>
+                        <tr>
+                            <td>切换开销</td>
+                            <td>较高（需要销毁/重建DOM）</td>
+                            <td>较低（只是CSS切换）</td>
+                        </tr>
+                        <tr>
+                            <td>使用场景</td>
+                            <td>切换不频繁的场景</td>
+                            <td>需要频繁切换显示/隐藏的场景</td>
+                        </tr>
+                        <tr>
+                            <td>与v-else配合</td>
+                            <td>支持</td>
+                            <td>不支持</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">何时使用 v-if</div>
+                        <div class="step-desc">当元素很少切换显示状态时（如权限控制、初始化不显示的元素）</div>
+                    </div>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">何时使用 v-show</div>
+                        <div class="step-desc">当元素需要频繁切换显示状态时（如标签页切换、折叠面板）</div>
+                    </div>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">性能考虑</div>
+                        <div class="step-desc">对于需要频繁切换的元素，使用v-show可以避免不必要的DOM操作</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 练习 -->
+        <div class="chapter" id="practice">
+            <h2><i class="fas fa-code"></i> 练习：心情应用</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-pencil-alt"></i> 练习要求</h4>
+                <p>创建一个心情应用，用户可以选择城市和输入姓名，点击"赞"按钮后，会显示一条消息并添加到列表中。</p>
+                <p>功能要求：</p>
+                <ul>
+                    <li>使用v-model绑定城市和姓名输入</li>
+                    <li>使用计算属性生成完整的消息</li>
+                    <li>使用v-for渲染消息列表</li>
+                    <li>使用v-show控制图片的显示/隐藏</li>
+                </ul>
+            </div>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 心情应用完整代码</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="practice-app"&gt;
+  &lt;h3&gt;此刻的心情&lt;/h3&gt;
+  
+  &lt;img v-show="showImage" src="https://picsum.photos/400/300?nature" 
+       alt="心情图片" width="400" height="300"&gt;
+  
+  &lt;div&gt;
+    &lt;button @click="showImage = !showImage"&gt;
+      {{ showImage ? '隐藏图片' : '显示图片' }}
+    &lt;/button&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="input-group"&gt;
+    城市：&lt;input type="text" v-model="city"&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="input-group"&gt;
+    姓名：&lt;input type="text" v-model="name"&gt;
+  &lt;/div&gt;
+  
+  &lt;button @click="addLike"&gt;赞一下&lt;/button&gt;
+  
+  &lt;h4 v-if="likes.length > 0"&gt;收到的赞：&lt;/h4&gt;
+  &lt;ul&gt;
+    &lt;li v-for="(like, index) in likes" :key="index"&gt;
+      {{ like.message }} ({{ like.time }})
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+Vue.createApp({
+  data() {
+    return {
+      city: '',
+      name: '',
+      showImage: true,
+      likes: []
+    }
+  },
+  computed: {
+    fullMessage() {
+      if (this.city && this.name) {
+        return `${this.city}的${this.name}赞了你`;
+      }
+      return '请填写城市和姓名';
+    }
+  },
+  methods: {
+    addLike() {
+      if (!this.city || !this.name) {
+        alert('请填写城市和姓名');
+        return;
+      }
+      
+      const now = new Date();
+      const timeString = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+      
+      this.likes.unshift({
+        message: this.fullMessage,
+        time: timeString
+      });
+    }
+  }
+}).mount('#practice-app');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="practice-app" class="example-container">
+                    <h3>此刻的心情</h3>
+                    
+                    <img v-show="showImage" src="https://picsum.photos/400/300?nature" 
+                         alt="心情图片" width="400" height="300">
+                    
+                    <div>
+                        <button @click="showImage = !showImage">
+                            {{ showImage ? '隐藏图片' : '显示图片' }}
+                        </button>
+                    </div>
+                    
+                    <div class="input-group">
+                        城市：<input type="text" v-model="city">
+                    </div>
+                    
+                    <div class="input-group">
+                        姓名：<input type="text" v-model="name">
+                    </div>
+                    
+                    <button @click="addLike">赞一下</button>
+                    
+                    <h4 v-if="likes.length > 0">收到的赞：</h4>
+                    <ul>
+                        <li v-for="(like, index) in likes" :key="index" class="list-item">
+                            {{ like.message }} ({{ like.time }})
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-icon"><i class="fas fa-clipboard-check"></i></div>
+                <div class="tip-content">
+                    <h4>学习检查点</h4>
+                    <p>完成本章学习后，请确认你已掌握以下内容：</p>
+                    <ul>
+                        <li>理解v-if和v-show的区别及适用场景</li>
+                        <li>能够使用v-for遍历数组和对象</li>
+                        <li>理解key属性的作用并正确使用</li>
+                        <li>能够结合使用v-if和v-for</li>
+                        <li>能够创建动态列表并处理用户输入</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Vue.js 结构渲染教程 | 增强记忆神经科学配色方案 | 基于 Vue 3</p>
+        <p>本教程涵盖了条件渲染(v-if, v-show)和列表渲染(v-for)等核心概念</p>
+    </div>
+
+    <script>
+        // 运行按钮功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const runButtons = document.querySelectorAll('.run-btn');
+            
+            runButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const resultContainer = this.closest('.code-container').nextElementSibling;
+                    resultContainer.classList.add('active');
+                    
+                    // 添加视觉反馈
+                    button.innerHTML = '<i class="fas fa-check"></i> 已运行';
+                    button.style.background = 'linear-gradient(135deg, #3a7bc8, #2a6ab8)';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="fas fa-play"></i> 运行代码';
+                        button.style.background = 'linear-gradient(135deg, var(--primary-color), #3a7bc8)';
+                    }, 2000);
+                });
+            });
+            
+            // 为v-if示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        isVisible: true
+                    }
+                },
+                methods: {
+                    toggleVisibility() {
+                        this.isVisible = !this.isVisible;
+                    }
+                }
+            }).mount('#vif-example');
+            
+            // 为v-if/v-else示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        type: 'B'
+                    }
+                }
+            }).mount('#vif-else-example');
+            
+            // 为v-show示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        isVisible: true
+                    }
+                }
+            }).mount('#vshow-example');
+            
+            // 为v-for数组示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        list: ['HTML', 'CSS', 'JavaScript']
+                    }
+                }
+            }).mount('#vfor-array-example');
+            
+            // 为v-for对象数组示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        list: [
+                            { id: 1, message: '梅' },
+                            { id: 2, message: '兰' },
+                            { id: 3, message: '竹' },
+                            { id: 4, message: '菊' }
+                        ]
+                    }
+                }
+            }).mount('#vfor-object-array-example');
+            
+            // 为v-for对象示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        user: {
+                            id: 11, 
+                            name: '小明', 
+                            gender: '男',
+                            age: 20
+                        }
+                    }
+                }
+            }).mount('#vfor-object-example');
+            
+            // 为练习应用创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        city: '',
+                        name: '',
+                        showImage: true,
+                        likes: []
+                    }
+                },
+                computed: {
+                    fullMessage() {
+                        if (this.city && this.name) {
+                            return `${this.city}的${this.name}赞了你`;
+                        }
+                        return '请填写城市和姓名';
+                    }
+                },
+                methods: {
+                    addLike() {
+                        if (!this.city || !this.name) {
+                            alert('请填写城市和姓名');
+                            return;
+                        }
+                        
+                        const now = new Date();
+                        const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+                        
+                        this.likes.unshift({
+                            message: this.fullMessage,
+                            time: timeString
+                        });
+                    }
+                }
+            }).mount('#practice-app');
+        });
+    </script>
+</body>
+</html>

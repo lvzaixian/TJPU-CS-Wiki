@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重点章节</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for a consistent purple theme */
+        :root {
+            --primary-main: #8a2be2; /* BlueViolet - vibrant purple */
+            --primary-dark: #6a1a8c; /* Darker shade of primary */
+            --secondary-main: #4B0082; /* Indigo - deep dark purple */
+            --accent-soft: #FFD700; /* Gold - bright contrasting accent */
+            --text-default: #333; /* Standard text color */
+            --text-light-gray: #6c757d; /* Lighter gray for subtitles */
+            --bg-light: #F8F4FF; /* Very light purple-tinted background */
+            --bg-lighter: #EDE6F7; /* Slightly darker light purple background */
+            --card-bg: #FFFFFF; /* White card background */
+            --card-shadow: 0 10px 30px rgba(75, 0, 130, 0.1); /* Shadow tinted with secondary-main */
+            --border-card: #e6e0f0; /* Light border for cards, purple tint */
+            --transition-ease: all 0.3s ease; /* General transition */
+
+            /* Importance colors for signal strength */
+            --strength-critical: #e74c3c; /* Red */
+            --strength-important: #f39c12; /* Orange */
+            --strength-normal: #27ae60; /* Green */
+            --strength-low: #3498db; /* Blue */
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Roboto', 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            color: var(--text-default);
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-lighter) 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styling */
+        header {
+            background: linear-gradient(135deg, var(--secondary-main) 0%, var(--primary-main) 100%);
+            color: white;
+            padding: 80px 0 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 50px;
+        }
+        .header-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .header-text-main {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .header-text-sub {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        /* Navigation Bar */
+        nav {
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 15px 0;
+            border-radius: 0 0 15px 15px;
+            margin-bottom: 30px;
+        }
+        nav a {
+            padding: 12px 25px;
+            margin: 0 10px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            font-weight: 500;
+            color: var(--text-light-gray);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        nav a:hover {
+            background: var(--primary-main);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        nav a.active {
+            background: var(--primary-main);
+            color: white;
+        }
+
+        /* Section Styling */
+        section.content-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 40px;
+            margin-bottom: 50px;
+            transition: var(--transition-ease);
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+        section.content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 100%;
+            background: var(--primary-main);
+        }
+
+        /* Section Header */
+        .section-header-styled {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-card);
+        }
+        .section-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-main);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-right: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h2.section-title {
+            font-size: 2.5rem !important;
+            color: var(--secondary-main);
+            margin: 0;
+            padding: 0;
+            border-bottom: none !important;
+            text-align: left !important;
+            line-height: 1.2;
+        }
+        .section-subtitle {
+            color: var(--text-light-gray);
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        /* Sub-section titles within sections */
+        h3.sub-section-title {
+            color: var(--secondary-main);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            padding-left: 0;
+            border-left: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h3.sub-section-title i {
+            color: var(--primary-main);
+            font-size: 1.6rem;
+        }
+
+        /* List item styling for topics */
+        .topic-item {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+            color: var(--text-default);
+        }
+        .topic-text {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .highlight-block {
+            background-color: var(--bg-lighter); /* Use a lighter purple background for highlight */
+            border-left: 5px solid var(--primary-main); /* Purple border */
+            padding: 20px 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            color: var(--text-default);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            line-height: 1.5;
+        }
+        .highlight-block strong {
+            color: var(--primary-dark); /* Darker purple for strong text */
+        }
+        .highlight-block ul {
+            padding-left: 20px;
+            list-style: disc;
+        }
+        .highlight-block ul li {
+            margin-bottom: 8px;
+        }
+
+        /* Signal strength indicators based on user's previous HTML */
+        .signal {
+            display: inline-block;
+            height: 18px;
+            width: 50px;
+            background: linear-gradient(90deg, var(--strength-critical) 25%, var(--strength-important) 50%, var(--strength-normal) 75%, var(--strength-low) 100%);
+            position: relative;
+            margin-left: 8px; /* Adjusted margin */
+            border-radius: 3px;
+        }
+        .signal::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            height: 100%;
+            background: white;
+            border-radius: 0 3px 3px 0;
+        }
+        .strength-4::after { width: 0%; } /* Critical, full bar */
+        .strength-3::after { width: 25%; } /* Important, 75% bar */
+        .strength-2::after { width: 50%; } /* Normal, 50% bar */
+        .strength-1::after { width: 75%; } /* Low, 25% bar */
+
+        .signal-container {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            margin-left: auto; /* Push to the right */
+        }
+        .signal-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-light-gray);
+            white-space: nowrap;
+        }
+
+        /* Importance labels for topics */
+        .importance {
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+        .importance.critical {
+            background-color: var(--strength-critical);
+            color: white;
+        }
+        .importance.important {
+            background-color: var(--strength-important);
+            color: white;
+        }
+        .importance.normal {
+            background-color: var(--strength-normal);
+            color: white;
+        }
+        .importance.low {
+            background-color: var(--strength-low);
+            color: white;
+        }
+
+        .section-topic-list {
+            list-style: none; /* Remove default list bullets */
+            padding-left: 0;
+        }
+        .section-topic-list li {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .section-topic-list li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--primary-main);
+        }
+        .section-topic-list li span:first-child {
+            flex-grow: 1;
+            font-weight: 500;
+            color: var(--secondary-main);
+        }
+        .star-icon {
+            color: #FFD700; /* Gold color for the star */
+            margin-left: 10px;
+            font-size: 1.1em;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-light-gray);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-card);
+            margin-top: 50px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+            }
+            .section-header-styled {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .section-icon {
+                margin-bottom: 15px;
+            }
+            h2.section-title {
+                font-size: 2rem !important;
+            }
+            .signal-container {
+                margin-top: 10px;
+                margin-left: 0;
+                justify-content: flex-start;
+            }
+            .nav {
+                flex-direction: column;
+                padding: 10px;
+            }
+            .nav a {
+                margin: 5px 0;
+            }
+            section.content-section {
+                padding: 25px;
+            }
+        }
+        @media print {
+            nav, .no-print, .highlight-block {
+                display: none !important;
+            }
+            body {
+                background-color: #fff !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .container {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            header {
+                box-shadow: none !important;
+                background: #f0f0f0 !important;
+                color: #333 !important;
+                padding: 20px !important;
+                margin-bottom: 20px !important;
+            }
+            section.content-section {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                border-radius: 5px !important;
+                margin-bottom: 20px !important;
+                padding: 20px !important;
+            }
+            section.content-section::before {
+                display: none !important;
+            }
+            .section-header-styled {
+                border-bottom: 1px solid #eee !important;
+                padding-bottom: 10px !important;
+                margin-bottom: 15px !important;
+            }
+            .section-icon {
+                display: none !important;
+            }
+            h2.section-title, h3.sub-section-title {
+                page-break-before: auto; /* Allow breaking */
+                margin-top: 1rem !important;
+                margin-bottom: 0.8rem !important;
+                border-bottom: none !important;
+                color: #000 !important;
+                padding-top: 0 !important;
+            }
+            .topic-item, .topic-text, .importance {
+                color: #000 !important;
+                font-weight: normal !important;
+                background-color: transparent !important;
+                padding: 0 !important;
+                border-left: none !important;
+                box-shadow: none !important;
+            }
+            .section-topic-list li {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 5px 0 !important;
+                margin-bottom: 5px !important;
+            }
+            .star-icon {
+                color: #000 !important; /* Black for print */
+            }
+            .signal-container, .signal-label, .signal {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="header-content">
+            <h1 class="header-text-main">数据库期末考试重点章节</h1>
+            <p class="header-text-sub subtitle">根据复习总纲与真题，以下章节为考试重点</p>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="no-print">
+        <a href="#user-manual">📖 使用手册</a>
+        <a href="#intro">📚 绪论</a>
+        <a href="#relation-model">🗄️ 关系模型</a>
+        <a href="#sql">📝 SQL语言</a>
+        <a href="#security">🔒 数据库安全性</a>
+        <a href="#integrity">✅ 数据库完整性</a>
+        <a href="#theory">💡 关系数据理论</a>
+        <a href="#design">🏗️ 数据库设计</a>
+        <a href="#recovery">🔄 数据库恢复</a>
+        <a href="#concurrency">↔️ 并发控制</a>
+    </nav>
+
+    <main class="container">
+        <!-- 使用手册 Section -->
+        <section id="user-manual" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-info-circle"></i></div>
+                <div>
+                    <h2 class="section-title">使用手册</h2>
+                    <p class="section-subtitle">如何高效使用这份复习资料</p>
+                </div>
+            </div>
+            <div class="highlight-block">
+                <p>这份文档旨在帮助您高效复习数据库期末考试，内容根据您提供的复习总纲和真题进行了精心筛选与优化。</p>
+                <ul class="list-disc pl-5">
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">文档目的:</strong> 针对性地梳理数据库期末考试的重点知识，帮助您高效备考。</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">导航使用:</strong> 您可以使用页面顶部的导航栏，快速跳转到不同的章节进行复习。</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">考点强度标识:</strong>
+                        <ul class="list-circle pl-5 mt-1">
+                            <li>章节标题旁的<span class="signal strength-4 inline-block align-middle ml-2"></span>（四格信号条）：表示该章节整体的考查强度。格数越多，重要性越高。</li>
+                            <li>子考点旁的 <span class="importance critical">必考核心</span>：表示该知识点为考试中极高频率出现且必须掌握的核心内容。</li>
+                            <li>子考点旁的 <span class="importance important">高频考点</span>：表示该知识点在考试中出现频率较高，需要重点复习。</li>
+                            <li>子考点旁的 <span class="importance normal">普通考点</span>：表示该知识点为基础概念，一般需要了解掌握。</li>
+                            <li>子考点旁的 <span class="importance low">低频考点</span>：表示该知识点出现频率较低，可酌情了解。</li>
+                        </ul>
+                    </li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">最小单位章节重点标注:</strong>
+                        <ul>
+                            <li>在子考点旁边带有 <i class="fas fa-star star-icon"></i> 的图标，表示该知识点是该章节下**最重要的最小单位考点**，务必重点掌握。</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p class="mt-4">祝您学习顺利，考试成功！</p>
+            </div>
+        </section>
+
+        <!-- 第1章 绪论 Section -->
+        <section id="intro" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-book-open"></i></div>
+                <div>
+                    <h2 class="section-title">第一章 绪论</h2>
+                    <p class="section-subtitle">数据库系统的基础知识</p>
+                </div>
+                <div class="signal-container">
+                    <span class="signal-label">章节强度:</span>
+                    <span class="signal strength-4" data-tooltip="极高频考查章节"></span>
+                </div>
+            </div>
+            <div class="highlight-block">
+                <p>本章内容是理解数据库概念的基石，主要考察基本概念、发展和结构。请注意，这里只列出了PDF和真题中明确作为考点的最小单位章节。</p>
+            </div>
+            <ul class="section-topic-list">
+                <li>
+                    <span>1.1 数据库系统概述</span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>1.1.1 数据库的4个基本概念（数据、数据库、DBMS、数据库系统） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>1.2 数据模型</span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>1.2.2 概念模型（ER模型） <i class="fas fa-star star-icon"></i></li>
+                        <li>1.2.6 关系模型（二维表、行、列定义等核心概念） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>1.3 数据库系统的三级模式结构</span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>1.3.1 模式的概念（外模式、模式、内模式的定义与功能） <i class="fas fa-star star-icon"></i></li>
+                        <li>1.3.2 数据库系统的三级模式结构（各模式之间的关系及数量） <i class="fas fa-star star-icon"></i></li>
+                        <li>1.3.3 数据库的两级映像与数据独立性（物理独立性、逻辑独立性及其实现） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>1.4 数据库系统的组成</span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>硬件、软件（DBMS是核心）、人员（DBA、用户、应用程序员等） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 第2章 关系模型 Section -->
+        <section id="relation-model" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-table"></i></div>
+                <div>
+                    <h2 class="section-title">第二章 关系模型</h2>
+                    <p class="section-subtitle">关系数据库的基础理论</p>
+                </div>
+                <div class="signal-container">
+                    <span class="signal-label">章节强度:</span>
+                    <span class="signal strength-3" data-tooltip="高频考查章节"></span>
+                </div>
+            </div>
+            <div class="highlight-block">
+                <p>关系模型是目前最主流的数据库模型，理解其数据结构、操作和完整性是核心。</p>
+            </div>
+            <ul class="section-topic-list">
+                <li>
+                    <span>2.1 关系模型的数据结构及形式化定义</span>
+                    <span class="importance normal">普通考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>2.1.1 关系（域、笛卡尔积、关系、元组、属性、候选码、主码、外码等概念） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>2.2 关系操作</span>
+                    <span class="importance normal">普通考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>2.2.1 基本的关系操作（选择、投影、连接、除运算） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>2.3 关系的完整性</span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>2.3.1 实体完整性 <i class="fas fa-star star-icon"></i></li>
+                        <li>2.3.2 参照完整性 <i class="fas fa-star star-icon"></i></li>
+                        <li>2.3.3 用户定义的完整性</li>
+                    </ul>
+                </li>
+                <li>
+                    <span>2.4 关系代数 <i class="fas fa-star star-icon"></i></span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>2.4.1 传统的集合运算（并、差、交、笛卡尔积） <i class="fas fa-star star-icon"></i></li>
+                        <li>2.4.2 专门的关系运算（选择、投影、连接、除运算的表达式书写与理解） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 第3章 关系数据库标准语言SQL Section -->
+        <section id="sql" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-database"></i></div>
+                <div>
+                    <h2 class="section-title">第三章 关系数据库标准语言SQL</h2>
+                    <p class="section-subtitle">SQL语句的定义、查询和操作是考试的重点</p>
+                </div>
+                <div class="signal-container">
+                    <span class="signal-label">章节强度:</span>
+                    <span class="signal strength-4" data-tooltip="极高频考查章节"></span>
+                </div>
+            </div>
+            <div class="highlight-block">
+                <p>SQL是数据库操作的核心，特别是查询和更新，务必熟练掌握。</p>
+            </div>
+            <ul class="section-topic-list">
+                <li>
+                    <span>3.1 SQL 概述</span>
+                    <span class="importance normal">普通考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>3.1.3 SQL 的基本概念（DDL, DML, DCL） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>3.2 数据定义</span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>3.2.2 基本表的定义、删除与修改（CREATE TABLE, DROP TABLE, ALTER TABLE） <i class="fas fa-star star-icon"></i></li>
+                        <li>3.2.3 索引的建立与删除（CREATE INDEX, DROP INDEX） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>3.3 数据查询 <i class="fas fa-star star-icon"></i></span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>3.3.1 单表查询（SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY） <i class="fas fa-star star-icon"></i></li>
+                        <li>3.3.2 连接查询（等值连接、自然连接等） <i class="fas fa-star star-icon"></i></li>
+                        <li>3.3.3 嵌套查询（IN, EXISTS, ANY, ALL） <i class="fas fa-star star-icon"></i></li>
+                        <li>3.3.4 集合查询（UNION, EXCEPT, INTERSECT） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>3.4 数据更新</span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>3.4.1 插入数据（INSERT） <i class="fas fa-star star-icon"></i></li>
+                        <li>3.4.2 修改数据（UPDATE） <i class="fas fa-star star-icon"></i></li>
+                        <li>3.4.3 删除数据（DELETE） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>3.5 空值的处理</span>
+                    <span class="importance low">低频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>IS NULL, IS NOT NULL</li>
+                    </ul>
+                </li>
+                <li>
+                    <span>3.6 视图</span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>3.6.1 定义视图（CREATE VIEW）</li>
+                        <li>3.6.3 更新视图（视图可更新的条件）</li>
+                        <li>3.6.4 视图的作用（简化操作、多种角度、逻辑独立性、安全性） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 第4章 数据库安全性 Section -->
+        <section id="security" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-shield-alt"></i></div>
+                <div>
+                    <h2 class="section-title">第四章 数据库安全性</h2>
+                    <p class="section-subtitle">理解数据库的安全威胁与保护措施</p>
+                </div>
+                <div class="signal-container">
+                    <span class="signal-label">章节强度:</span>
+                    <span class="signal strength-2" data-tooltip="普通考查章节"></span>
+                </div>
+            </div>
+            <div class="highlight-block">
+                <p>本章涉及用户权限管理和安全机制，多以概念题形式考察。</p>
+            </div>
+            <ul class="section-topic-list">
+                <li>
+                    <span>4.2 数据库安全性控制</span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>4.2.1 用户身份鉴别</li>
+                        <li>4.2.2 存取控制（自主存取控制、强制存取控制） <i class="fas fa-star star-icon"></i></li>
+                        <li>4.2.4 授予与收回对数据的操作权限（GRANT, REVOKE） <i class="fas fa-star star-icon"></i></li>
+                        <li>4.2.5 数据库角色（CREATE ROLE, GRANT, SET ROLE）</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 第5章 数据库完整性 Section -->
+        <section id="integrity" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-check-circle"></i></div>
+                <div>
+                    <h2 class="section-title">第五章 数据库完整性</h2>
+                    <p class="section-subtitle">确保数据质量和一致性的关键</p>
+                </div>
+                <div class="signal-container">
+                    <span class="signal-label">章节强度:</span>
+                    <span class="signal strength-3" data-tooltip="高频考查章节"></span>
+                </div>
+            </div>
+            <div class="highlight-block">
+                <p>完整性约束是数据库设计的重要组成部分，常与范式、主码外码概念结合考察。</p>
+            </div>
+            <ul class="section-topic-list">
+                <li>
+                    <span>5.1 数据库完整性概述</span>
+                    <span class="importance normal">普通考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>完整性约束的分类（实体、参照、用户定义） <i class="fas fa-star star-icon"></i></li>
+                        <li>完整性约束使用的关键字（PRIMARY KEY, FOREIGN KEY, UNIQUE, NOT NULL, CHECK） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>5.2 实体完整性 <i class="fas fa-star star-icon"></i></span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>5.2.1 定义实体完整性 <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>5.3 参照完整性 <i class="fas fa-star star-icon"></i></span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>5.3.1 定义参照完整性 <i class="fas fa-star star-icon"></i></li>
+                        <li>5.3.2 参照完整性检查和违约处理（级联操作 ON DELETE/UPDATE）</li>
+                    </ul>
+                </li>
+                <li>
+                    <span>5.4 用户定义的完整性</span>
+                    <span class="importance normal">普通考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>5.4.1 属性上的约束（NOT NULL, UNIQUE, CHECK）</li>
+                        <li>5.4.2 元组上的约束（CHECK）</li>
+                    </ul>
+                </li>
+                <li>
+                    <span>5.7 触发器</span>
+                    <span class="importance normal">普通考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>5.7.1 定义触发器（CREATE TRIGGER）</li>
+                        <li>5.7.2 执行触发器</li>
+                        <li>5.7.3 删除触发器（DROP TRIGGER）</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 第6章 关系数据理论 Section -->
+        <section id="theory" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-lightbulb"></i></div>
+                <div>
+                    <h2 class="section-title">第六章 关系数据理论</h2>
+                    <p class="section-subtitle">数据库设计范式的基础</p>
+                </div>
+                <div class="signal-container">
+                    <span class="signal-label">章节强度:</span>
+                    <span class="signal strength-4" data-tooltip="极高频考查章节"></span>
+                </div>
+            </div>
+            <div class="highlight-block">
+                <p>关系数据理论，特别是范式，是数据库设计题中规范化部分的重要考点。</p>
+            </div>
+            <ul class="section-topic-list">
+                <li>
+                    <span>6.2 规范化 <i class="fas fa-star star-icon"></i></span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>6.2.1 函数依赖（平凡与非平凡、完全与部分） <i class="fas fa-star star-icon"></i></li>
+                        <li>6.2.2 码（候选码、主码、外部码） <i class="fas fa-star star-icon"></i></li>
+                        <li>6.2.3 范式（1NF、2NF、3NF、BCNF） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>6.3 数据依赖的公理系统</span>
+                    <span class="importance normal">普通考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>Armstrong 公理系统（自反律、增广律、传递律）</li>
+                    </ul>
+                </li>
+                <li>
+                    <span>6.4 保持函数依赖的模式分解</span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>分解的性质（无损连接性、保持函数依赖性）</li>
+                        <li>分解过程（逐步分解到3NF/BCNF）</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 第7章 数据库设计 Section -->
+        <section id="design" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-drafting-compass"></i></div>
+                <div>
+                    <h2 class="section-title">第七章 数据库设计</h2>
+                    <p class="section-subtitle">从需求到物理实现的完整设计过程</p>
+                </div>
+                <div class="signal-container">
+                    <span class="signal-label">章节强度:</span>
+                    <span class="signal strength-4" data-tooltip="极高频考查章节"></span>
+                </div>
+            </div>
+            <div class="highlight-block">
+                <p>数据库设计题通常包含ER图绘制和关系模式转换，是考试的重要组成部分。</p>
+            </div>
+            <ul class="section-topic-list">
+                <li>
+                    <span>7.1 数据库设计概述</span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>7.1.3 数据库设计的基本步骤（需求分析、概念设计、逻辑设计、物理设计、实施、运行与维护） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>7.2 需求分析</span>
+                    <span class="importance normal">普通考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>7.2.3 数据字典（数据项、数据流、数据存储、处理过程）</li>
+                    </ul>
+                </li>
+                <li>
+                    <span>7.3 概念结构设计 <i class="fas fa-star star-icon"></i></span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>7.3.2 E-R模型（实体、属性、联系的表示） <i class="fas fa-star star-icon"></i></li>
+                        <li>7.3.5 用E-R图进行概念结构设计（实体、联系属性、联系类型、画ER图） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>7.4 逻辑结构设计 <i class="fas fa-star star-icon"></i></span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>7.4.1 E-R图向关系模型的转换（1:1, 1:N, M:N 联系转换规则） <i class="fas fa-star star-icon"></i></li>
+                        <li>7.4.2 数据模型的优化</li>
+                    </ul>
+                </li>
+                <li>
+                    <span>7.5 物理结构设计</span>
+                    <span class="importance normal">普通考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>7.5.2 选择关系模式存取方法（索引的选择） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 第8章 数据库编程 Section -->
+        <section id="programming" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-laptop-code"></i></div>
+                <div>
+                    <h2 class="section-title">第八章 数据库编程</h2>
+                    <p class="section-subtitle">SQL编程是考试的核心，理解其应用是关键</p>
+                </div>
+                <div class="signal-container">
+                    <span class="signal-label">章节强度:</span>
+                    <span class="signal strength-4" data-tooltip="极高频考查章节"></span>
+                </div>
+            </div>
+            <div class="highlight-block">
+                <p>本章的重点在于SQL编程，这是考试中分数占比较大的部分。</p>
+            </div>
+            <ul class="section-topic-list">
+                <li>
+                    <span>8.2 过程化SQL <i class="fas fa-star star-icon"></i></span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>8.2.1 过程化SQL的块结构</li>
+                        <li>8.2.2 变量和常量的定义</li>
+                        <li>8.2.3 流程控制（IF, LOOP, WHILE）</li>
+                        <li>8.2.4 游标的定义与使用</li>
+                        <li>8.2.5 存储过程（创建、调用、删除）</li>
+                        <li>8.2.6 存储函数</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        
+        <!-- 第11章 数据库恢复技术 Section -->
+        <section id="recovery" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-undo-alt"></i></div>
+                <div>
+                    <h2 class="section-title">第十一章 数据库恢复技术</h2>
+                    <p class="section-subtitle">确保数据库可靠性的重要技术</p>
+                </div>
+                <div class="signal-container">
+                    <span class="signal-label">章节强度:</span>
+                    <span class="signal strength-3" data-tooltip="高频考查章节"></span>
+                </div>
+            </div>
+            <div class="highlight-block">
+                <p>本章内容主要围绕数据库的故障恢复和事务的ACID特性。</p>
+            </div>
+            <ul class="section-topic-list">
+                <li>
+                    <span>11.1 事务的基本概念 <i class="fas fa-star star-icon"></i></span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>事务的ACID特性（原子性、一致性、隔离性、持续性及其含义） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>11.3 故障的种类</span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>事务故障、系统故障、介质故障</li>
+                    </ul>
+                </li>
+                <li>
+                    <span>11.4 恢复的实现技术</span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>数据转储（备份：完全备份、增量备份） <i class="fas fa-star star-icon"></i></li>
+                        <li>登记日志文件（日志记录原则） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 第12章 并发控制 Section -->
+        <section id="concurrency" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-exchange-alt"></i></div>
+                <div>
+                    <h2 class="section-title">第十二章 并发控制</h2>
+                    <p class="section-subtitle">管理并发事务，保证数据一致性</p>
+                </div>
+                <div class="signal-container">
+                    <span class="signal-label">章节强度:</span>
+                    <span class="signal strength-4" data-tooltip="极高频考查章节"></span>
+                </div>
+            </div>
+            <div class="highlight-block">
+                <p>并发控制是确保多用户环境下数据正确性的核心机制，需重点理解不一致性问题和锁机制。</p>
+            </div>
+            <ul class="section-topic-list">
+                <li>
+                    <span>12.1 并发控制概述</span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>并发操作带来的问题（丢失修改、脏读、不可重复读） <i class="fas fa-star star-icon"></i></li>
+                        <li>并发控制的主要技术（封锁、时间戳、乐观方法、多版本并发控制）</li>
+                    </ul>
+                </li>
+                <li>
+                    <span>12.3 封锁 <i class="fas fa-star star-icon"></i></span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>X锁（排它锁）和S锁（共享锁）的定义与相容性 <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>12.4 封锁协议</span>
+                    <span class="importance important">高频考点</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>两段锁协议（2PL） <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+                <li>
+                    <span>12.5 活锁和死锁 <i class="fas fa-star star-icon"></i></span>
+                    <span class="importance critical">必考核心</span>
+                    <ul class="list-disc pl-8 mt-2 text-sm text-gray-700">
+                        <li>概念、产生原因及解决办法 <i class="fas fa-star star-icon"></i></li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>数据库原理考点可视化系统 | 考点强度基于复习总纲与真题分析</p>
+        <p>© 2025 数据库学习助手 | 贤能AI生成</p>
+    </footer>
+
+    <script>
+        // 添加悬停提示功能
+        document.querySelectorAll('.signal').forEach(signal => {
+            const tooltip = signal.getAttribute('data-tooltip');
+            if (tooltip) {
+                let tooltipElem;
+
+                signal.addEventListener('mouseenter', function(e) {
+                    tooltipElem = document.createElement('div');
+                    tooltipElem.textContent = tooltip;
+                    tooltipElem.style.position = 'fixed'; // Use fixed for positioning relative to viewport
+                    tooltipElem.style.background = '#2c3e50';
+                    tooltipElem.style.color = 'white';
+                    tooltipElem.style.padding = '8px 12px';
+                    tooltipElem.style.borderRadius = '4px';
+                    tooltipElem.style.fontSize = '14px';
+                    tooltipElem.style.zIndex = '1000';
+                    tooltipElem.style.whiteSpace = 'nowrap';
+                    tooltipElem.style.boxShadow = '0 3px 10px rgba(0,0,0,0.2)';
+                    
+                    document.body.appendChild(tooltipElem);
+
+                    // Position the tooltip relative to the mouse cursor
+                    const updateTooltipPosition = (e) => {
+                        tooltipElem.style.left = (e.clientX + 15) + 'px'; // 15px offset to the right
+                        tooltipElem.style.top = (e.clientY + 15) + 'px'; // 15px offset downwards
+                    };
+
+                    updateTooltipPosition(e); // Set initial position
+                    document.addEventListener('mousemove', updateTooltipPosition); // Update on mouse move
+
+                    signal.addEventListener('mouseleave', function onMouseLeave() {
+                        if (tooltipElem) {
+                            tooltipElem.remove();
+                            tooltipElem = null;
+                        }
+                        document.removeEventListener('mousemove', updateTooltipPosition); // Clean up
+                        signal.removeEventListener('mouseleave', onMouseLeave); // Clean up itself
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

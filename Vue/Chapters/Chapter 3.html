@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U3--计算属性与侦听器</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.36/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0B1C3F; /* 黑洞蓝 - 信息捕获区 */
+            --secondary-color: #FFDB7F; /* 白洞金 - 记忆提取点 */
+            --accent-color: #64A8DC; /* 星云蓝 */
+            --text-color: #2C3E50;
+            --light-text: #FFFFFF;
+            --border-color: #64A8DC;
+            --code-bg: #f0f8ff;
+            --shadow: 0 4px 12px rgba(11, 28, 63, 0.15);
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --highlight-gradient: linear-gradient(to top, rgba(255, 209, 102, 0.3) 40%, transparent 40%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background: linear-gradient(15deg, 
+                rgba(234, 244, 255, 0.98) 0%, 
+                rgba(255, 248, 225, 0.95) 100%
+            );
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+        
+        /* 导航栏样式 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            color: var(--text-color);
+            padding: 15px 20px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            letter-spacing: 1px;
+            color: var(--primary-color);
+        }
+        
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            animation: pulse 2s infinite;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 15px;
+        }
+        
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 8px 15px;
+            border-radius: 30px;
+            background: rgba(100, 168, 220, 0.1);
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .nav-links a:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .nav-links a i {
+            margin-right: 8px;
+        }
+        
+        /* 主内容容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 章节样式 */
+        .chapter {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chapter:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(11, 28, 63, 0.2);
+        }
+        
+        .chapter h2 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border-color);
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            position: relative;
+        }
+        
+        .chapter h2 i {
+            margin-right: 15px;
+            background: var(--primary-color);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 8px rgba(11, 28, 63, 0.3);
+        }
+        
+        .chapter h3 {
+            color: var(--primary-color);
+            margin: 35px 0 20px;
+            padding: 10px 15px;
+            background: linear-gradient(90deg, rgba(100, 168, 220, 0.1), transparent);
+            border-left: 3px solid var(--accent-color);
+            font-size: 1.6rem;
+            position: relative;
+        }
+        
+        /* 知识点卡片 */
+        .knowledge-card {
+            background: linear-gradient(135deg, rgba(234, 244, 255, 0.6), rgba(255, 248, 225, 0.6));
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: var(--shadow);
+            border: 1px dashed var(--border-color);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .knowledge-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(100, 168, 220, 0.2);
+        }
+        
+        .knowledge-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .knowledge-card h4 i {
+            margin-right: 12px;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        .knowledge-card p, .knowledge-card ol, .knowledge-card ul {
+            position: relative;
+            z-index: 2;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .knowledge-card ol, .knowledge-card ul {
+            padding-left: 25px;
+            margin: 15px 0;
+        }
+        
+        .knowledge-card li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+            position: relative;
+        }
+        
+        .knowledge-card li::before {
+            content: '•';
+            color: var(--accent-color);
+            font-weight: bold;
+            position: absolute;
+            left: -15px;
+            top: 0;
+            font-size: 1.2rem;
+        }
+        
+        /* 代码块样式 */
+        .code-container {
+            position: relative;
+            margin: 30px 0;
+            background: linear-gradient(135deg, rgba(234, 244, 255, 0.7), rgba(255, 248, 225, 0.7));
+            color: var(--text-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px dashed var(--border-color);
+        }
+        
+        .code-header {
+            background: linear-gradient(135deg, rgba(100, 168, 220, 0.1), rgba(11, 28, 63, 0.1));
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        
+        .code-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .code-title i {
+            margin-right: 12px;
+            color: var(--primary-color);
+            font-size: 1.3rem;
+        }
+        
+        .run-btn {
+            background: linear-gradient(135deg, var(--primary-color), #0a1a3c);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(11, 28, 63, 0.4);
+        }
+        
+        .run-btn i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .run-btn:hover {
+            background: linear-gradient(135deg, #0a1a3c, var(--primary-color));
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(11, 28, 63, 0.5);
+        }
+        
+        pre {
+            margin: 0;
+            padding: 30px;
+            overflow-x: auto;
+            background: var(--code-bg);
+        }
+        
+        code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        
+        .comment { color: #5E7C8C; }
+        .keyword { color: #2C6A8F; }
+        .string { color: #1A5276; }
+        .function { color: #5D8CAE; }
+        .variable { color: #3D85C6; }
+        .property { color: #2C6A8F; }
+        
+        /* 结果容器 */
+        .result-container {
+            background: linear-gradient(135deg, rgba(234, 244, 255, 0.7), rgba(255, 248, 225, 0.7));
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 25px;
+            display: none;
+            box-shadow: var(--shadow);
+        }
+        
+        .result-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-header {
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        
+        .result-header::before {
+            content: "►";
+            margin-right: 12px;
+            font-size: 1.3em;
+            color: var(--accent-color);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .chapter {
+                padding: 20px;
+            }
+            
+            .navbar {
+                padding: 10px 15px;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+                font-size: 1.4rem;
+                justify-content: center;
+            }
+            
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .nav-links li {
+                margin: 5px;
+            }
+            
+            .chapter h2 {
+                font-size: 1.6rem;
+            }
+            
+            .chapter h2 i {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* 示例样式 */
+        .example-container {
+            padding: 20px;
+            border: 1px dashed var(--border-color);
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(234, 244, 255, 0.6), rgba(255, 248, 225, 0.6));
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+        }
+        
+        .example-container button, .example-container input {
+            margin: 12px;
+            padding: 10px 18px;
+            border: 1px dashed var(--border-color);
+            border-radius: 6px;
+            background: white;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+        
+        .example-container button:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(11, 28, 63, 0.3);
+        }
+        
+        .example-container input {
+            padding: 10px;
+            width: 220px;
+            font-size: 1.1rem;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .example-container a {
+            color: var(--primary-color);
+            text-decoration: underline;
+            margin: 12px;
+            display: inline-block;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .example-container h3, .example-container h4 {
+            margin: 15px 10px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .example-container span {
+            display: inline-block;
+            margin: 12px;
+            padding: 8px 15px;
+            background: white;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .highlight {
+            background-color: rgba(11, 28, 63, 0.15);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .memory-highlight {
+            background: var(--highlight-gradient);
+        }
+        
+        /* 动画效果 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes memory-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 209, 102, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 209, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 209, 102, 0); }
+        }
+        
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-top: 1px dashed var(--border-color);
+        }
+        
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* 比较表格 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            font-size: 1.1rem;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary-color), #0a1a3c);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            padding: 18px;
+            border-bottom: 1px dashed var(--border-color);
+            position: relative;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: rgba(234, 244, 255, 0.3);
+        }
+        
+        .comparison-table td:first-child {
+            font-weight: bold;
+            color: var(--primary-color);
+            width: 25%;
+        }
+        
+        /* 提示框 */
+        .tip-box {
+            background: linear-gradient(135deg, rgba(234, 244, 255, 0.6), rgba(255, 248, 225, 0.6));
+            border-left: 4px solid var(--accent-color);
+            padding: 25px;
+            margin: 35px 0;
+            border-radius: 0 15px 15px 0;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .tip-icon {
+            font-size: 28px;
+            color: var(--accent-color);
+            margin-right: 20px;
+            min-width: 40px;
+        }
+        
+        .tip-content {
+            flex: 1;
+        }
+        
+        .tip-box h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .tip-box p {
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        /* 可视化元素 */
+        .visual-box {
+            display: flex;
+            justify-content: space-around;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .visual-item {
+            text-align: center;
+            width: 220px;
+            margin: 15px;
+            padding: 25px;
+            border-radius: 15px;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .visual-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(11, 28, 63, 0.2);
+        }
+        
+        .visual-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .visual-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .visual-desc {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #5E7C8C;
+        }
+        
+        /* 过程流程图 */
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px 0;
+        }
+        
+        .process-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            position: relative;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .step-desc {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        /* 列表样式 */
+        .list-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border: 1px dashed var(--border-color);
+        }
+        
+        .list-key {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .memory-science {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 12px;
+            color: #888;
+            font-style: italic;
+        }
+        
+        /* 记忆增强元素 */
+        .memory-point {
+            position: relative;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            background: rgba(255, 219, 127, 0.1);
+            border: 1px dashed rgba(255, 219, 127, 0.5);
+            animation: memory-pulse 2s infinite;
+        }
+        
+        .memory-point::before {
+            content: "💡";
+            position: absolute;
+            left: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon"><i class="fab fa-vuejs"></i></span>
+            <span>Vue计算属性与侦听器教程</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#intro"><i class="fas fa-info-circle"></i> 简介</a></li>
+            <li><a href="#computed"><i class="fas fa-calculator"></i> 计算属性</a></li>
+            <li><a href="#watch"><i class="fas fa-eye"></i> 侦听器</a></li>
+            <li><a href="#comparison"><i class="fas fa-balance-scale"></i> 比较</a></li>
+            <li><a href="#practice"><i class="fas fa-code"></i> 练习</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- 介绍 -->
+        <div class="chapter" id="intro">
+            <h2><i class="fas fa-book-open"></i> Vue计算属性与侦听器</h2>
+            <p>计算属性(computed)和侦听器(watch)是Vue.js中处理数据变化的两种核心机制，它们使开发者能够优雅地响应数据变化并执行相关操作。</p>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-lightbulb"></i> 为什么需要计算属性和侦听器？</h4>
+                <p>在Vue应用中，我们经常需要：</p>
+                <ul>
+                    <li>根据现有数据<span class="memory-highlight">派生新数据</span>（如全名 = 姓 + 名）</li>
+                    <li>在数据变化时<span class="memory-highlight">执行异步操作</span>（如API调用）</li>
+                    <li>对数据变化进行<span class="memory-highlight">更复杂的响应</span>（如验证、日志记录）</li>
+                </ul>
+                <p>计算属性用于<span class="memory-highlight">同步计算派生值</span>，而侦听器用于<span class="memory-highlight">响应数据变化执行操作</span>。</p>
+            </div>
+            
+            <div class="visual-box">
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="visual-title">计算属性</div>
+                    <div class="visual-desc">基于依赖数据计算派生值</div>
+                </div>
+                
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="visual-title">侦听器</div>
+                    <div class="visual-desc">响应数据变化执行操作</div>
+                </div>
+                
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="visual-title">记忆增强</div>
+                    <div class="visual-desc">神经科学配色方案</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 计算属性 -->
+        <div class="chapter" id="computed">
+            <h2><i class="fas fa-calculator"></i> 计算属性</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-question-circle"></i> 什么是计算属性？</h4>
+                <p>计算属性是Vue中用于<span class="memory-highlight">声明式地定义派生值</span>的方式。它们基于响应式依赖进行缓存，只在相关依赖发生改变时才会重新计算。</p>
+                
+                <div class="memory-point">
+                    <strong>JavaScript基础：</strong> 计算属性本质上是使用Object.defineProperty()方法定义的getter函数，这使得Vue能够追踪依赖并在依赖变化时自动更新。
+                </div>
+            </div>
+            
+            <h3>1. 计算属性的基本用法</h3>
+            <p>下面是一个使用计算属性拼接全名的简单示例：</p>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 计算属性基本用法</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="computed-basic"&gt;
+  &lt;div class="input-group"&gt;
+    姓: &lt;input type="text" v-model="firstName"&gt;
+  &lt;/div&gt;
+  &lt;div class="input-group"&gt;
+    名: &lt;input type="text" v-model="lastName"&gt;
+  &lt;/div&gt;
+  &lt;h3&gt;全名: {{ fullName }}&lt;/h3&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+Vue.createApp({
+  data() {
+    return {
+      firstName: '张',
+      lastName: '三'
+    }
+  },
+  computed: {
+    // 计算属性 - 全名
+    fullName() {
+      console.log('计算属性重新计算');
+      return this.firstName + '-' + this.lastName;
+    }
+  }
+}).mount('#computed-basic');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="computed-basic" class="example-container">
+                    <div class="input-group">
+                        姓: <input type="text" v-model="firstName">
+                    </div>
+                    <div class="input-group">
+                        名: <input type="text" v-model="lastName">
+                    </div>
+                    <h3>全名: {{ fullName }}</h3>
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-icon"><i class="fas fa-key"></i></div>
+                <div class="tip-content">
+                    <h4>计算属性 vs 方法</h4>
+                    <p>虽然使用方法也可以实现类似功能，但计算属性具有重要优势：</p>
+                    <ul>
+                        <li><span class="memory-highlight">缓存机制</span> - 计算属性基于响应式依赖进行缓存，只有当依赖变化时才会重新计算</li>
+                        <li><span class="memory-highlight">高效性</span> - 避免不必要的重复计算</li>
+                        <li><span class="memory-highlight">声明式语法</span> - 在模板中像普通属性一样使用</li>
+                    </ul>
+                    <p>当需要多次访问派生值时，计算属性是更好的选择。</p>
+                </div>
+            </div>
+            
+            <h3>2. 计算属性的setter</h3>
+            <p>计算属性默认只有getter，但也可以提供setter：</p>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 计算属性的setter</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="computed-setter"&gt;
+  &lt;div class="input-group"&gt;
+    姓: &lt;input type="text" v-model="firstName"&gt;
+  &lt;/div&gt;
+  &lt;div class="input-group"&gt;
+    名: &lt;input type="text" v-model="lastName"&gt;
+  &lt;/div&gt;
+  &lt;div class="input-group"&gt;
+    全名: &lt;input type="text" v-model="fullName"&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+Vue.createApp({
+  data() {
+    return {
+      firstName: '张',
+      lastName: '三'
+    }
+  },
+  computed: {
+    // 带setter的计算属性
+    fullName: {
+      // getter
+      get() {
+        return this.firstName + '-' + this.lastName;
+      },
+      // setter
+      set(newValue) {
+        const names = newValue.split('-');
+        this.firstName = names[0] || '';
+        this.lastName = names[1] || '';
+      }
+    }
+  }
+}).mount('#computed-setter');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="computed-setter" class="example-container">
+                    <div class="input-group">
+                        姓: <input type="text" v-model="firstName">
+                    </div>
+                    <div class="input-group">
+                        名: <input type="text" v-model="lastName">
+                    </div>
+                    <div class="input-group">
+                        全名: <input type="text" v-model="fullName">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="memory-point">
+                <strong>关键记忆点：</strong> 计算属性适用于<span class="memory-highlight">同步计算派生值</span>的场景。当需要处理异步操作或执行副作用时，应使用侦听器。
+            </div>
+        </div>
+        
+        <!-- 侦听器 -->
+        <div class="chapter" id="watch">
+            <h2><i class="fas fa-eye"></i> 侦听器</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-question-circle"></i> 什么是侦听器？</h4>
+                <p>侦听器用于<span class="memory-highlight">观察和响应数据的变化</span>。当需要在数据变化时执行异步操作或复杂逻辑时，侦听器非常有用。</p>
+                
+                <div class="memory-point">
+                    <strong>JavaScript基础：</strong> 侦听器使用Vue的watch选项定义，可以观察数据属性、计算属性或嵌套对象的变化。
+                </div>
+            </div>
+            
+            <h3>1. 基本侦听器</h3>
+            <p>下面是一个监听天气变化的简单示例：</p>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 基本侦听器</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="watch-basic"&gt;
+  &lt;h3&gt;今天天气很{{ info }}&lt;/h3&gt;
+  &lt;button @click="changeWeather"&gt;切换天气&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+Vue.createApp({
+  data() {
+    return {
+      isHot: true
+    }
+  },
+  computed: {
+    info() {
+      return this.isHot ? '炎热' : '凉爽';
+    }
+  },
+  methods: {
+    changeWeather() {
+      this.isHot = !this.isHot;
+    }
+  },
+  watch: {
+    // 侦听isHot的变化
+    isHot(newValue, oldValue) {
+      console.log(`天气从${oldValue ? '炎热' : '凉爽'}变为${newValue ? '炎热' : '凉爽'}`);
+    }
+  }
+}).mount('#watch-basic');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="watch-basic" class="example-container">
+                    <h3>今天天气很{{ info }}</h3>
+                    <button @click="changeWeather">切换天气</button>
+                </div>
+            </div>
+            
+            <h3>2. 深度侦听与立即执行</h3>
+            <p>当需要侦听对象内部属性变化或立即执行回调时，可以使用深度侦听和立即执行选项：</p>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 深度侦听与立即执行</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="watch-advanced"&gt;
+  &lt;h3&gt;a的值是{{ numbers.a }}&lt;/h3&gt;
+  &lt;button @click="numbers.a++"&gt;点我a+1&lt;/button&gt;
+  &lt;button @click="numbers.b++"&gt;点我b+1&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+Vue.createApp({
+  data() {
+    return {
+      numbers: {
+        a: 1,
+        b: 2
+      }
+    }
+  },
+  watch: {
+    // 侦听numbers对象的a属性
+    'numbers.a': {
+      handler(newValue, oldValue) {
+        console.log(`a从${oldValue}变为${newValue}`);
+      }
+    },
+    // 深度侦听整个numbers对象
+    numbers: {
+      deep: true, // 深度侦听
+      immediate: true, // 立即执行
+      handler(newValue, oldValue) {
+        console.log('numbers对象发生变化', newValue);
+      }
+    }
+  }
+}).mount('#watch-advanced');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="watch-advanced" class="example-container">
+                    <h3>a的值是{{ numbers.a }}</h3>
+                    <button @click="numbers.a++">点我a+1</button>
+                    <button @click="numbers.b++">点我b+1</button>
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="tip-content">
+                    <h4>侦听器使用注意事项</h4>
+                    <ul>
+                        <li><span class="memory-highlight">深度侦听性能开销大</span> - 仅在必要时使用deep选项</li>
+                        <li><span class="memory-highlight">避免在侦听器中修改自身依赖的数据</span> - 可能导致无限循环</li>
+                        <li><span class="memory-highlight">异步操作</span> - 侦听器是处理异步操作的理想场所</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 比较 -->
+        <div class="chapter" id="comparison">
+            <h2><i class="fas fa-balance-scale"></i> 计算属性 vs 侦听器</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-compress-arrows-alt"></i> 如何选择？</h4>
+                <p>虽然计算属性和侦听器都可以响应数据变化，但它们有不同的适用场景：</p>
+                <ul>
+                    <li><span class="memory-highlight">计算属性</span> - 用于<span class="highlight">声明式派生值</span>，结果会被缓存</li>
+                    <li><span class="memory-highlight">侦听器</span> - 用于<span class="highlight">响应数据变化执行操作</span>（尤其是异步操作）</li>
+                </ul>
+            </div>
+            
+            <h3>关键区别</h3>
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>特性</th>
+                            <th>计算属性</th>
+                            <th>侦听器</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>主要用途</td>
+                            <td>派生新数据</td>
+                            <td>响应数据变化执行操作</td>
+                        </tr>
+                        <tr>
+                            <td>缓存</td>
+                            <td>是，基于依赖缓存</td>
+                            <td>否，每次变化都执行</td>
+                        </tr>
+                        <tr>
+                            <td>异步支持</td>
+                            <td>不支持</td>
+                            <td>支持</td>
+                        </tr>
+                        <tr>
+                            <td>语法</td>
+                            <td>声明式，像普通属性</td>
+                            <td>命令式，需定义处理函数</td>
+                        </tr>
+                        <tr>
+                            <td>返回值</td>
+                            <td>必须有返回值</td>
+                            <td>不需要返回值</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">何时使用计算属性</div>
+                        <div class="step-desc">当需要基于现有数据计算派生值时（如全名、总价、过滤列表）</div>
+                    </div>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">何时使用侦听器</div>
+                        <div class="step-desc">当需要在数据变化时执行异步操作或复杂逻辑时（如API调用、验证、日志记录）</div>
+                    </div>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">组合使用</div>
+                        <div class="step-desc">在实际应用中，计算属性和侦听器经常组合使用，各自发挥优势</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="memory-point">
+                <strong>黄金法则：</strong> 优先使用计算属性，当需要执行<span class="memory-highlight">异步操作或副作用</span>时才使用侦听器。
+            </div>
+        </div>
+        
+        <!-- 练习 -->
+        <div class="chapter" id="practice">
+            <h2><i class="fas fa-code"></i> 综合练习：用户信息面板</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-pencil-alt"></i> 练习要求</h4>
+                <p>创建一个用户信息面板，结合使用计算属性和侦听器：</p>
+                <ul>
+                    <li>使用计算属性生成用户全名和简介</li>
+                    <li>使用侦听器监控年龄变化并给出提示</li>
+                    <li>使用侦听器监控城市变化并模拟API调用</li>
+                </ul>
+            </div>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 用户信息面板完整代码</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="practice-app"&gt;
+  &lt;h3&gt;用户信息面板&lt;/h3&gt;
+  
+  &lt;div class="input-group"&gt;
+    姓: &lt;input type="text" v-model="user.firstName"&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="input-group"&gt;
+    名: &lt;input type="text" v-model="user.lastName"&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="input-group"&gt;
+    年龄: &lt;input type="number" v-model="user.age"&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="input-group"&gt;
+    城市: &lt;input type="text" v-model="user.city"&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="user-info"&gt;
+    &lt;h4&gt;用户简介:&lt;/h4&gt;
+    &lt;p&gt;{{ userProfile }}&lt;/p&gt;
+    
+    &lt;h4 v-if="ageMessage"&gt;年龄提示:&lt;/h4&gt;
+    &lt;p class="highlight"&gt;{{ ageMessage }}&lt;/p&gt;
+    
+    &lt;h4 v-if="cityInfo"&gt;城市信息:&lt;/h4&gt;
+    &lt;p&gt;{{ cityInfo }}&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+Vue.createApp({
+  data() {
+    return {
+      user: {
+        firstName: '张',
+        lastName: '三',
+        age: 25,
+        city: '北京'
+      },
+      ageMessage: '',
+      cityInfo: ''
+    }
+  },
+  computed: {
+    // 计算用户全名
+    fullName() {
+      return this.user.firstName + ' ' + this.user.lastName;
+    },
+    // 计算用户简介
+    userProfile() {
+      return `${this.fullName}，${this.user.age}岁，来自${this.user.city}`;
+    }
+  },
+  watch: {
+    // 侦听年龄变化
+    'user.age': {
+      handler(newAge, oldAge) {
+        if (newAge > 100) {
+          this.ageMessage = '您输入的年龄异常，请确认！';
+        } else if (newAge >= 60) {
+          this.ageMessage = '老年阶段，注意健康保养';
+        } else if (newAge >= 30) {
+          this.ageMessage = '中年阶段，事业高峰期';
+        } else if (newAge >= 18) {
+          this.ageMessage = '青年阶段，充满活力';
+        } else {
+          this.ageMessage = '未成年阶段，需要监护人';
+        }
+        
+        console.log(`年龄从${oldAge}变为${newAge}`);
+      },
+      immediate: true // 初始化时立即执行
+    },
+    // 侦听城市变化（模拟API调用）
+    'user.city': {
+      handler(newCity) {
+        this.cityInfo = `正在查询${newCity}的信息...`;
+        
+        // 模拟API请求延迟
+        setTimeout(() => {
+          this.cityInfo = `已获取${newCity}的最新信息：人口约1000万，著名景点有故宫、长城等。`;
+        }, 1500);
+      },
+      immediate: true // 初始化时立即执行
+    }
+  }
+}).mount('#practice-app');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="practice-app" class="example-container">
+                    <h3>用户信息面板</h3>
+                    
+                    <div class="input-group">
+                        姓: <input type="text" v-model="user.firstName">
+                    </div>
+                    
+                    <div class="input-group">
+                        名: <input type="text" v-model="user.lastName">
+                    </div>
+                    
+                    <div class="input-group">
+                        年龄: <input type="number" v-model="user.age">
+                    </div>
+                    
+                    <div class="input-group">
+                        城市: <input type="text" v-model="user.city">
+                    </div>
+                    
+                    <div class="user-info">
+                        <h4>用户简介:</h4>
+                        <p>{{ userProfile }}</p>
+                        
+                        <h4 v-if="ageMessage">年龄提示:</h4>
+                        <p class="highlight">{{ ageMessage }}</p>
+                        
+                        <h4 v-if="cityInfo">城市信息:</h4>
+                        <p>{{ cityInfo }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-icon"><i class="fas fa-clipboard-check"></i></div>
+                <div class="tip-content">
+                    <h4>学习检查点</h4>
+                    <p>完成本章学习后，请确认你已掌握以下内容：</p>
+                    <ul>
+                        <li>理解计算属性的定义、原理和优势</li>
+                        <li>能够正确使用计算属性处理派生数据</li>
+                        <li>理解侦听器的应用场景和基本用法</li>
+                        <li>掌握深度侦听和立即执行的配置</li>
+                        <li>能够根据场景选择计算属性或侦听器</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Vue计算属性与侦听器教程 | 增强记忆神经科学配色方案 | 基于 Vue 3</p>
+        <p>本教程涵盖了计算属性(computed)和侦听器(watch)等核心概念</p>
+    </div>
+
+    <script>
+        // 运行按钮功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const runButtons = document.querySelectorAll('.run-btn');
+            
+            runButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const resultContainer = this.closest('.code-container').nextElementSibling;
+                    resultContainer.classList.add('active');
+                    
+                    // 添加视觉反馈
+                    button.innerHTML = '<i class="fas fa-check"></i> 已运行';
+                    button.style.background = 'linear-gradient(135deg, #0a1a3c, #091736)';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="fas fa-play"></i> 运行代码';
+                        button.style.background = 'linear-gradient(135deg, var(--primary-color), #0a1a3c)';
+                    }, 2000);
+                });
+            });
+            
+            // 为计算属性基本用法示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        firstName: '张',
+                        lastName: '三'
+                    }
+                },
+                computed: {
+                    fullName() {
+                        console.log('计算属性重新计算');
+                        return this.firstName + '-' + this.lastName;
+                    }
+                }
+            }).mount('#computed-basic');
+            
+            // 为计算属性setter示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        firstName: '张',
+                        lastName: '三'
+                    }
+                },
+                computed: {
+                    fullName: {
+                        get() {
+                            return this.firstName + '-' + this.lastName;
+                        },
+                        set(newValue) {
+                            const names = newValue.split('-');
+                            this.firstName = names[0] || '';
+                            this.lastName = names[1] || '';
+                        }
+                    }
+                }
+            }).mount('#computed-setter');
+            
+            // 为基本侦听器示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        isHot: true
+                    }
+                },
+                computed: {
+                    info() {
+                        return this.isHot ? '炎热' : '凉爽';
+                    }
+                },
+                methods: {
+                    changeWeather() {
+                        this.isHot = !this.isHot;
+                    }
+                },
+                watch: {
+                    isHot(newValue, oldValue) {
+                        console.log(`天气从${oldValue ? '炎热' : '凉爽'}变为${newValue ? '炎热' : '凉爽'}`);
+                    }
+                }
+            }).mount('#watch-basic');
+            
+            // 为深度侦听示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        numbers: {
+                            a: 1,
+                            b: 2
+                        }
+                    }
+                },
+                watch: {
+                    'numbers.a': {
+                        handler(newValue, oldValue) {
+                            console.log(`a从${oldValue}变为${newValue}`);
+                        }
+                    },
+                    numbers: {
+                        deep: true,
+                        immediate: true,
+                        handler(newValue) {
+                            console.log('numbers对象发生变化', JSON.stringify(newValue));
+                        }
+                    }
+                }
+            }).mount('#watch-advanced');
+            
+            // 为练习应用创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        user: {
+                            firstName: '张',
+                            lastName: '三',
+                            age: 25,
+                            city: '北京'
+                        },
+                        ageMessage: '',
+                        cityInfo: ''
+                    }
+                },
+                computed: {
+                    fullName() {
+                        return this.user.firstName + ' ' + this.user.lastName;
+                    },
+                    userProfile() {
+                        return `${this.fullName}，${this.user.age}岁，来自${this.user.city}`;
+                    }
+                },
+                watch: {
+                    'user.age': {
+                        handler(newAge, oldAge) {
+                            if (newAge > 100) {
+                                this.ageMessage = '您输入的年龄异常，请确认！';
+                            } else if (newAge >= 60) {
+                                this.ageMessage = '老年阶段，注意健康保养';
+                            } else if (newAge >= 30) {
+                                this.ageMessage = '中年阶段，事业高峰期';
+                            } else if (newAge >= 18) {
+                                this.ageMessage = '青年阶段，充满活力';
+                            } else {
+                                this.ageMessage = '未成年阶段，需要监护人';
+                            }
+                            
+                            console.log(`年龄从${oldAge}变为${newAge}`);
+                        },
+                        immediate: true
+                    },
+                    'user.city': {
+                        handler(newCity) {
+                            this.cityInfo = `正在查询${newCity}的信息...`;
+                            
+                            setTimeout(() => {
+                                this.cityInfo = `已获取${newCity}的最新信息：人口约1000万，著名景点有故宫、长城等。`;
+                            }, 1500);
+                        },
+                        immediate: true
+                    }
+                }
+            }).mount('#practice-app');
+        });
+    </script>
+</body>
+</html>

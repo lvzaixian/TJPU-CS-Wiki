@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+  <html>
+   <head>
+    <meta charset="UTF-8" />
+    <title>数据绑定</title>
+    <script  src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+   </head>
+   <body>
+    <div id="root">
+       单向数据绑定：<input type="text" :value="name"><br/>
+       双向数据绑定：<input type="text" v-model="name">  
+    </div>
+   </body>
+  
+   <script>
+    //app.config.productionTip = false
+         
+    const { createApp } = Vue
+    const app = createApp({
+       
+       data(){
+         return{
+          name:'天工大'
+         }
+       }
+     })
+      app.mount('#root')
+     
+   </script>
+   
+  </html>

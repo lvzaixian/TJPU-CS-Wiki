@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>事件处理</title>
+   <!--引入Vue -->
+  <script src="vue.js"></script>
+</head>
+<body>
+   <!--准备一个容器 -->
+    <div id="root">
+      <h3>count的值为{{count}}</h3>
+      <hr/>
+      <button @click="count++">count+1</button>
+      <button @click="addcN(3,$event)">count+n</button>
+      </div>
+
+   <script >
+     const vm= new Vue({
+        el:'#root',  
+        data:{ 
+        count:0
+       },
+       methods: {
+         addcN(n,event){
+           this.count+= n
+          return this.count
+         }
+       }
+      })
+   </script>
+</body>
+</html>

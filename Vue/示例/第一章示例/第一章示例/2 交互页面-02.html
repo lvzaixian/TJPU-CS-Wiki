@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>猜数游戏-固定数字的猜数逻辑</title>
+    <script src="./vue.js"></script>
+    <style>
+        div#app{
+            width: 250px;
+            margin: 30px auto;
+            border: 1px solid #666;
+            border-radius: 10px;
+            padding:10px;
+        }
+        p{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">  
+        <p>
+            <input 
+              type="text" 
+              placeholder="猜数游戏" 
+              v-model="guessed"/>
+        </p>
+        <p>{{result}}</p>
+    </div>
+    <script>
+        let vm = new Vue({
+            el:"#app", 
+            data: {
+                guessed: ''
+            },
+            computed: {
+                result(){
+                    const key = 87;
+                    const value = parseInt(this.guessed);
+
+                    if(isNaN(value))
+                        return "请猜一个1~100之间的整数";
+                    
+                    if(value === key)
+                        return "祝贺你，你猜对了" ;
+
+                    if(value > key)
+                        return "太大了，往小一点猜";
+
+                    return "太小了，往大一点猜";
+                }           
+            }
+        });
+    </script>
+  </body>
+</html>

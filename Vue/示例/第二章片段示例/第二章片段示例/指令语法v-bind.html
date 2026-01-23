@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>初识Vue</title>
+   <!--引入Vue -->
+  <script src="vue.js"></script>
+</head>
+<body>
+   <!--准备一个容器 -->
+    <div id="root">
+      <h1>插值语法</h1>
+      <h3>Hello,{{name}}</h3>
+      <hr/>
+      <h1>指令语法</h1>
+      <a v-bind:href="url">点我去{{name}}</a>
+   </div>
+
+   <script >
+      new Vue({
+        el:'#root',  
+        data:{ 
+        name:'annie',
+        name:'工大',
+        url:'http://www.tiangong.edu.cn'
+       }
+      })
+   </script>
+</body>
+</html>

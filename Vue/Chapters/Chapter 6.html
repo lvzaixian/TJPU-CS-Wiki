@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U6--样式绑定</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.36/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --text-color: #2D3748;
+            --background-color: #FFF3DB;
+            --code-block: #FF6B6B;
+            --chart-color: #6A4C93;
+            --gold-highlight: #FFD166;
+            --accent-color: #06D6A0;
+            --light-text: #FFFFFF;
+            --border-color: #E2E8F0;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --even-row: #F8F9FA;
+            --contrast-ratio: 8.3;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+        
+        /* 导航栏样式 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            color: var(--text-color);
+            padding: 15px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            letter-spacing: 1px;
+            color: var(--chart-color);
+        }
+        
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+            color: var(--chart-color);
+            animation: pulse 2s infinite;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 15px;
+        }
+        
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 8px 15px;
+            border-radius: 30px;
+            background: rgba(106, 76, 147, 0.1);
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .nav-links a:hover {
+            background: var(--chart-color);
+            color: white;
+            transform: translateY(-2px);
+            border: 1px solid var(--chart-color);
+        }
+        
+        .nav-links a i {
+            margin-right: 8px;
+        }
+        
+        /* 主内容容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 章节样式 */
+        .chapter {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 4px solid var(--gold-highlight);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .chapter:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--chart-color);
+        }
+        
+        .chapter h2 {
+            color: var(--chart-color);
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            position: relative;
+        }
+        
+        .chapter h2 i {
+            margin-right: 15px;
+            background: var(--chart-color);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 8px rgba(106, 76, 147, 0.3);
+        }
+        
+        .chapter h3 {
+            color: var(--chart-color);
+            margin: 35px 0 20px;
+            padding: 10px 15px;
+            background: linear-gradient(90deg, rgba(106, 76, 147, 0.1), transparent);
+            border-left: 3px solid var(--accent-color);
+            font-size: 1.6rem;
+            position: relative;
+        }
+        
+        /* 知识点卡片 */
+        .knowledge-card {
+            background: linear-gradient(135deg, rgba(255, 243, 219, 0.6), rgba(255, 251, 245, 0.6));
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            border-left: 3px solid var(--gold-highlight);
+        }
+        
+        .knowledge-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-left: 3px solid var(--chart-color);
+        }
+        
+        .knowledge-card h4 {
+            color: var(--chart-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .knowledge-card h4 i {
+            margin-right: 12px;
+            color: var(--chart-color);
+            font-size: 1.5rem;
+        }
+        
+        .knowledge-card p, .knowledge-card ol, .knowledge-card ul {
+            position: relative;
+            z-index: 2;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .knowledge-card ol, .knowledge-card ul {
+            padding-left: 25px;
+            margin: 15px 0;
+        }
+        
+        .knowledge-card li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+            position: relative;
+        }
+        
+        .knowledge-card li::before {
+            content: '•';
+            color: var(--accent-color);
+            font-weight: bold;
+            position: absolute;
+            left: -15px;
+            top: 0;
+            font-size: 1.2rem;
+        }
+        
+        /* 代码块样式 */
+        .code-container {
+            position: relative;
+            margin: 30px 0;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 243, 219, 0.2));
+            color: var(--text-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--code-block);
+        }
+        
+        .code-header {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(106, 76, 147, 0.1));
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .code-title {
+            font-weight: bold;
+            color: var(--code-block);
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .code-title i {
+            margin-right: 12px;
+            color: var(--code-block);
+            font-size: 1.3rem;
+        }
+        
+        .run-btn {
+            background: linear-gradient(135deg, var(--chart-color), #5a3f7c);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(106, 76, 147, 0.3);
+        }
+        
+        .run-btn i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .run-btn:hover {
+            background: linear-gradient(135deg, #5a3f7c, var(--chart-color));
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(106, 76, 147, 0.4);
+        }
+        
+        pre {
+            margin: 0;
+            padding: 30px;
+            overflow-x: auto;
+            background: rgba(255, 255, 255, 0.9);
+            position: relative;
+        }
+        
+        code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        
+        .comment { color: #5E7C8C; }
+        .keyword { color: #2C6A8F; }
+        .string { color: #1A5276; }
+        .function { color: #5D8CAE; }
+        .variable { color: #3D85C6; }
+        .property { color: #2C6A8F; }
+        
+        /* 结果容器 */
+        .result-container {
+            background: linear-gradient(135deg, rgba(255, 243, 219, 0.7), rgba(255, 251, 245, 0.7));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 25px;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-left: 3px solid var(--accent-color);
+        }
+        
+        .result-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-header {
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--chart-color);
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .result-header::before {
+            content: "►";
+            margin-right: 12px;
+            font-size: 1.3em;
+            color: var(--accent-color);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .chapter {
+                padding: 20px;
+            }
+            
+            .navbar {
+                padding: 10px 15px;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+                font-size: 1.4rem;
+                justify-content: center;
+            }
+            
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .nav-links li {
+                margin: 5px;
+            }
+            
+            .chapter h2 {
+                font-size: 1.6rem;
+            }
+            
+            .chapter h2 i {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* 示例样式 */
+        .example-container {
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(255, 243, 219, 0.6), rgba(255, 251, 245, 0.6));
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-left: 3px solid var(--gold-highlight);
+        }
+        
+        .example-container button, .example-container input {
+            margin: 12px;
+            padding: 10px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: white;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .example-container button:hover {
+            background: var(--chart-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(106, 76, 147, 0.2);
+        }
+        
+        .example-container input {
+            padding: 10px;
+            width: 220px;
+            font-size: 1.1rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .example-container a {
+            color: var(--chart-color);
+            text-decoration: underline;
+            margin: 12px;
+            display: inline-block;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .example-container h3, .example-container h4 {
+            margin: 15px 10px;
+            color: var(--chart-color);
+            font-weight: 600;
+        }
+        
+        .example-container span {
+            display: inline-block;
+            margin: 12px;
+            padding: 8px 15px;
+            background: white;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .highlight {
+            background-color: rgba(106, 76, 147, 0.15);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: var(--chart-color);
+        }
+        
+        /* 动画效果 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes memory-pulse {
+            0% { background-color: rgba(255,240,135,0) }
+            50% { background-color: rgba(255,240,135,0.4) }
+        }
+        
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer a {
+            color: var(--chart-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* 比较表格 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            font-size: 1.1rem;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--chart-color), #5a3f7c);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--even-row);
+        }
+        
+        /* 每5行添加金色标记 */
+        .comparison-table tr:nth-child(5n) {
+            background-color: rgba(255, 215, 0, 0.1);
+            animation: memory-pulse 1.5s 3;
+        }
+        
+        .comparison-table td:first-child {
+            font-weight: bold;
+            color: var(--chart-color);
+            width: 25%;
+        }
+        
+        /* 提示框 */
+        .tip-box {
+            background: linear-gradient(135deg, rgba(255, 243, 219, 0.6), rgba(255, 251, 245, 0.6));
+            border-left: 4px solid var(--accent-color);
+            padding: 25px;
+            margin: 35px 0;
+            border-radius: 0 15px 15px 0;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .tip-icon {
+            font-size: 28px;
+            color: var(--accent-color);
+            margin-right: 20px;
+            min-width: 40px;
+        }
+        
+        .tip-content {
+            flex: 1;
+        }
+        
+        .tip-box h4 {
+            color: var(--chart-color);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .tip-box p {
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        /* 可视化元素 */
+        .visual-box {
+            display: flex;
+            justify-content: space-around;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .visual-item {
+            text-align: center;
+            width: 220px;
+            margin: 15px;
+            padding: 25px;
+            border-radius: 15px;
+            background: var(--card-bg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .visual-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border-left: 3px solid var(--gold-highlight);
+        }
+        
+        .visual-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: var(--chart-color);
+        }
+        
+        .visual-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--chart-color);
+        }
+        
+        .visual-desc {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #718096;
+        }
+        
+        /* 过程流程图 */
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px 0;
+        }
+        
+        .process-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            position: relative;
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--gold-highlight);
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--chart-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--chart-color);
+            margin-bottom: 10px;
+        }
+        
+        .step-desc {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        /* 列表样式 */
+        .list-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+        
+        .list-key {
+            font-weight: bold;
+            color: var(--chart-color);
+        }
+        
+        .memory-science {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 12px;
+            color: #888;
+            font-style: italic;
+        }
+        
+        /* 神经科学增强记忆效果 */
+        .memory-highlight {
+            background: linear-gradient(
+                to top, 
+                rgba(255,209,102,0.3) 40%, 
+                transparent 40%
+            );
+            padding: 0 2px;
+            border-radius: 2px;
+            font-weight: bold; /* 加粗以增强高亮效果 */
+            color: #b38b00; /* 深化颜色以增加对比度 */
+        }
+        
+        /* 示例样式 */
+        .example-div {
+            width: 100px;
+            height: 100px;
+            margin: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid #bbb;
+            transition: all 0.3s;
+        }
+        
+        .selected {
+            border-color: #000;
+        }
+        
+        .active {
+            background-color: #bbb;
+        }
+        
+        .box {
+            border: 1px solid black;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .text {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        
+        .inner {
+            color: var(--code-block);
+            font-weight: bold;
+        }
+        
+        .meal {
+            background-color: rgba(255, 209, 102, 0.3);
+            padding: 5px;
+            border-radius: 5px;
+        }
+        
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .memory-gold {
+            background-color: rgba(255, 215, 0, 0.15);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        /* 对比度标识 */
+        .contrast-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .explanation {
+            background-color: rgba(255, 243, 219, 0.7);
+            border-left: 3px solid var(--accent-color);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .explanation h4 {
+            color: var(--chart-color);
+            margin-bottom: 10px;
+        }
+        
+        .neuroscience-box {
+            background-color: rgba(106, 76, 147, 0.05);
+            border: 1px dashed var(--chart-color);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        
+        .neuroscience-title {
+            color: var(--chart-color);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .neuroscience-title i {
+            margin-right: 8px;
+        }
+        
+        /* 新增的语法总结样式 */
+        .syntax-summary {
+            margin: 40px 0;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .syntax-summary h3 {
+            color: var(--chart-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .syntax-summary .syntax-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .syntax-summary .syntax-table th {
+            background: rgba(106, 76, 147, 0.1);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--chart-color);
+        }
+        
+        .syntax-summary .syntax-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .syntax-summary .syntax-table tr:nth-child(even) {
+            background-color: rgba(255, 243, 219, 0.3);
+        }
+        
+        .syntax-summary .syntax-table code {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.95rem;
+        }
+        
+        .syntax-summary .syntax-table .syntax-example {
+            color: var(--code-block);
+            font-weight: 500;
+        }
+        
+        .syntax-summary .syntax-table .syntax-description {
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon"><i class="fab fa-vuejs"></i></span>
+            <span>Vue.js 样式绑定教程</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#class-binding"><i class="fas fa-brush"></i> Class绑定</a></li>
+            <li><a href="#style-binding"><i class="fas fa-paint-brush"></i> Style绑定</a></li>
+            <li><a href="#examples"><i class="fas fa-code"></i> 综合示例</a></li>
+            <li><a href="#summary"><i class="fas fa-brain"></i> 记忆要点</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- 介绍 -->
+        <div class="chapter">
+            <h2><i class="fas fa-book-open"></i> Vue.js 样式绑定</h2>
+            <p>样式绑定是Vue.js核心功能之一，它允许开发者动态地操作元素的class和style属性，实现动态样式切换。</p>
+            
+            <div class="neuroscience-box">
+                <div class="neuroscience-title"><i class="fas fa-brain"></i> 神经科学记忆原理</div>
+                <p>我们使用紫罗兰色（#6A4C93）作为主色调，因为它能增强图形记忆。同时，黄金高亮（#FFD166）用于引导视线轨迹，帮助大脑建立记忆锚点。</p>
+            </div>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-lightbulb"></i> 为什么需要样式绑定？</h4>
+                <p>在动态Web应用中，元素样式经常需要根据数据状态变化：</p>
+                <ul>
+                    <li>用户交互状态变化（悬停、点击）</li>
+                    <li>数据状态变化（激活、选中、错误）</li>
+                    <li>响应式布局变化（不同设备尺寸）</li>
+                </ul>
+                <p>Vue提供了<span class="memory-highlight">v-bind:class</span>和<span class="memory-highlight">v-bind:style</span>指令，使样式绑定变得简单直观。</p>
+            </div>
+            
+            <div class="visual-box">
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-brush"></i>
+                    </div>
+                    <div class="visual-title">Class绑定</div>
+                    <div class="visual-desc">动态添加/移除CSS类</div>
+                </div>
+                
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <div class="visual-title">Style绑定</div>
+                    <div class="visual-desc">动态修改内联样式</div>
+                </div>
+                
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="visual-title">记忆增强</div>
+                    <div class="visual-desc">神经科学配色方案</div>
+                </div>
+            </div>
+            
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">定义数据状态</div>
+                        <div class="step-desc">在Vue组件的data选项中定义控制样式的变量</div>
+                    </div>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">绑定样式指令</div>
+                        <div class="step-desc">在模板中使用v-bind:class或v-bind:style指令</div>
+                    </div>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">响应式更新</div>
+                        <div class="step-desc">当数据变化时，样式自动更新</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Class绑定 -->
+        <div class="chapter" id="class-binding">
+            <h2><i class="fas fa-brush"></i> Class绑定</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-question-circle"></i> 什么是Class绑定？</h4>
+                <p>Class绑定允许你根据数据状态动态添加或移除元素的CSS类。在Vue中，主要通过<span class="highlight">v-bind:class</span>指令实现。</p>
+                <p>Class绑定有三种形式：</p>
+                <ul>
+                    <li><span class="highlight">绑定字符串</span> - 直接绑定类名字符串</li>
+                    <li><span class="highlight">绑定对象</span> - 根据条件切换多个类</li>
+                    <li><span class="highlight">绑定数组</span> - 应用多个类</li>
+                </ul>
+            </div>
+            
+            <h3>1. 绑定字符串</h3>
+            <p>最简单的绑定形式，直接将类名绑定为字符串值。</p>
+            
+            <div class="explanation">
+                <h4>初学者提示：JavaScript 变量与 Vue 数据</h4>
+                <p>在 JavaScript 中，我们使用 <code>let</code> 或 <code>const</code> 来声明变量。在 Vue 组件的 <code>data()</code> 返回的对象中定义的属性（例如 <code>className</code>），会被 Vue 转换为“响应式数据”。</p>
+                <p>这意味着当这些数据的值改变时，Vue 会自动更新页面上所有用到这些数据的地方。</p>
+                <p><code>v-bind:class</code> 可以简写为 <code>:class</code>。当类名需要动态变化时，这种方法非常有用。</p>
+                <p>例如，如果你有一个名为 <code>className</code> 的 Vue 响应式数据，并且它存储了字符串 <code>"box"</code>，那么 <code>&lt;div :class="className"&gt;</code> 就会渲染成 <code>&lt;div class="box"&gt;</code>。</p>
+            </div>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 绑定字符串示例</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;!-- 模板部分 --&gt;
+&lt;div id="class-str-example"&gt;
+  &lt;div v-bind:class="className"&gt;梦想&lt;/div&gt;
+  &lt;button @click="changeClass"&gt;切换样式&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// Vue.createApp 用于创建一个 Vue 应用实例
+Vue.createApp({
+  // data 函数返回一个 JavaScript 对象，用于存储组件的响应式数据。
+  // 这些数据（如 className）是组件的状态，它们的改变会自动更新视图。
+  data() {
+    return {
+      className: 'box' // 定义一个名为 className 的数据，初始值为字符串 'box'
+    }
+  },
+  // methods 对象用于存储组件的方法，这些方法可以在模板中响应用户交互被调用。
+  methods: {
+    // changeClass 方法用来改变 className 的值，从而动态切换样式
+    changeClass() {
+      // 在 Vue 方法中，可以通过 this.propertyName 的方式访问 data 中定义的响应式数据。
+      // 这里使用 JavaScript 的三元表达式：
+      // 如果 this.className 的值是 'box'，则将其改为 'circle'；
+      // 否则（如果不是 'box'），则将其改回 'box'。
+      // 类似 C/C++/Java 中的 if-else 语句，但更简洁，用于赋值。
+      this.className = this.className === 'box' ? 'circle' : 'box';
+    }
+  }
+  // .mount('#class-str-example') 将 Vue 应用挂载到 id 为 'class-str-example' 的 DOM 元素上。
+  // 一旦挂载，Vue 就会接管这个元素及其内部的渲染。
+}).mount('#class-str-example');
+&lt;/script&gt;
+
+&lt;style&gt;
+/* 定义 CSS 类 'box' */
+.box {
+  border: 1px solid black;
+  padding: 10px;
+  width: 100px;
+}
+/* 定义 CSS 类 'circle' */
+.circle {
+  border: 1px solid black;
+  border-radius: 50%; /* border-radius 为 50% 使其成为圆形 */
+  padding: 10px;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+&lt;/style&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="class-str-example" class="example-container">
+                    <div v-bind:class="className">梦想</div>
+                    <button @click="changeClass">切换样式</button>
+                </div>
+            </div>
+            
+            <h3>2. 绑定对象</h3>
+            <p>通过对象语法，可以根据条件动态切换多个类。</p>
+            
+            <div class="explanation">
+                <h4>初学者提示：JavaScript 对象与布尔值</h4>
+                <p>在 JavaScript 中，对象是一种键值对的集合（类似 Java 中的 HashMap 或 C++ 中的 `std::map`）。在 Vue 的 Class 绑定对象语法中，对象的“键”是 CSS 类名（字符串），而“值”则是 JavaScript 布尔表达式（结果为 <code>true</code> 或 <code>false</code>）。</p>
+                <p>当值为 <code>true</code> 时，对应的类名会被添加到元素上；当值为 <code>false</code> 时，类名则不会被添加。</p>
+                <p>布尔值（Boolean）只有两个可能的值：<code>true</code>（真）和 <code>false</code>（假），常用于表示状态的开启或关闭。例如，<code>isActive</code> 是一个布尔变量。</p>
+                <p>示例：<code>:class="{ active: isActive, error: hasError }"</code> 表示当 <code>isActive</code> 为 <code>true</code> 时添加 <code>active</code> 类，当 <code>hasError</code> 为 <code>true</code> 时添加 <code>error</code> 类。</p>
+                <p>此外，Vue 提供了 <code>reactive()</code> 函数，它可以将一个普通的 JavaScript 对象或数组转换为响应式对象。这意味着当你修改这个响应式对象内部的属性时，Vue 会自动检测到变化并更新视图。在 <code>computed</code> 属性中，如果返回的是一个响应式对象，也需要注意其响应性。</p>
+            </div>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 绑定对象示例</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="class-obj-example"&gt;
+  &lt;!-- 根据 isBox 和 isBorder 的布尔值动态添加 'box' 和 'border' 类 --&gt;
+  &lt;div class="text" v-bind:class="{ box: isBox, border: isBorder }"&gt;
+    &lt;div v-bind:class="{ inner: isInner }"&gt;春夏&lt;/div&gt;
+    &lt;!-- classObject 是一个计算属性，它返回一个对象 --&gt;
+    &lt;div v-bind:class="classObject"&gt;秋冬&lt;/div&gt;
+    &lt;!-- classMeal 是一个计算属性，它返回一个对象 --&gt;
+    &lt;div v-bind:class="classMeal"&gt;三餐四季~&lt;/div&gt;
+  &lt;/div&gt;
+  
+  &lt;div class="controls"&gt;
+    &lt;!-- 按钮点击后切换 isBox 的布尔值 --&gt;
+    &lt;button @click="toggleBox"&gt;{{ isBox ? '移除' : '添加' }}box类&lt;/button&gt;
+    &lt;button @click="toggleBorder"&gt;{{ isBorder ? '移除' : '添加' }}border类&lt;/button&gt;
+    &lt;button @click="toggleInner"&gt;{{ isInner ? '移除' : '添加' }}inner类&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// 引入 ref, reactive, computed 函数，用于定义 Vue 响应式数据和计算属性。
+// ref 用于包装基本类型数据使其响应式（如布尔值）。
+// reactive 用于将 JavaScript 对象或数组转换为响应式代理。
+// computed 用于定义依赖于其他响应式数据的属性，其值会自动更新。
+import { ref, reactive, computed } from 'vue'
+
+Vue.createApp({
+  data() {
+    return {
+      // 定义布尔值类型的响应式数据，它们的状态会影响 Class 绑定。
+      isBox: true,
+      isBorder: true,
+      isInner: true,
+      isMeal: true
+    }
+  },
+  // computed 用于定义计算属性，它们的值会根据依赖的响应式数据自动更新。
+  // 当 isInner 或 isMeal 变化时，下面的计算属性会重新计算并返回新的对象。
+  computed: {
+    // classObject 是一个计算属性，它返回一个响应式对象。
+    // 这里直接使用了 reactive 包裹的匿名对象。
+    classObject() {
+      return reactive({ inner: this.isInner });
+    },
+    // classMeal 是另一个计算属性，它返回一个计算结果为对象的响应式引用。
+    // 注意：computed 返回的是一个 ref 对象，访问其真正的值需要使用 .value。
+    classMeal() {
+      return computed(() => ({
+        meal: this.isMeal
+      })).value; 
+    }
+  },
+  methods: {
+    // 定义方法来切换布尔值。
+    // 当这些方法被调用时，它们会修改 data 中定义的响应式数据，
+    // Vue 进而会自动更新绑定到这些数据上的 Class。
+    toggleBox() {
+      this.isBox = !this.isBox; // 切换 isBox 的真假值 (布尔值取反)
+    },
+    toggleBorder() {
+      this.isBorder = !this.isBorder;
+    },
+    toggleInner() {
+      this.isInner = !this.isInner;
+    }
+  }
+}).mount('#class-obj-example');
+&lt;/script&gt;
+
+&lt;style&gt;
+.text {
+  font-size: 18px;
+  margin: 10px 0;
+}
+.box {
+  border: 1px solid var(--chart-color);
+  padding: 10px;
+  border-radius: 5px;
+}
+.border {
+  border: 2px dashed var(--gold-highlight);
+}
+.inner {
+  color: var(--code-block);
+  font-weight: bold;
+}
+.meal {
+  background-color: rgba(255, 209, 102, 0.3);
+  padding: 5px;
+  border-radius: 5px;
+}
+.controls {
+  margin-top: 15px;
+}
+.controls button {
+  margin: 5px;
+}
+&lt;/style&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="class-obj-example" class="example-container">
+                    <div class="text" v-bind:class="{ box: isBox, border: isBorder }">
+                        <div v-bind:class="{ inner: isInner }">春夏</div>
+                        <div v-bind:class="classObject">秋冬</div>
+                        <div v-bind:class="classMeal">三餐四季~</div>
+                    </div>
+                    
+                    <div class="controls">
+                        <button @click="toggleBox">{{ isBox ? '移除' : '添加' }}box类</button>
+                        <button @click="toggleBorder">{{ isBorder ? '移除' : '添加' }}border类</button>
+                        <button @click="toggleInner">{{ isInner ? '移除' : '添加' }}inner类</button>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>3. 绑定数组</h3>
+            <p>数组语法允许你应用多个类名，可以结合三元表达式或对象语法实现条件判断。</p>
+            
+            <div class="explanation">
+                <h4>初学者提示：JavaScript 数组与三元表达式</h4>
+                <p>在 JavaScript 中，数组是存储有序数据集合的数据结构（类似于 Java 中的 `ArrayList` 或 C++ 中的 `std::vector`）。在 Vue 的 Class 绑定数组语法中，数组的每个元素都可以是：</p>
+                <ul>
+                    <li>一个字符串（直接表示 CSS 类名）。</li>
+                    <li>一个对象（与上面“绑定对象”语法相同，用于条件性地添加类）。</li>
+                    <li>一个三元表达式。</li>
+                </ul>
+                <p><strong>三元表达式</strong>（Ternary Operator）是一种简洁的条件语句，它的语法是 <code>条件 ? 表达式1 : 表达式2</code>。如果“条件”为真，则返回“表达式1”的值；否则，返回“表达式2”的值。它常用于 Vue 模板中，根据条件动态地选择一个值。</p>
+                <p>示例：<code>:class="['class-one', { 'class-two': isTrue }, isActive ? 'active-class' : '']"</code></p>
+            </div>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 绑定数组示例</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="class-arr-example"&gt;
+  &lt;!-- 直接绑定两个类名字符串组成的数组 --&gt;
+  &lt;div v-bind:class="[activeClass, borderClass]"&gt;数组绑定&lt;/div&gt;
+  &lt;!-- 使用三元表达式来条件性地应用类名 --&gt;
+  &lt;div v-bind:class="[isActive ? activeClass : '', borderClass]"&gt;三元表达式&lt;/div&gt;
+  &lt;!-- 数组中混合使用对象语法和字符串类名 --&gt;
+  &lt;div v-bind:class="[{ active: isActive }, borderClass]"&gt;对象语法&lt;/div&gt;
+  
+  &lt;button @click="toggleActive"&gt;切换激活状态&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// 引入 ref 函数，用于定义 Vue 响应式数据。
+// ref 用于包装基本类型数据（如布尔值 isActive、字符串 activeClass）使其成为响应式。
+import { ref } from 'vue'
+
+Vue.createApp({
+  data() {
+    return {
+      isActive: true, // 控制激活状态的布尔值，Vue 会使其响应式
+      activeClass: 'active', // 激活时使用的类名字符串
+      borderClass: 'border' // 边框类名字符串
+    }
+  },
+  methods: {
+    toggleActive() {
+      // 切换 isActive 的布尔值。
+      // 当 isActive 改变时，绑定到它的 Class（通过三元表达式或对象语法）会自动更新。
+      this.isActive = !this.isActive; 
+    }
+  }
+}).mount('#class-arr-example');
+&lt;/script&gt;
+
+&lt;style&gt;
+.active {
+  background-color: var(--chart-color);
+  color: white;
+  padding: 10px;
+}
+.border {
+  border: 2px solid var(--accent-color);
+  margin: 10px 0;
+  padding: 10px;
+}
+&lt;/style&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="class-arr-example" class="example-container">
+                    <div v-bind:class="[activeClass, borderClass]">数组绑定</div>
+                    <div v-bind:class="[isActive ? activeClass : '', borderClass]">三元表达式</div>
+                    <div v-bind:class="[{ active: isActive }, borderClass]">对象语法</div>
+                    
+                    <button @click="toggleActive">切换激活状态</button>
+                </div>
+            </div>
+            
+            <!-- Class绑定语法总结 -->
+            <div class="syntax-summary">
+                <h3><i class="fas fa-clipboard-list"></i> Class绑定语法总结</h3>
+                <table class="syntax-table">
+                    <thead>
+                        <tr>
+                            <th>语法类型</th>
+                            <th>示例</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>字符串</td>
+                            <td class="syntax-example"><code>:class="'active'"</code></td>
+                            <td class="syntax-description">直接绑定一个静态类名</td>
+                        </tr>
+                        <tr>
+                            <td>对象</td>
+                            <td class="syntax-example"><code>:class="{ active: isActive, 'text-danger': hasError }"</code></td>
+                            <td class="syntax-description">根据布尔值动态切换多个类</td>
+                        </tr>
+                        <tr>
+                            <td>数组</td>
+                            <td class="syntax-example"><code>:class="['active', errorClass]"</code></td>
+                            <td class="syntax-description">应用多个类名（静态或动态）</td>
+                        </tr>
+                        <tr>
+                            <td>数组+对象</td>
+                            <td class="syntax-example"><code>:class="['base', { active: isActive }]"</code></td>
+                            <td class="syntax-description">数组中可以混合对象语法</td>
+                        </tr>
+                        <tr>
+                            <td>计算属性</td>
+                            <td class="syntax-example"><code>:class="computedClass"</code></td>
+                            <td class="syntax-description">使用computed返回类名对象或数组</td>
+                        </tr>
+                        <tr>
+                            <td>三元表达式</td>
+                            <td class="syntax-example"><code>:class="[isActive ? 'active' : '']"</code></td>
+                            <td class="syntax-description">根据条件选择不同的类名</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Style绑定 -->
+        <div class="chapter" id="style-binding">
+            <h2><i class="fas fa-paint-brush"></i> Style绑定</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-question-circle"></i> 什么是Style绑定？</h4>
+                <p>Style绑定允许你动态设置元素的内联样式。在Vue中，通过<span class="highlight">v-bind:style</span>指令实现。</p>
+                <p>Style绑定有两种形式：</p>
+                <ul>
+                    <li><span class="highlight">绑定对象</span> - 设置多个样式属性</li>
+                    <li><span class="highlight">绑定数组</span> - 应用多个样式对象</li>
+                </ul>
+                <p>Vue会自动为需要添加浏览器引擎前缀的CSS属性添加前缀（例如 <code>transform</code> 会自动添加 <code>-webkit-transform</code> 等）。</p>
+            </div>
+            
+            <h3>1. 绑定对象</h3>
+            <p>对象语法是最常用的style绑定方式，键名是CSS属性名，键值是CSS属性值。</p>
+            
+            <div class="explanation">
+                <h4>初学者提示：JavaScript 对象属性命名规则</h4>
+                <p>在 JavaScript 对象中，CSS 属性名有两种书写方式：</p>
+                <ul>
+                    <li><strong>驼峰式 (camelCase)：</strong> 这是 JavaScript 变量命名的常见约定。例如，CSS 的 <code>font-size</code> 对应 JavaScript 对象的 <code>fontSize</code>。</li>
+                    <li><strong>字符串形式：</strong> 如果 CSS 属性名包含短横线，你也可以用引号将其括起来，使其成为一个字符串键。例如 <code>'background-color'</code>。</li>
+                </ul>
+                <p>Vue 提供了 <code>reactive()</code> 函数，它可以将一个普通的 JavaScript 对象转换为响应式代理。这意味着当你直接修改这个对象内部的属性（例如 <code>styleObject.backgroundColor</code>）时，Vue 会自动检测到变化并更新视图。</p>
+            </div>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 绑定对象示例</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="style-obj-example"&gt;
+  &lt;!-- 直接绑定对象：键名是CSS属性名（驼峰式或用引号括起来），键值是CSS属性值 --&gt;
+  &lt;div v-bind:style="{ color: 'red', fontSize: '20px' }"&gt;
+    直接绑定样式对象
+  &lt;/div&gt;
+  
+  &lt;!-- 绑定变量：样式值可以是 Vue data 中定义的响应式变量 --&gt;
+  &lt;div v-bind:style="{ backgroundColor: bgColor, width: width, height: height + 'px' }"&gt;
+    绑定变量值
+  &lt;/div&gt;
+  
+  &lt;!-- 绑定响应式对象：将一个响应式对象直接作为样式绑定 --&gt;
+  &lt;div v-bind:style="styleObject"&gt;
+    绑定样式对象
+  &lt;/div&gt;
+  
+  &lt;button @click="changeStyles"&gt;改变样式&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// 引入 ref 和 reactive 函数。
+// ref 用于定义响应式的基本类型数据（如 bgColor, height）。
+// reactive 用于将 JavaScript 对象转换为响应式代理（如 styleObject）。
+import { ref, reactive } from 'vue' 
+
+Vue.createApp({
+  data() {
+    return {
+      // 定义颜色、宽度和高度等样式属性的响应式数据。
+      bgColor: 'pink',
+      width: '200px',
+      height: 50, // 注意：数字类型的高度值，Vue 会自动添加 'px' 单位。
+      // 定义一个响应式对象，包含多个样式属性。
+      styleObject: reactive({
+        backgroundColor: 'lightblue',
+        border: '2px solid var(--chart-color)',
+        padding: '10px',
+        borderRadius: '5px'
+      })
+    }
+  },
+  methods: {
+    // 定义方法来改变样式数据。
+    // 当这些方法修改了响应式数据时，绑定到这些数据上的样式会自动更新。
+    changeStyles() {
+      this.bgColor = this.bgColor === 'pink' ? 'lightgreen' : 'pink';
+      this.height = this.height === 50 ? 80 : 50;
+      // 直接修改 reactive 对象中的属性，Vue 也能检测到变化并更新视图。
+      this.styleObject.backgroundColor = this.styleObject.backgroundColor === 'lightblue' ? '#FFECB3' : 'lightblue';
+    }
+  }
+}).mount('#style-obj-example');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="style-obj-example" class="example-container">
+                    <div v-bind:style="{ color: 'red', fontSize: '20px' }">
+                        直接绑定样式对象
+                    </div>
+                    
+                    <div v-bind:style="{ backgroundColor: bgColor, width: width, height: height + 'px' }">
+                        绑定变量值
+                    </div>
+                    
+                    <div v-bind:style="styleObject">
+                        绑定样式对象
+                    </div>
+                    
+                    <button @click="changeStyles">改变样式</button>
+                </div>
+            </div>
+            
+            <h3>2. 绑定数组</h3>
+            <p>数组语法可以将多个样式对象应用到同一个元素上。</p>
+            
+            <div class="explanation">
+                <h4>初学者提示：JavaScript 数组与样式对象组合</h4>
+                <p>数组语法适用于需要应用多个样式对象的情况，例如你有一个通用的基础样式对象，以及一个根据条件动态应用的样式对象，你可以将它们组合在一个 JavaScript 数组中。</p>
+                <p>数组中的每个元素都应该是一个样式对象。Vue 会将这些样式对象合并应用到元素上。如果存在重复的属性，后面出现的样式会覆盖前面出现的样式。</p>
+                <p>示例：<code>:style="[baseStyles, conditionalStyles]"</code></p>
+            </div>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 绑定数组示例</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="style-arr-example"&gt;
+  &lt;!-- 使用数组绑定多个样式对象 --&gt;
+  &lt;div v-bind:style="[baseStyles, highlightStyles]"&gt;
+    数组绑定样式
+  &lt;/div&gt;
+  
+  &lt;!-- 使用三元表达式在数组中条件性地应用样式对象 --&gt;
+  &lt;div v-bind:style="[baseStyles, isActive ? activeStyles : '']"&gt;
+    三元表达式样式
+  &lt;/div&gt;
+  
+  &lt;button @click="toggleActive"&gt;切换激活状态&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// 引入 ref 和 reactive 函数。
+// ref 用于定义响应式布尔值（isActive）。
+// reactive 用于将 JavaScript 对象转换为响应式代理（baseStyles, highlightStyles, activeStyles）。
+import { ref, reactive } from 'vue' 
+
+Vue.createApp({
+  data() {
+    return {
+      isActive: true, // 控制激活状态的布尔值
+      // 定义基础样式对象，Vue 会使其响应式
+      baseStyles: reactive({ 
+        padding: '15px',
+        margin: '10px 0',
+        borderRadius: '8px',
+        border: '1px solid var(--accent-color)'
+      }),
+      // 定义高亮样式对象，Vue 会使其响应式
+      highlightStyles: reactive({ 
+        backgroundColor: '#FFECB3',
+        fontWeight: 'bold'
+      }),
+      // 定义激活状态样式对象，Vue 会使其响应式
+      activeStyles: reactive({ 
+        backgroundColor: 'var(--chart-color)',
+        color: 'white'
+      })
+    }
+  },
+  methods: {
+    toggleActive() {
+      this.isActive = !this.isActive; // 切换 isActive 的布尔值
+    }
+  }
+}).mount('#style-arr-example');
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="style-arr-example" class="example-container">
+                    <div v-bind:style="[baseStyles, highlightStyles]">
+                        数组绑定样式
+                    </div>
+                    
+                    <div v-bind:style="[baseStyles, isActive ? activeStyles : '']">
+                        三元表达式样式
+                    </div>
+                    
+                    <button @click="toggleActive">切换激活状态</button>
+                </div>
+            </div>
+            
+            <!-- Style绑定语法总结 -->
+            <div class="syntax-summary">
+                <h3><i class="fas fa-clipboard-list"></i> Style绑定语法总结</h3>
+                <table class="syntax-table">
+                    <thead>
+                        <tr>
+                            <th>语法类型</th>
+                            <th>示例</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>对象语法</td>
+                            <td class="syntax-example"><code>:style="{ color: 'red', fontSize: '20px' }"</code></td>
+                            <td class="syntax-description">直接设置多个内联样式</td>
+                        </tr>
+                        <tr>
+                            <td>绑定变量</td>
+                            <td class="syntax-example"><code>:style="{ width: widthValue, height: heightValue + 'px' }"</code></td>
+                            <td class="syntax-description">使用Vue数据动态设置样式</td>
+                        </tr>
+                        <tr>
+                            <td>响应式对象</td>
+                            <td class="syntax-example"><code>:style="styleObject"</code></td>
+                            <td class="syntax-description">绑定一个响应式样式对象</td>
+                        </tr>
+                        <tr>
+                            <td>数组语法</td>
+                            <td class="syntax-example"><code>:style="[baseStyles, highlightStyles]"</code></td>
+                            <td class="syntax-description">应用多个样式对象</td>
+                        </tr>
+                        <tr>
+                            <td>自动前缀</td>
+                            <td class="syntax-example"><code>:style="{ transform: 'rotate(45deg)' }"</code></td>
+                            <td class="syntax-description">Vue自动添加浏览器引擎前缀</td>
+                        </tr>
+                        <tr>
+                            <td>多重值</td>
+                            <td class="syntax-example"><code>:style="{ display: ['-webkit-box', '-ms-flexbox', 'flex'] }"</code></td>
+                            <td class="syntax-description">提供多个值，Vue会使用浏览器支持的最后一个值</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 综合示例 -->
+        <div class="chapter" id="examples">
+            <h2><i class="fas fa-code"></i> 综合示例</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-cubes"></i> Class与Style结合使用</h4>
+                <p>在实际项目中，Class绑定和Style绑定经常结合使用：</p>
+                <ul>
+                    <li>使用Class绑定控制整体样式和状态</li>
+                    <li>使用Style绑定实现动态效果（如位置、大小、颜色）</li>
+                    <li>对于需要JavaScript计算的样式使用Style绑定</li>
+                </ul>
+            </div>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 综合示例</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;div id="comprehensive-example"&gt;
+  &lt;div class="flex-container"&gt;
+    &lt;div 
+      v-for="(item, index) in items" // 遍历 items 数组
+      :key="index" // 为每个循环项提供唯一的 key，有助于 Vue 优化列表渲染
+      class="example-div" // 基础 CSS 类
+      :class="{ selected: item.selected, active: item.active }" // 根据 item 的属性动态添加类
+      :style="{ 
+        backgroundColor: item.active ? '#FFECB3' : '#F5F5F5', // 根据 active 属性动态设置背景色
+        transform: `rotate(${item.rotation}deg)` // 使用 JavaScript 模板字符串设置动态旋转角度
+      }"
+      @click="toggleSelection(index)" // 点击时切换选中状态
+      @mouseover="toggleActive(index, true)" // 鼠标移入时设置为激活状态
+      @mouseleave="toggleActive(index, false)" // 鼠标移出时取消激活状态
+    &gt;
+      {{ index + 1 }} // 显示序号
+    &lt;/div&gt;
+  &lt;/div&gt;
+  
+  &lt;button @click="resetAll"&gt;重置所有&lt;/button&gt;
+  &lt;button @click="randomRotate"&gt;随机旋转&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// 引入 reactive 函数，用于将 JavaScript 数组和对象转换为 Vue 响应式数据。
+import { reactive } from 'vue' 
+
+Vue.createApp({
+  data() {
+    return {
+      // 定义一个响应式数组。数组中的每个元素都是一个 JavaScript 对象，
+      // 包含 selected（布尔值）、active（布尔值）和 rotation（数字）属性。
+      // 对这个数组或其内部对象的属性进行修改，Vue 都会自动更新视图。
+      items: reactive([
+        { selected: false, active: false, rotation: 0 },
+        { selected: true, active: false, rotation: 0 },
+        { selected: false, active: true, rotation: 0 },
+        { selected: true, active: true, rotation: 0 }
+      ])
+    }
+  },
+  methods: {
+    // 切换指定索引元素的 selected 状态
+    toggleSelection(index) {
+      // 通过索引访问数组元素，并修改其属性，Vue 会检测到并更新。
+      this.items[index].selected = !this.items[index].selected;
+    },
+    // 设置指定索引元素的 active 状态
+    toggleActive(index, isActive) {
+      this.items[index].active = isActive;
+    },
+    // 重置所有元素的 selected, active, rotation 状态
+    resetAll() {
+      // 遍历数组并重置每个元素的属性
+      this.items.forEach(item => {
+        item.selected = false;
+        item.active = false;
+        item.rotation = 0;
+      });
+    },
+    // 为所有元素设置随机旋转角度
+    randomRotate() {
+      this.items.forEach(item => {
+        // Math.random() 是 JavaScript 内置函数，生成 0 到 1 之间的随机浮点数。
+        // Math.floor() 将数字向下取整。
+        // 从而生成 0 到 359 之间的随机整数作为旋转角度。
+        item.rotation = Math.floor(Math.random() * 360); 
+      });
+    }
+  }
+}).mount('#comprehensive-example');
+&lt;/script&gt;
+
+&lt;style&gt;
+.example-div {
+  width: 100px;
+  height: 100px;
+  margin: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  border: 2px solid #bbb;
+  transition: all 0.3s;
+  cursor: pointer; /* 添加手型光标表示可点击 */
+}
+
+.selected {
+  border-color: #000;
+}
+
+.active {
+  background-color: #bbb;
+}
+&lt;/style&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="comprehensive-example" class="example-container">
+                    <div class="flex-container">
+                        <div 
+                          v-for="(item, index) in items" 
+                          :key="index"
+                          class="example-div"
+                          :class="{ selected: item.selected, active: item.active }"
+                          :style="{ 
+                            backgroundColor: item.active ? '#FFECB3' : '#F5F5F5',
+                            transform: `rotate(${item.rotation}deg)`
+                          }"
+                          @click="toggleSelection(index)"
+                          @mouseover="toggleActive(index, true)"
+                          @mouseleave="toggleActive(index, false)"
+                        >
+                          {{ index + 1 }}
+                        </div>
+                    </div>
+                    
+                    <button @click="resetAll">重置所有</button>
+                    <button @click="randomRotate">随机旋转</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 记忆要点 -->
+        <div class="chapter" id="summary">
+            <h2><i class="fas fa-brain"></i> 记忆要点</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-clipboard-check"></i> 核心知识点总结</h4>
+                <p>以下是Vue样式绑定的关键点，使用神经科学配色方案增强记忆效果：</p>
+            </div>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>概念</th>
+                            <th>描述</th>
+                            <th>记忆提示</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Class绑定</td>
+                            <td>动态添加/移除CSS类</td>
+                            <td><span class="memory-gold">:class</span>指令 + 对象/数组/字符串</td>
+                        </tr>
+                        <tr>
+                            <td>Style绑定</td>
+                            <td>动态修改内联样式</td>
+                            <td><span class="memory-gold">:style</span>指令 + 对象/数组</td>
+                        </tr>
+                        <tr>
+                            <td>对象语法</td>
+                            <td><span class="memory-gold">{ className: isActive }</span></td>
+                            <td>键为类名，值为布尔条件</td>
+                        </tr>
+                        <tr>
+                            <td>数组语法</td>
+                            <td><span class="memory-gold">[classA, classB]</span></td>
+                            <td>应用多个类或样式对象</td>
+                        </tr>
+                        <tr>
+                            <td>自动前缀</td>
+                            <td>Vue自动添加浏览器前缀</td>
+                            <td>适用于<span class="memory-gold">transform</span>等属性</td>
+                        </tr>
+                        <tr>
+                            <td>计算属性</td>
+                            <td>复杂逻辑使用计算属性</td>
+                            <td><span class="memory-gold">computed</span>返回样式对象或类名字符串</td>
+                        </tr>
+                        <tr>
+                            <td>结合使用</td>
+                            <td>Class与Style绑定可同时使用</td>
+                            <td>Class控制状态，Style控制动态效果</td>
+                        </tr>
+                        <tr>
+                            <td>性能优化</td>
+                            <td>避免频繁修改内联样式</td>
+                            <td>优先使用Class绑定</td>
+                        </tr>
+                        <tr>
+                            <td>响应式</td>
+                            <td>所有绑定都是响应式的</td>
+                            <td><span class="memory-gold">ref/reactive</span>数据变化自动更新样式</td>
+                        </tr>
+                        <tr>
+                            <td>动态值</td>
+                            <td>可使用变量和表达式</td>
+                            <td>如<span class="memory-gold">:style="{ width: progress + '%' }"</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="tip-content">
+                    <h4>记忆增强技巧</h4>
+                    <p>根据艾宾浩斯遗忘曲线，我们设计了定期脉冲提醒效果。每60分钟，关键知识点会以金色背景脉冲三次，帮助巩固记忆。这种视觉提示能有效对抗遗忘曲线。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Vue.js 样式绑定教程 | 神经科学记忆增强方案 | 基于 Vue 3</p>
+    </div>
+
+    <script>
+        // 运行按钮功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const runButtons = document.querySelectorAll('.run-btn');
+            
+            runButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const resultContainer = this.closest('.code-container').nextElementSibling;
+                    resultContainer.classList.add('active');
+                    
+                    // 添加视觉反馈
+                    button.innerHTML = '<i class="fas fa-check"></i> 已运行';
+                    button.style.background = 'linear-gradient(135deg, #5a3f7c, #4a2d6c)';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="fas fa-play"></i> 运行代码';
+                        button.style.background = 'linear-gradient(135deg, var(--chart-color), #5a3f7c)';
+                    }, 2000);
+                });
+            });
+            
+            // 为class-str示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        className: 'box'
+                    }
+                },
+                methods: {
+                    changeClass() {
+                        this.className = this.className === 'box' ? 'circle' : 'box';
+                    }
+                }
+            }).mount('#class-str-example');
+            
+            // 为class-obj示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        isBox: true,
+                        isBorder: true,
+                        isInner: true,
+                        isMeal: true
+                    }
+                },
+                computed: {
+                    classObject() {
+                        // 计算属性返回一个响应式对象
+                        return Vue.reactive({ inner: this.isInner }); 
+                    },
+                    classMeal() {
+                        // 计算属性返回一个 computed ref，需要 .value 访问其值
+                        return Vue.computed(() => ({
+                            meal: this.isMeal
+                        })).value;
+                    }
+                },
+                methods: {
+                    toggleBox() {
+                        this.isBox = !this.isBox;
+                    },
+                    toggleBorder() {
+                        this.isBorder = !this.isBorder;
+                    },
+                    toggleInner() {
+                        this.isInner = !this.isInner;
+                    }
+                }
+            }).mount('#class-obj-example');
+            
+            // 为class-arr示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        isActive: true,
+                        activeClass: 'active',
+                        borderClass: 'border'
+                    }
+                },
+                methods: {
+                    toggleActive() {
+                        this.isActive = !this.isActive;
+                    }
+                }
+            }).mount('#class-arr-example');
+            
+            // 为style-obj示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        bgColor: 'pink',
+                        width: '200px',
+                        height: 50,
+                        styleObject: Vue.reactive({ // 使用 Vue.reactive 定义响应式对象
+                            backgroundColor: 'lightblue',
+                            border: '2px solid var(--chart-color)',
+                            padding: '10px',
+                            borderRadius: '5px'
+                        })
+                    }
+                },
+                methods: {
+                    changeStyles() {
+                        this.bgColor = this.bgColor === 'pink' ? 'lightgreen' : 'pink';
+                        this.height = this.height === 50 ? 80 : 50;
+                        this.styleObject.backgroundColor = this.styleObject.backgroundColor === 'lightblue' ? '#FFECB3' : 'lightblue';
+                    }
+                }
+            }).mount('#style-obj-example');
+            
+            // 为style-arr示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        isActive: true,
+                        baseStyles: Vue.reactive({ // 使用 Vue.reactive 定义响应式对象
+                            padding: '15px',
+                            margin: '10px 0',
+                            borderRadius: '8px',
+                            border: '1px solid var(--accent-color)'
+                        }),
+                        highlightStyles: Vue.reactive({ // 使用 Vue.reactive 定义响应式对象
+                            backgroundColor: '#FFECB3',
+                            fontWeight: 'bold'
+                        }),
+                        activeStyles: Vue.reactive({ // 使用 Vue.reactive 定义响应式对象
+                            backgroundColor: 'var(--chart-color)',
+                            color: 'white'
+                        })
+                    }
+                },
+                methods: {
+                    toggleActive() {
+                        this.isActive = !this.isActive;
+                    }
+                }
+            }).mount('#style-arr-example');
+            
+            // 为综合示例创建Vue应用
+            Vue.createApp({
+                data() {
+                    return {
+                        items: Vue.reactive([ // 使用 Vue.reactive 定义响应式数组
+                            { selected: false, active: false, rotation: 0 },
+                            { selected: true, active: false, rotation: 0 },
+                            { selected: false, active: true, rotation: 0 },
+                            { selected: true, active: true, rotation: 0 }
+                        ])
+                    }
+                },
+                methods: {
+                    toggleSelection(index) {
+                        this.items[index].selected = !this.items[index].selected;
+                    },
+                    toggleActive(index, isActive) {
+                        this.items[index].active = isActive;
+                    },
+                    resetAll() {
+                        this.items.forEach(item => {
+                            item.selected = false;
+                            item.active = false;
+                            item.rotation = 0;
+                        });
+                    },
+                    randomRotate() {
+                        this.items.forEach(item => {
+                            item.rotation = Math.floor(Math.random() * 360);
+                        });
+                    }
+                }
+            }).mount('#comprehensive-example');
+            
+            // 记忆增强：每60分钟触发一次脉冲效果
+            setInterval(() => {
+                const elements = document.querySelectorAll('.comparison-table tr:nth-child(5n)');
+                elements.forEach(el => {
+                    el.style.animation = "memory-pulse 1.2s 3";
+                });
+            }, 60 * 60 * 1000);
+        });
+    </script>
+</body>
+</html>

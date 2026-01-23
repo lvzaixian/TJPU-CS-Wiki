@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>列表渲染</title>
+   <!--引入Vue -->
+  <script src="../vue.js"></script>
+</head>
+<body>
+   <!--准备一个容器 -->
+    <div id="root">
+      <div v-for="(item, index) in list" :key="index">
+        索引是：{{ index }} --- 元素的内容是：{{ item }}
+      </div>
+    </div>
+   
+   <script >
+     new Vue({
+        el:'#root',  
+        data:{ 
+         list: ['HTML', 'CSS', 'JavaScript']
+       }
+     })
+   </script>
+</body>
+</html>

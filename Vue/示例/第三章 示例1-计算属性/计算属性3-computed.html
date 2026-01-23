@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+  <html>
+   <head>
+    <meta charset="UTF-8" />
+    <title>计算属性-methods</title>
+    <script  src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+   </head>
+   <body>
+    <div id="root">
+       姓：<input type="text" v-model='firstName'><br/>
+       名：<input type="text" v-model='lastName'><br/>
+       全名：<span>{{fullName}}</span>  
+    </div>
+   </body>
+  
+   <script>
+    Vue.config.productionTip = false
+         
+    const vm= new Vue({
+       el:'#root',
+       data:{
+          firstName:'张',
+          lastName:'三',
+          addname:'伟'
+         },
+       computed:{
+        fullName:{
+           get(){
+            console.log('get被调用了')
+            return this.firstName +'-'+ this.lastName
+           },
+           set(value){
+            const arr =value.split('-')
+            this.firstName=arr[0]
+            this.lastName=arr[2]
+           }
+       }
+      },
+    })
+         
+   </script>
+  </html>

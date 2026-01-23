@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第十二章 并发控制测验</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <!-- 引入MathJax 3库用于渲染公式 -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        /* CSS Variables for a consistent orange theme (matching 第十二章--并发控制.html) */
+        :root {
+            --primary-main: #FF8C00; /* Dark Orange - vibrant main accent */
+            --primary-dark: #CC7000; /* Slightly darker orange for strong highlights */
+            --secondary-main: #FFA000; /* Brighter Orange - for lighter accents, icons */
+            --accent-soft: #FFECB3; /* Very light yellow for subtle contrast */
+            --text-default: #333333; /* Darker gray for main content text - improved contrast */
+            --text-light-gray: #555555; /* Lighter gray for explanations - improved contrast */
+            --bg-light: #FFF3E0; /* Very light orange-tinted background */
+            --bg-lighter: #FFE0B2; /* Slightly darker light orange background */
+            --card-bg: #FFFFFF; /* White card background */
+            --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.08); /* Soft shadow */
+            --border-card: rgba(0, 0, 0, 0.05); /* Subtle border color */
+            
+            /* Quiz specific colors */
+            --quiz-header-bg: linear-gradient(90deg, #FF8C00, #CC7000);
+            --quiz-button-bg: #FF8C00;
+            --quiz-button-hover-bg: #CC7000;
+            --option-hover-bg: rgba(255, 140, 0, 0.1); /* Light orange tint */
+            --option-selected-border: #FF8C00;
+            --correct-answer-bg: #e6ffed; /* Light green for correct */
+            --correct-answer-border: #4CAF50;
+            --incorrect-answer-bg: #f8d7da; /* Light red for incorrect */
+            --incorrect-answer-border: #F44336;
+            --info-answer-bg: #e3f2fd; /* Light blue for info/explanation */
+            --info-answer-border: #2196F3;
+            --view-answer-btn-bg: #FF8C00; /* Orange for view answer button */
+            --view-answer-btn-hover-bg: #CC7000;
+            --transition-ease: all 0.3s ease; /* General transition */
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-default);
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-lighter) 100%);
+            background-attachment: fixed;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 18px;
+            box-shadow: var(--card-shadow);
+            padding: 35px;
+            border: 1px solid var(--border-card);
+            transition: var(--transition-ease);
+        }
+        .container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 140, 0, 0.15); /* Adjusted shadow to be more neutral */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-main);
+            position: relative;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-main), transparent);
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: var(--primary-dark); /* Darker orange for main title */
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light-gray);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            margin-top: 40px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-card);
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+        .section-title i {
+            color: var(--primary-main);
+        }
+
+        .question-block {
+            background-color: var(--bg-lighter);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-card);
+            transition: var(--transition-ease);
+        }
+        .question-block:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            margin-bottom: 18px;
+            color: var(--text-default);
+            font-weight: 500;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 12px;
+            padding: 12px 15px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .options label:hover {
+            background-color: var(--option-hover-bg);
+            border-color: var(--primary-main);
+            box-shadow: 0 2px 5px rgba(255, 140, 0, 0.2); /* Orange hover shadow */
+        }
+        
+        .options input[type="radio"] {
+            margin-right: 12px;
+            accent-color: var(--primary-main);
+            transform: scale(1.1);
+        }
+
+        /* Improved fill-in-the-blank input styling */
+        .fill-in-the-blank-container {
+            display: inline-block; /* Allows inputs to be inline with text */
+            margin: 0 5px; /* Spacing between text and input */
+        }
+
+        .fill-in-the-blank-input {
+            padding: 8px 10px;
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            font-size: 1.05rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            text-align: center; /* Center text in input */
+            min-width: 80px; /* Minimum width for inputs */
+            display: inline-block; /* Ensure it stays inline */
+        }
+        .fill-in-the-blank-input:focus {
+            outline: none;
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.2); /* Orange focus shadow */
+        }
+
+        .true-false-options {
+            display: flex;
+            gap: 25px;
+        }
+
+        /* Improved True/False button styling */
+        .true-false-options label {
+            flex: 1;
+            text-align: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-ease);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: 12px 15px; /* Add padding to make them look like buttons */
+            display: flex; /* Use flex to center content */
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Space between radio and text */
+        }
+
+        .true-false-options label:hover {
+            background-color: var(--option-hover-bg);
+            border-color: var(--primary-main);
+            box-shadow: 0 2px 5px rgba(255, 140, 0, 0.2); /* Orange hover shadow */
+        }
+
+        .true-false-options input[type="radio"] {
+            margin-right: 0; /* Remove default margin */
+            /* Custom radio button appearance */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 24px; /* Larger custom radio */
+            height: 24px;
+            border: 2px solid var(--primary-main);
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .true-false-options input[type="radio"]:checked {
+            background-color: var(--primary-main);
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 4px rgba(255, 140, 0, 0.3); /* Subtle outer glow */
+        }
+
+        .true-false-options input[type="radio"]:checked::before {
+            content: '';
+            display: block;
+            width: 12px;
+            height: 12px;
+            background-color: white; /* Inner white dot */
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Styles for individual "查看答案与解析" button (now a small circle with '解') */
+        .individual-answer-btn {
+            width: 38px; /* Diameter for the circle */
+            height: 38px; /* Diameter for the circle */
+            background: linear-gradient(45deg, var(--view-answer-btn-bg), var(--view-answer-btn-hover-bg));
+            color: white; /* White text for contrast */
+            border: none;
+            border-radius: 50%; /* Make it a perfect circle */
+            cursor: pointer;
+            font-size: 1.0rem; /* Adjust font size for '解' */
+            font-weight: 600;
+            transition: var(--transition-ease);
+            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex; /* Use flex to center text */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            float: right; /* Float to the right */
+            clear: right; /* Clear float for subsequent elements */
+        }
+        .individual-answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            background: linear-gradient(45deg, var(--view-answer-btn-hover-bg), var(--view-answer-btn-bg));
+        }
+        .individual-answer-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .individual-answer-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.5s ease-out;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        .individual-answer-btn:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        /* Styles for global control buttons (larger, full width) */
+        .global-control-btn, .submit-btn, .reset-btn {
+            background: linear-gradient(45deg, var(--quiz-button-bg), var(--quiz-button-hover-bg));
+            color: white; /* White text for contrast */
+            padding: 15px 30px; /* Larger padding */
+            border: none;
+            border-radius: 10px; /* More rounded */
+            cursor: pointer;
+            font-size: 1.2rem; /* Larger font */
+            font-weight: 700;
+            transition: var(--transition-ease);
+            margin-top: 25px; /* Adjust top margin for spacing */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            display: block; /* Full width by default */
+            width: 100%; /* Full width by default */
+        }
+        /* Make submit and reset buttons inline-block to allow side-by-side or centering */
+        .submit-btn, .reset-btn {
+            display: inline-block;
+            width: auto; /* Auto width based on content */
+            margin: 0 10px; /* Space between buttons */
+            min-width: 150px; /* Ensure they are not too small */
+            text-align: center;
+        }
+
+        .global-control-btn:hover, .submit-btn:hover, .reset-btn:hover {
+            transform: translateY(-5px); /* More pronounced lift */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, var(--quiz-button-hover-bg), var(--quiz-button-bg));
+        }
+        .global-control-btn:active, .submit-btn:active, .reset-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .global-control-btn::before, .submit-btn::before, .reset-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.5s ease-out;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        .global-control-btn:hover::before, .submit-btn:hover::before, .reset-btn:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .answer-area {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--info-answer-bg); /* Light blue info background */
+            border: 1px solid var(--info-answer-border); /* Blue border */
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-default);
+            display: none; /* Initially hidden */
+            animation: slideInUp 0.4s ease-out;
+        }
+        .answer-area strong {
+            color: var(--primary-dark);
+        }
+        .answer-area ul {
+            padding-left: 20px;
+            list-style: disc; /* Use standard disc for ul */
+        }
+        .answer-area ol {
+            padding-left: 20px;
+            list-style: decimal; /* Use standard decimal for ol */
+        }
+        .answer-area p {
+            margin-bottom: 0.5rem;
+        }
+
+        .concept-highlight {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .code-block {
+            background-color: #282c34; /* Dark gray for code background */
+            color: #abb2bf; /* Light gray for code text */
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin: 15px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        /* Adjusted colors for SQL syntax highlighting to better match the pink theme */
+        .code-block .sql-keyword { color: #ADD8E6; } /* LightBlue */
+        .code-block .sql-type { color: #98c379; } /* Green */
+        .code-block .sql-string { color: #e5c07b; } /* Light yellow-brown */
+        .code-block .sql-comment { color: #8b949e; font-style: italic; } /* Softer gray */
+        .code-block .sql-operator { color: #FF8C00; } /* Orange */
+        .code-block .sql-number { color: #d19a66; } /* Orange-brown */
+        .code-block .sql-function { color: #FFA000; } /* Brighter Orange */
+        .code-block .sql-table { color: #61afef; } /* Blue */
+        .code-block .sql-column { color: #abb2bf; } /* Light gray */
+        .code-block .sql-punctuation { color: #abb2bf; } /* Light gray */
+
+        /* Styles for HTML rendered tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse; /* Collapse borders between cells */
+            margin: 20px 0;
+            font-size: 0.95rem;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            overflow: hidden; /* Ensures rounded corners apply to content */
+            border: 1px solid var(--border-card);
+        }
+
+        .data-table thead {
+            background-color: var(--primary-main);
+            color: white; /* White text for contrast */
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-card); /* Lighter border for rows */
+        }
+
+        .data-table th {
+            font-weight: 700;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: var(--bg-light); /* Light alternate row color */
+        }
+
+        .data-table tbody tr:hover {
+            background-color: var(--bg-lighter); /* Slightly darker hover */
+            cursor: default;
+        }
+
+        /* Responsive adjustments for tables */
+        @media (max-width: 600px) {
+            .data-table, .data-table thead, .data-table tbody, .data-table th, .data-table td, .data-table tr {
+                display: block; /* Make table elements stack */
+            }
+
+            .data-table thead tr {
+                position: absolute;
+                top: -9999px; /* Hide table headers (but not display: none; for screen readers) */
+                left: -9999px;
+            }
+
+            .data-table tr {
+                margin-bottom: 15px;
+                border: 1px solid var(--border-card);
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+
+            .data-table td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%; /* Make room for the pseudo-element label */
+                text-align: right;
+            }
+
+            .data-table td:before {
+                position: absolute;
+                top: 0;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: var(--primary-dark);
+            }
+            /* Assign labels using data-label attribute for each column */
+            .data-table td:nth-of-type(1):before { content: attr(data-label); }
+            .data-table td:nth-of-type(2):before { content: attr(data-label); }
+            .data-table td:nth-of-type(3):before { content: attr(data-label); }
+            .data-table td:nth-of-type(4):before { content: attr(data-label); }
+            .data-table td:nth-of-type(5):before { content: attr(data-label); }
+            /* Extend for more columns if necessary */
+        }
+
+        /* Feedback and Score Display */
+        .result-message {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 1.15rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .result-message.correct {
+            background-color: var(--correct-answer-bg);
+            color: var(--correct-answer-text);
+            border: 1px solid rgba(76, 175, 80, 0.7); /* Green border */
+        }
+
+        .result-message.incorrect {
+            background-color: var(--incorrect-answer-bg);
+            color: var(--incorrect-answer-text);
+            border: 1px solid rgba(244, 67, 54, 0.7); /* Red border */
+        }
+        
+        .answer-feedback.info { /* For show answers / unanswered */
+            background-color: var(--info-answer-bg);
+            color: var(--text-default);
+            border: 1px solid var(--info-answer-border);
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--info-answer-bg);
+            border: 1px solid var(--info-answer-border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-default);
+            display: none; /* Initially hidden, visible via .is-visible class */
+            animation: slideInUp 0.4s ease-out 0.1s;
+        }
+
+        .explanation.is-visible {
+            display: block; /* Show when this class is present */
+        }
+
+        .score-display {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 25px;
+            color: var(--primary-dark); /* Using primary-dark for score */
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .section-title { font-size: 1.6rem; }
+            .question-text { font-size: 1.05rem; }
+            .options label { padding: 10px; }
+            .individual-answer-btn { width: 32px; height: 32px; font-size: 0.9rem; margin-top: 10px;} /* Smaller on mobile */
+            .global-control-btn, .submit-btn, .reset-btn { padding: 12px 25px; font-size: 1.05rem; }
+            .true-false-options { flex-direction: column; gap: 10px; }
+            .container { padding: 20px; }
+            .fill-in-the-blank-input { min-width: 60px; padding: 6px 8px; } /* Smaller inputs on mobile */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>数据库原理：第十二章并发控制测验</h1>
+            <p class="subtitle">检验您对数据库并发操作中数据一致性问题的理解和解决方案。</p>
+        </header>
+
+        <form id="quizForm">
+            <!-- 单项选择题 -->
+            <h2 class="section-title"><i class="fas fa-check-circle"></i> 一、单项选择题</h2>
+
+            <!-- 单选题 1 -->
+            <div class="question-block">
+                <p class="question-text">1. 在多用户数据库系统中，并发操作可能导致数据不一致性。以下哪项<b>不是</b>常见的并发操作引起的数据不一致性问题？</p>
+                <div class="options">
+                    <label><input type="radio" name="q1" value="A"> A. 丢失修改（Lost Update）</label>
+                    <label><input type="radio" name="q1" value="B"> B. 脏读（Dirty Read）</label>
+                    <label><input type="radio" name="q1" value="C"> C. 视图更新（View Update）</label>
+                    <label><input type="radio" name="q1" value="D"> D. 不可重复读（Non-repeatable Read）</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：C</strong></p>
+                    <p><strong>解析：</strong> 视图更新是数据库操作的类型之一，而不是由并发操作导致的数据不一致性问题。常见的并发不一致性问题包括丢失修改、脏读、不可重复读和幻读。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 2 -->
+            <div class="question-block">
+                <p class="question-text">2. 事务T1读取数据A，然后事务T2也读取数据A并修改A，接着T1再次读取数据A，发现A的值与第一次读取的不同。这种不一致性现象称为：</p>
+                <div class="options">
+                    <label><input type="radio" name="q2" value="A"> A. 丢失修改</label>
+                    <label><input type="radio" name="q2" value="B"> B. 脏读</label>
+                    <label><input type="radio" name="q2" value="C"> C. 不可重复读</label>
+                    <label><input type="radio" name="q2" value="D"> D. 幻读</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：C</strong></p>
+                    <p><strong>解析：</strong> 不可重复读是指事务T1多次读取同一数据，在T1多次读取的过程中，其他事务T2对该数据进行了修改并提交，导致T1前后两次读取结果不一致。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 3 -->
+            <div class="question-block">
+                <p class="question-text">3. 事务T1修改了数据X，但尚未提交。此时事务T2读取了数据X。随后，事务T1因为某种原因被撤销（回滚）。这会导致T2读取到错误的数据。这种不一致性现象称为：</p>
+                <div class="options">
+                    <label><input type="radio" name="q3" value="A"> A. 丢失修改</label>
+                    <label><input type="radio" name="q3" value="B"> B. 脏读</label>
+                    <label><input type="radio" name="q3" value="C"> C. 不可重复读</label>
+                    <label><input type="radio" name="q3" value="D"> D. 幻读</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> 脏读是指一个事务读取了另一个未提交事务修改过的数据。如果修改事务最终回滚，那么读取事务读到的就是“脏”数据。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 4 -->
+            <div class="question-block">
+                <p class="question-text">4. 以下哪种事务隔离级别允许一个事务读取另一个未提交事务正在修改的数据，并且可能导致脏读、不可重复读和幻读？</p>
+                <div class="options">
+                    <label><input type="radio" name="q4" value="A"> A. 读已提交（Read Committed）</label>
+                    <label><input type="radio" name="q4" value="B"> B. 读未提交（Read Uncommitted）</label>
+                    <label><input type="radio" name="q4" value="C"> C. 可重复读（Repeatable Read）</label>
+                    <label><input type="radio" name="q4" value="D"> D. 可串行化（Serializable）</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> 读未提交（Read Uncommitted）是最低的隔离级别，它允许事务读取未提交的修改，因此可能出现脏读、不可重复读和幻读。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 5 -->
+            <div class="question-block">
+                <p class="question-text">5. 在SQL标准定义的事务隔离级别中，能够完全避免丢失修改、脏读、不可重复读和幻读的最高隔离级别是：</p>
+                <div class="options">
+                    <label><input type="radio" name="q5" value="A"> A. 读已提交</label>
+                    <label><input type="radio" name="q5" value="B"> B. 读未提交</label>
+                    <label><input type="radio" name="q5" value="C"> C. 可重复读</label>
+                    <label><input type="radio" name="q5" value="D"> D. 可串行化</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：D</strong></p>
+                    <p><strong>解析：：</strong> 可串行化（Serializable）是最高的隔离级别，它通过强制事务串行执行或使其效果等价于串行执行，从而避免了所有并发问题。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 6 -->
+            <div class="question-block">
+                <p class="question-text">6. 以下关于共享锁（S锁）的叙述中，哪一项是正确的？</p>
+                <div class="options">
+                    <label><input type="radio" name="q6" value="A"> A. 对数据对象加S锁后，其他任何事务都不能再对该数据对象加锁。</label>
+                    <label><input type="radio" name="q6" value="B"> B. 对数据对象加S锁后，事务T可以读但不能修改数据，其他事务可以再加S锁但不能加X锁。</label>
+                    <label><input type="radio" name="q6" value="C"> C. S锁是排它锁，用于写操作。</label>
+                    <label><input type="radio" name="q6" value="D"> D. S锁的持锁时间比X锁短。</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> 共享锁（S锁，读锁）允许事务读取数据但不能修改，并且允许其他事务也加S锁（共享读取），但不允许加X锁（排它修改）。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 7 -->
+            <div class="question-block">
+                <p class="question-text">7. 以下哪种封锁协议可以防止丢失修改和脏读，但不能防止不可重复读？</p>
+                <div class="options">
+                    <label><input type="radio" name="q7" value="A"> A. 一级封锁协议</label>
+                    <label><input type="radio" name="q7" value="B"> B. 二级封锁协议</label>
+                    <label><input type="radio" name="q7" value="C"> C. 三级封锁协议</label>
+                    <label><input type="radio" name="q7" value="D"> D. 两段锁协议</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> 二级封锁协议要求事务在读取数据前加S锁，读取后即可释放；在修改数据前加X锁，直到事务结束才释放。这可以防止丢失修改和脏读，但S锁的提前释放导致了不可重复读的可能。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 8 -->
+            <div class="question-block">
+                <p class="question-text">8. 关于“两段锁协议”，下列说法正确的是：</p>
+                <div class="options">
+                    <label><input type="radio" name="q8" value="A"> A. 事务必须一次性申请所有需要的锁，然后一次性释放。</label>
+                    <label><input type="radio" name="q8" value="B"> B. 事务的加锁阶段和解锁阶段可以交替进行。</label>
+                    <label><input type="radio" name="q8" value="C"> C. 在对任何数据进行读、写操作之前，事务必须先获得对该数据的封锁；在释放一个封锁之后，事务不再申请和获得任何其他封锁。</label>
+                    <label><input type="radio" name="q8" value="D"> D. 两段锁协议是解决活锁问题的唯一方法。</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：C</strong></p>
+                    <p><strong>解析：：</strong> 两段锁协议规定事务分为两个阶段：增长阶段（不断申请锁，但不释放任何锁）和收缩阶段（不断释放锁，但不再申请任何新锁）。选项C是两段锁协议的正确定义。选项A描述的是一次封锁法。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 9 -->
+            <div class="question-block">
+                <p class="question-text">9. 在数据库死锁诊断方法中，哪种方法通过构造一个有向图，图中的节点表示事务，边表示事务的等待情况，来检测是否存在死锁？</p>
+                <div class="options">
+                    <label><input type="radio" name="q9" value="A"> A. 超时法</label>
+                    <label><input type="radio" name="q9" value="B"> B. 事务等待图法</label>
+                    <label><input type="radio" name="q9" value="C"> C. 时间戳法</label>
+                    <label><input type="radio" name="q9" value="D"> D. 乐观方法</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> 事务等待图法是通过构建一个表示事务间等待关系的有向图来检测死锁，如果图中存在回路，则表明发生了死锁。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 10 -->
+            <div class="question-block">
+                <p class="question-text">10. 关于可串行化调度（Serializable Schedule），以下哪项描述是准确的？</p>
+                <div class="options">
+                    <label><input type="radio" name="q10" value="A"> A. 任何并发调度都是可串行化调度。</label>
+                    <label><input type="radio" name="q10" value="B"> B. 可串行化调度是指并发执行的结果与按某种次序串行执行这些事务的结果相同。</label>
+                    <label><input type="radio" name="q10" value="C"> C. 可串行化调度一定能避免幻读，但不能避免脏读。</label>
+                    <label><input type="radio" name="q10" value="D"> D. 冲突可串行化调度是可串行化调度的必要不充分条件。</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> 可串行化调度是并发事务正确调度的准则，其结果必须与某个串行调度相同。选项A错误，选项C错误（可串行化能避免所有不一致性），选项D错误（冲突可串行化是充分不必要条件）。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 11 -->
+            <div class="question-block">
+                <p class="question-text">11. 数据库并发操作的目的是为了（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q11" value="A"> A. 简化数据库设计</label>
+                    <label><input type="radio" name="q11" value="B"> B. 提高数据安全性</label>
+                    <label><input type="radio" name="q11" value="C"> C. 充分利用系统资源，提高系统吞吐量</label>
+                    <label><input type="radio" name="q11" value="D"> D. 保证数据的逻辑独立性</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：C</strong></p>
+                    <p><strong>解析：：</strong> 并发操作允许多个事务同时执行，从而减少处理器的空闲时间，提高数据库系统的整体效率和吞吐量。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 12 -->
+            <div class="question-block">
+                <p class="question-text">12. 在并发控制中，事务的隔离性是指（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q12" value="A"> A. 事务的所有操作要么都做，要么都不做。</label>
+                    <label><input type="radio" name="q12" value="B"> B. 事务对数据库的修改是永久的。</label>
+                    <label><input type="radio" name="q12" value="C"> C. 并发执行的事务互不影响，仿佛是串行执行的。</label>
+                    <label><input type="radio" name="q12" value="D"> D. 事务执行必须使数据库从一个一致性状态变到另一个一致性状态。</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：C</strong></p>
+                    <p><strong>解析：：</strong> 隔离性（Isolation）是指并发执行的事务之间不能相互干扰，使得每个事务的执行都好像是系统中唯一运行的事务一样，最终结果与串行执行一致。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 13 -->
+            <div class="question-block">
+                <p class="question-text">13. 时间戳并发控制方法中，事务执行操作时需要检查数据项的读时间戳和写时间戳。如果事务T的时间戳晚于数据项X的写时间戳，且T尝试写入X，则可能导致（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q13" value="A"> A. 活锁</label>
+                    <label><input type="radio" name="q13" value="B"> B. 死锁</label>
+                    <label><input type="radio" name="q13" value="C"> C. 写入失败并回滚事务</label>
+                    <label><input type="radio" name="q13" value="D"> D. 数据冗余</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：C</strong></p>
+                    <p><strong>解析：：</strong> 在时间戳方法中，如果事务T的时间戳小于数据项X的写时间戳，或者T的时间戳小于数据项X的读时间戳且T尝试写入X，那么事务T将必须回滚，以保证可串行性。这种情况通常称为“写-写冲突”或“写-读冲突”导致的回滚。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 14 -->
+            <div class="question-block">
+                <p class="question-text">14. 解决死锁的方法不包括（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q14" value="A"> A. 死锁预防</label>
+                    <label><input type="radio" name="q14" value="B"> B. 死锁检测</label>
+                    <label><input type="radio" name="q14" value="C"> C. 死锁恢复</label>
+                    <label><input type="radio" name="q14" value="D"> D. 活锁预防</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：D</strong></p>
+                    <p><strong>解析：：</strong> 活锁预防是解决活锁问题的，而不是死锁问题。解决死锁的方法通常包括死锁预防、死锁检测和死锁解除（恢复）。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 15 -->
+            <div class="question-block">
+                <p class="question-text">15. 在封锁机制中，一个事务在需要对任何数据进行读操作之前就必须先获得对该数据的S锁，在需要写操作之前必须先获得X锁，直到事务结束才释放所有的锁。这种封锁协议是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q15" value="A"> A. 一级封锁协议</label>
+                    <label><input type="radio" name="q15" value="B"> B. 二级封锁协议</label>
+                    <label><input type="radio" name="q15" value="C"> C. 三级封锁协议</label>
+                    <label><input type="radio" name="q15" value="D"> D. 两段锁协议</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：D</strong></p>
+                    <p><strong>解析：：</strong> 题目描述的是两段锁协议（2PL）的严格形式，即所有锁都必须在事务提交后才释放。虽然两段锁协议本身只要求在收缩阶段开始前获取所有锁，并在收缩阶段只释放锁不获取新锁，但为了防止不可重复读和级联回滚，通常采用严格两段锁，即所有锁直到事务结束才释放。此题描述符合两段锁协议的核心思想，特别是“直到事务结束才释放所有的锁”这一点。</p>
+                </div>
+            </div>
+
+            <!-- 单选题 16 -->
+            <div class="question-block">
+                <p class="question-text">16. 以下关于数据库并发控制的作用，哪项描述是<b>不正确</b>的？</p>
+                <div class="options">
+                    <label><input type="radio" name="q16" value="A"> A. 保证事务的隔离性。</label>
+                    <label><input type="radio" name="q16" value="B"> B. 提高数据库系统的安全性。</label>
+                    <label><input type="radio" name="q16" value="C"> C. 维护数据库的一致性。</label>
+                    <label><input type="radio" name="q16" value="D"> D. 提高系统资源的利用率。</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：B</strong></p>
+                    <p><strong>解析：：</strong> 数据库并发控制的主要作用是处理多个用户或应用程序同时访问数据库时可能产生的数据不一致性问题，从而保证事务的隔离性、数据库的一致性，并提高系统资源的利用率。提高数据库安全性是另一个独立的技术领域，虽然与并发控制有联系，但不是其直接目的。</p>
+                </div>
+            </div>
+
+            <!-- 填空题 -->
+            <h2 class="section-title"><i class="fas fa-pencil-alt"></i> 二、填空题</h2>
+
+            <!-- 填空 1 -->
+            <div class="question-block">
+                <p class="question-text">1. 多用户数据库系统在同一时刻允许多个事务<span class="fill-in-the-blank-container"><input type="text" name="fib1" class="fill-in-the-blank-input" data-correct-answer="并发执行"></span>，可以充分利用系统资源，提高系统的吞吐量。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 并发执行</p>
+                    <p><strong>解析：：</strong> 并发执行是多用户数据库系统的主要特点，旨在提高效率。</p>
+                </div>
+            </div>
+
+            <!-- 填空 2 -->
+            <div class="question-block">
+                <p class="question-text">2. 事务的并发执行可能导致数据不一致性，常见的有丢失修改、脏读、不可重复读和<span class="fill-in-the-blank-container"><input type="text" name="fib2" class="fill-in-the-blank-input" data-correct-answer="幻读"></span>。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 幻读</p>
+                    <p><strong>解析：：</strong> 幻读是指事务两次查询同一范围的数据，结果集中行数发生变化。</p>
+                </div>
+            </div>
+
+            <!-- 填空 3 -->
+            <div class="question-block">
+                <p class="question-text">3. 解决并发控制最常用的技术是<span class="fill-in-the-blank-container"><input type="text" name="fib3" class="fill-in-the-blank-input" data-correct-answer="封锁"></span>技术。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 封锁</p>
+                    <p><strong>解析：：</strong> 封锁（Locking）是实现并发控制的最基本和最常用的方法。</p>
+                </div>
+            </div>
+
+            <!-- 填空 4 -->
+            <div class="question-block">
+                <p class="question-text">4. 排它锁（X锁）通常用于<span class="fill-in-the-blank-container"><input type="text" name="fib4" class="fill-in-the-blank-input" data-correct-answer="写操作/修改操作"></span>，而共享锁（S锁）通常用于<span class="fill-in-the-blank-container"><input type="text" name="fib5" class="fill-in-the-blank-input" data-correct-answer="读操作/查询操作"></span>。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 写操作/修改操作, 读操作/查询操作</p>
+                    <p><strong>解析：：</strong> X锁（写锁）是排他性的，不允许其他事务读写；S锁（读锁）允许多个事务共享读取。</p>
+                </div>
+            </div>
+
+            <!-- 填空 5 -->
+            <div class="question-block">
+                <p class="question-text">5. 实现并发调度的可串行性，DBMS普遍采用<span class="fill-in-the-blank-container"><input type="text" name="fib6" class="fill-in-the-blank-input" data-correct-answer="两段锁协议"></span>。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 两段锁协议</p>
+                    <p><strong>解析：：</strong> 两段锁协议是保证可串行性的重要手段，它通过将事务的加锁和解锁行为分为两个阶段来实现。</p>
+                </div>
+            </div>
+
+            <!-- 填空 6 -->
+            <div class="question-block">
+                <p class="question-text">6. 在死锁的预防方法中，<span class="fill-in-the-blank-container"><input type="text" name="fib7" class="fill-in-the-blank-input" data-correct-answer="一次封锁法"></span>要求事务必须一次性将所有要使用的数据全部加锁，否则不能执行。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 一次封锁法</p>
+                    <p><strong>解析：：</strong> 一次封锁法可以有效预防死锁，因为它打破了死锁的“请求并保持”条件。</p>
+                </div>
+            </div>
+
+            <!-- 填空 7 -->
+            <div class="question-block">
+                <p class="question-text">7. 死锁的检测方法之一是<span class="fill-in-the-blank-container"><input type="text" name="fib8" class="fill-in-the-blank-input" data-correct-answer="事务等待图法"></span>，通过检查图中是否存在回路来判断死锁。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 事务等待图法</p>
+                    <p><strong>解析：：</strong> 事务等待图是表示事务之间等待关系的有向图，回路表示死锁。</p>
+                </div>
+            </div>
+
+            <!-- 填空 8 -->
+            <div class="question-block">
+                <p class="question-text">8. SQL标准定义了四种隔离级别，从低到高依次是：读未提交、读已提交、可重复读和<span class="fill-in-the-blank-container"><input type="text" name="fib9" class="fill-in-the-blank-input" data-correct-answer="可串行化"></span>。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 可串行化</p>
+                    <p><strong>解析：：</strong> 可串行化是最高的隔离级别，能避免所有并发异常。</p>
+                </div>
+            </div>
+
+            <!-- 填空 9 -->
+            <div class="question-block">
+                <p class="question-text">9. 在“读已提交”隔离级别下，可以避免<span class="fill-in-the-blank-container"><input type="text" name="fib10" class="fill-in-the-blank-input" data-correct-answer="脏读"></span>，但可能出现不可重复读。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 脏读</p>
+                    <p><strong>解析：：</strong> “读已提交”只允许读取已提交的数据，所以不会有脏读，但同一事务内多次读取可能看到不同版本的数据。</p>
+                </div>
+            </div>
+
+            <!-- 填空 10 -->
+            <div class="question-block">
+                <p class="question-text">10. 如果系统采用“先来先服务”的策略，可以防止并发控制中可能出现的<span class="fill-in-the-blank-container"><input type="text" name="fib11" class="fill-in-the-blank-input" data-correct-answer="活锁"></span>现象。</p>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：</strong> 活锁</p>
+                    <p><strong>解析：：</strong> 活锁是指事务长时间等待资源而得不到执行，通常是由于调度策略不当。先来先服务策略可以保证每个事务最终都能获得资源。</p>
+                </div>
+            </div>
+
+            <!-- 判断题 -->
+            <h2 class="section-title"><i class="fas fa-question-circle"></i> 三、判断题</h2>
+
+            <!-- 判断题 1 -->
+            <div class="question-block">
+                <p class="question-text">1. 并发控制的主要目的是为了提高数据库系统的安全性。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="tf1" value="false"> 错误</label>
+                    <label><input type="radio" name="tf1" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：错误</strong></p>
+                    <p><strong>解析：：</strong> 并发控制的主要目的是保证数据库中数据的一致性和事务的隔离性，以及提高系统资源的利用率。安全性是另一个独立的技术领域。</p>
+                </div>
+            </div>
+            
+            <!-- 判断题 2 -->
+            <div class="question-block">
+                <p class="question-text">2. 事务的隔离性是指并发执行的各个事务之间不能互相干扰，即一个事务对数据的修改，在提交之前不能被其他事务看到。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="tf2" value="false"> 错误</label>
+                    <label><input type="radio" name="tf2" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：错误</strong></p>
+                    <p><strong>解析：：</strong> 这个说法是<strong>错误</strong>的。隔离性是指并发执行的事务之间不能相互干扰，但“一个事务对数据的修改，在提交之前不能被其他事务看到”仅是<strong>可串行化（Serializable）</strong>隔离级别（最高隔离级别）的特征。在较低的隔离级别（如读未提交），提交前的修改是可能被看到的。</p>
+                </div>
+            </div>
+
+            <!-- 判断题 3 -->
+            <div class="question-block">
+                <p class="question-text">3. 丢失修改是指事务T1修改数据并提交，但T2的提交覆盖了T1的修改。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="tf3" value="false"> 错误</label>
+                    <label><input type="radio" name="tf3" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：正确</strong></p>
+                    <p><strong>解析：：</strong> 丢失修改是并发控制中最常见的异常之一。当两个事务同时读取同一数据，并分别进行修改，后提交的事务的修改会覆盖先提交事务的修改，导致先提交事务的修改丢失。</p>
+                </div>
+            </div>
+
+            <!-- 判断题 4 -->
+            <div class="question-block">
+                <p class="question-text">4. 共享锁（S锁）与排它锁（X锁）之间是互斥的，任何情况下都不能同时加在同一个数据对象上。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="tf4" value="false"> 错误</label>
+                    <label><input type="radio" name="tf4" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：正确</strong></p>
+                    <p><strong>解析：：</strong> X锁与S锁之间是冲突的，X锁一旦加在某个数据对象上，其他任何事务都不能再对该数据对象加任何类型的锁（S锁或X锁），直到X锁被释放。</p>
+                </div>
+            </div>
+
+            <!-- 判断题 5 -->
+            <div class="question-block">
+                <p class="question-text">5. 二级封锁协议能够防止丢失修改和脏读，但无法避免不可重复读和幻读。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="tf5" value="false"> 错误</label>
+                    <label><input type="radio" name="tf5" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：正确</strong></p>
+                    <p><strong>解析：：</strong> 二级封锁协议解决了丢失修改和脏读问题（通过在写前加X锁直到事务结束，读前加S锁但读完即可释放）。然而，S锁的提前释放意味着同一事务多次读同一数据时，其他事务可能已经修改并提交，导致不可重复读。幻读的避免需要更高的隔离级别或更强的封锁策略。</p>
+                </div>
+            </div>
+
+            <!-- 判断题 6 -->
+            <div class="question-block">
+                <p class="question-text">6. 两段锁协议虽然能保证调度的可串行性，但无法完全避免死锁的发生。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="tf6" value="false"> 错误</label>
+                    <label><input type="radio" name="tf6" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：正确</strong></p>
+                    <p><strong>解析：：</strong> 两段锁协议通过严格的加锁和解锁阶段来保证可串行性，但它本身并不能预防死锁。事务在增长阶段仍可能相互等待资源而形成死锁。</p>
+                </div>
+            </div>
+
+            <!-- 判断题 7 -->
+            <div class="question-block">
+                <p class="question-text">7. 事务等待图法是死锁预防的一种常用方法。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="tf7" value="false"> 错误</label>
+                    <label><input type="radio" name="tf7" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：错误</strong></p>
+                    <p><strong>解析：：</strong> 事务等待图法是死锁检测的一种方法，通过分析等待图中的回路来发现死锁，而不是预防死锁的发生。</p>
+                </div>
+            </div>
+
+            <!-- 判断题 8 -->
+            <div class="question-block">
+                <p class="question-text">8. 解决活锁的有效方法是采用“先来先服务”的封锁策略。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="tf8" value="false"> 错误</label>
+                    <label><input type="radio" name="tf8" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：正确</strong></p>
+                    <p><strong>解析：：</strong> 活锁是由于调度不公平导致事务长时间无法获得资源。采用“先来先服务”策略可以确保所有等待的事务最终都能获得执行机会，从而避免活锁。</p>
+                </div>
+            </div>
+
+            <!-- 判断题 9 -->
+            <div class="question-block">
+                <p class="question-text">9. 乐观并发控制方法在事务执行期间不进行任何检查和封锁，只在事务提交时检查冲突，若有冲突则回滚。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="tf9" value="false"> 错误</label>
+                    <label><input type="radio" name="tf9" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：正确</strong></p>
+                    <p><strong>解析：：</strong> 乐观并发控制（Optimistic Concurrency Control）基于事务冲突概率较低的假设，在执行阶段不加锁，只在提交前进行验证，若发现冲突则回滚，减少了封锁带来的开销。</p>
+                </div>
+            </div>
+
+            <!-- 判断题 10 -->
+            <div class="question-block">
+                <p class="question-text">10. 悲观并发控制方法适用于事务冲突概率较低的环境。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="tf10" value="false"> 错误</label>
+                    <label><input type="radio" name="tf10" value="true"> 正确</label>
+                </div>
+                <button type="button" class="individual-answer-btn">解</button>
+                <div class="answer-area">
+                    <p><strong>正确答案：错误</strong></p>
+                    <p><strong>解析：：</strong> 悲观并发控制（如两段锁协议）在事务执行前就进行封锁，假设冲突会经常发生。它适用于事务冲突概率较高的环境。乐观并发控制才适用于冲突概率较低的环境。</p>
+                </div>
+            </div>
+
+            <!-- 总体的“查看答案与解析”按钮 -->
+            <div class="button-container">
+                <button type="button" class="global-control-btn show-all-answers-btn mt-10">查看所有答案与解析</button>
+                <button type="button" class="global-control-btn hide-all-answers-btn mt-4" style="display: none;">隐藏所有答案</button>
+                <button type="button" class="reset-btn" onclick="resetQuiz()" style="display:none;">重新测试</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select individual buttons (excluding global ones)
+            const individualAnswerButtons = document.querySelectorAll('.individual-answer-btn');
+            const showAllAnswersBtn = document.querySelector('.show-all-answers-btn');
+            const hideAllAnswersBtn = document.querySelector('.hide-all-answers-btn');
+            const quizForm = document.getElementById('quizForm');
+            const resetButton = document.querySelector('.reset-btn');
+
+            // Function to toggle individual answer visibility
+            function toggleAnswer(button) {
+                const answerArea = button.nextElementSibling; // This is the .answer-area
+                if (answerArea.style.display === 'block') {
+                    answerArea.style.display = 'none';
+                    button.textContent = '解'; // Change text back to '解'
+                } else {
+                    answerArea.style.display = 'block';
+                    button.textContent = '收起'; // Change text to '收起' when open
+                }
+                updateMasterButtonsVisibility(); // Update master buttons visibility
+            }
+
+            // Individual "解" button functionality
+            individualAnswerButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    toggleAnswer(this);
+                });
+            });
+
+            // "查看所有答案与解析" button functionality
+            showAllAnswersBtn.addEventListener('click', function() {
+                individualAnswerButtons.forEach(button => {
+                    const answerArea = button.nextElementSibling;
+                    if (answerArea.style.display !== 'block') {
+                        answerArea.style.display = 'block';
+                        button.textContent = '收起';
+                    }
+                });
+                // Show reset button when answers are shown
+                resetButton.style.display = 'inline-block';
+                updateMasterButtonsVisibility();
+            });
+
+            // "隐藏所有答案" button functionality
+            hideAllAnswersBtn.addEventListener('click', function() {
+                individualAnswerButtons.forEach(button => {
+                    const answerArea = button.nextElementSibling;
+                    if (answerArea.style.display === 'block') {
+                        answerArea.style.display = 'none';
+                        button.textContent = '解';
+                    }
+                });
+                // Hide reset button if no answers are shown
+                if (document.querySelectorAll('.answer-area[style*="display: block"]').length === 0) {
+                    resetButton.style.display = 'none';
+                }
+                updateMasterButtonsVisibility();
+            });
+
+            // Update visibility of "Show All" and "Hide All" buttons
+            function updateMasterButtonsVisibility() {
+                let anyAnswerShown = false;
+                let allAnswersShown = true;
+
+                individualAnswerButtons.forEach(button => {
+                    const answerArea = button.nextElementSibling;
+                    if (answerArea && answerArea.style.display === 'block') {
+                        anyAnswerShown = true;
+                    } else {
+                        allAnswersShown = false;
+                    }
+                });
+
+                if (anyAnswerShown) {
+                    hideAllAnswersBtn.style.display = 'block';
+                } else {
+                    hideAllAnswersBtn.style.display = 'none';
+                }
+
+                if (allAnswersShown) {
+                    showAllAnswersBtn.style.display = 'none';
+                } else {
+                    showAllAnswersBtn.style.display = 'block';
+                }
+
+                // Show reset button if any answer is shown
+                if (anyAnswerShown) {
+                    resetButton.style.display = 'inline-block';
+                } else {
+                    resetButton.style.display = 'none';
+                }
+            }
+
+            // Function to reset the quiz
+            window.resetQuiz = function() {
+                quizForm.reset(); // Resets all form inputs
+
+                individualAnswerButtons.forEach(button => {
+                    const answerArea = button.nextElementSibling;
+                    if (answerArea) {
+                        answerArea.style.display = 'none';
+                    }
+                    button.textContent = '解'; // Reset '解' button text
+                });
+                
+                // Reset radio button selection styling
+                document.querySelectorAll('.options label, .true-false-options label').forEach(opt => {
+                    opt.style.backgroundColor = '';
+                    opt.style.border = '';
+                });
+
+                // Re-adjust fill-in-the-blank input widths
+                document.querySelectorAll('.fill-in-the-blank-input').forEach(input => {
+                    const initialWidth = (input.getAttribute('placeholder') || input.dataset.correctAnswer || '').length * 15 + 20;
+                    input.style.width = `${Math.max(initialWidth, 80)}px`;
+                });
+
+                // Ensure all inputs are enabled
+                quizForm.querySelectorAll('input, select, textarea').forEach(input => {
+                    input.disabled = false;
+                });
+
+                updateMasterButtonsVisibility(); // Update master buttons visibility
+            }
+
+
+            // 选择题选项交互效果
+            const options = document.querySelectorAll('.options label');
+            
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionBlock = this.closest('.question-block'); // 获取当前问题块
+                    const allOptionsInBlock = questionBlock.querySelectorAll('.options label');
+                    
+                    // 移除当前问题块中所有选项的选中状态样式
+                    allOptionsInBlock.forEach(opt => {
+                        opt.style.backgroundColor = '';
+                        opt.style.border = '';
+                    });
+                    
+                    // 设置当前被点击选项的选中状态样式
+                    this.style.backgroundColor = 'var(--option-hover-bg)'; /* Orange tint */
+                    this.style.border = '2px solid var(--primary-main)';
+                });
+            });
+
+            // 填空题输入框聚焦效果 and dynamic width
+            document.querySelectorAll('.fill-in-the-blank-input').forEach(input => {
+                // Set initial width based on placeholder or data-correct-answer length
+                const initialWidth = (input.getAttribute('placeholder') || input.dataset.correctAnswer || '').length * 15 + 20; // Approx 15px per char + padding
+                input.style.width = `${Math.max(initialWidth, 80)}px`; // Ensure min-width of 80px
+
+                input.addEventListener('input', function() {
+                    // Adjust width dynamically as user types
+                    const textWidth = this.value.length * 15 + 20; // Adjust multiplier as needed
+                    this.style.width = `${Math.max(textWidth, 80)}px`;
+                });
+
+                input.addEventListener('focus', function() {
+                    this.style.borderColor = 'var(--primary-main)';
+                    this.style.boxShadow = '0 0 0 3px rgba(255, 140, 0, 0.2)'; /* Orange focus shadow */
+                });
+                input.addEventListener('blur', function() {
+                    this.style.borderColor = 'var(--border-card)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Initial update of master buttons
+            updateMasterButtonsVisibility();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第一章 绪论测验</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for a consistent theme */
+        :root {
+            --primary-main: #8a2be2; /* BlueViolet - vibrant purple */
+            --primary-dark: #6a1a8c; /* Darker shade of primary */
+            --secondary-main: #4B0082; /* Indigo - deep dark purple */
+            --accent-soft: #FFD700; /* Gold - bright contrasting accent */
+            --text-default: #333; /* Standard text color */
+            --text-light-gray: #6c757d; /* Lighter gray for subtitles */
+            --bg-light: #F8F4FF; /* Very light purple-tinted background */
+            --bg-lighter: #EDE6F7; /* Slightly darker light purple background */
+            --card-bg: #FFFFFF; /* White card background */
+            --card-shadow: 0 10px 30px rgba(75, 0, 130, 0.1); /* Shadow tinted with secondary-main */
+            --border-card: #e6e0f0; /* Light border for cards, purple tint */
+            --button-bg: var(--primary-main);
+            --button-hover-bg: var(--primary-dark);
+            --correct-answer-bg: #d4edda; /* Light green */
+            --incorrect-answer-bg: #f8d7da; /* Light red */
+            --info-bg: #e2e3e5; /* Light grey for info boxes */
+            --info-border: #bcbebf; /* Grey border for info boxes */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            color: var(--text-default);
+            /* Updated background gradient for more vibrancy */
+            background: linear-gradient(135deg, #f0e6fa 0%, #e0d0f5 50%, #d0b0f0 100%);
+            background-attachment: fixed;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 18px; /* Slightly more rounded */
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15); /* Stronger, softer shadow */
+            padding: 35px;
+            border: 1px solid rgba(138, 43, 226, 0.1); /* Subtle border for definition */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-main);
+            position: relative;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-main), transparent);
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-size: 2.8rem; /* Slightly larger */
+            color: var(--secondary-main);
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .subtitle {
+            font-size: 1.2rem; /* Slightly larger */
+            color: var(--text-light-gray);
+        }
+
+        .section-title {
+            font-size: 2rem; /* Larger */
+            color: var(--primary-dark);
+            margin-top: 40px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-card);
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+        .section-title i {
+            color: var(--primary-main);
+        }
+
+        .question-block {
+            background-color: var(--bg-lighter);
+            padding: 25px; /* More padding */
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08); /* Improved shadow */
+            border: 1px solid var(--border-card);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .question-block:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .question-text {
+            font-size: 1.15rem; /* Slightly larger */
+            margin-bottom: 18px;
+            color: var(--text-default);
+            font-weight: 500;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 12px;
+            padding: 12px 15px; /* More padding */
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 8px; /* More rounded */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .options label:hover {
+            background-color: var(--bg-light);
+            border-color: var(--primary-main);
+            box-shadow: 0 2px 5px rgba(138, 43, 226, 0.2); /* Purple hover shadow */
+        }
+        
+        .options input[type="radio"] {
+            margin-right: 12px;
+            accent-color: var(--primary-main);
+            transform: scale(1.1); /* Slightly larger radio buttons */
+        }
+
+        .fill-in-the-blank-input {
+            width: calc(100% - 20px);
+            padding: 10px 12px; /* More padding */
+            margin-top: 10px;
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            font-size: 1.05rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .fill-in-the-blank-input:focus {
+            outline: none;
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
+        }
+
+        .true-false-options {
+            display: flex;
+            gap: 25px; /* More space */
+        }
+
+        .true-false-options label {
+            flex: 1;
+            text-align: center;
+        }
+
+        .submit-btn, .show-answers-btn, .reset-btn {
+            background: linear-gradient(45deg, var(--primary-main), var(--primary-dark)); /* Gradient button */
+            color: white;
+            padding: 15px 30px; /* Larger buttons */
+            border: none;
+            border-radius: 10px; /* More rounded */
+            cursor: pointer;
+            font-size: 1.2rem; /* Larger font */
+            font-weight: 700;
+            transition: all 0.3s ease;
+            margin: 0 10px; /* Space between buttons */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .submit-btn:hover, .show-answers-btn:hover, .reset-btn:hover {
+            transform: translateY(-5px); /* More pronounced lift */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-main)); /* Reverse gradient on hover */
+        }
+        .submit-btn:active, .show-answers-btn:active, .reset-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        .submit-btn::before, .show-answers-btn::before, .reset-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: all 0.5s ease-out;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        .submit-btn:hover::before, .show-answers-btn:hover::before, .reset-btn:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .result-message {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 1.15rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .correct {
+            background-color: var(--correct-answer-bg);
+            color: #155724; /* Dark green text */
+            border: 1px solid #c3e6cb;
+        }
+
+        .incorrect {
+            background-color: var(--incorrect-answer-bg);
+            color: #721c24; /* Dark red text */
+            border: 1px solid #f5c6cb;
+        }
+
+        .answer-feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            display: none; /* Initially hidden, visible via .is-visible class */
+            animation: slideInUp 0.4s ease-out;
+        }
+
+        .answer-feedback.is-visible {
+            display: block; /* Show when this class is present */
+        }
+
+        /* We will not use .correct/.incorrect for individual feedback anymore, 
+           but keep them for the overall quizResult if needed, or if we decide to
+           re-introduce per-question correct/incorrect highlights later.
+           For now, individual answers will show in 'info' style when revealed.
+        */
+        .answer-feedback.info { /* For show answers */
+            background-color: var(--info-bg);
+            color: var(--text-default);
+            border: 1px solid var(--info-border);
+        }
+
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--info-bg);
+            border: 1px solid var(--info-border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-default);
+            display: none; /* Initially hidden, visible via .is-visible class */
+            animation: slideInUp 0.4s ease-out 0.1s;
+        }
+
+        .explanation.is-visible {
+            display: block; /* Show when this class is present */
+        }
+
+        .score-display {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 25px;
+            color: var(--secondary-main);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .section-title { font-size: 1.6rem; }
+            .question-text { font-size: 1.05rem; }
+            .options label { padding: 10px; }
+            .submit-btn, .show-answers-btn, .reset-btn { padding: 12px 25px; font-size: 1.05rem; }
+            .true-false-options { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>数据库原理：第一章绪论测验</h1>
+            <p class="subtitle">检验你对数据库基础知识的掌握程度！</p>
+        </header>
+
+        <form id="quizForm">
+            <!-- 单项选择题 -->
+            <h2 class="section-title"><i class="fas fa-check-circle"></i> 一、单项选择题</h2>
+
+            <!-- Question 1: DBMS核心 -->
+            <div class="question-block" data-question-index="0">
+                <p class="question-text">1. 数据库系统的核心是（　　）</p>
+                <div class="options">
+                    <label><input type="radio" name="q1" value="A"> A．数据库</label>
+                    <label><input type="radio" name="q1" value="B"> B．数据库管理系统</label>
+                    <label><input type="radio" name="q1" value="C"> C．数据模型</label>
+                    <label><input type="radio" name="q1" value="D"> D．软件工具</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="B"></div>
+                <div class="explanation">
+                    <p><strong>解析：</strong> 数据库管理系统（DBMS）是位于用户与操作系统之间的一层数据管理软件，是计算机的基础软件和现代信息系统的核心。</p>
+                </div>
+            </div>
+
+            <!-- Question 2: 不属于数据库系统特点 -->
+            <div class="question-block" data-question-index="1">
+                <p class="question-text">2. 下列四项中，不属于数据库系统的特点的是（　　）</p>
+                <div class="options">
+                    <label><input type="radio" name="q2" value="A"> A．数据结构化</label>
+                    <label><input type="radio" name="q2" value="B"> B．数据由DBMS统一管理和控制</label>
+                    <label><input type="radio" name="q2" value="C"> C．数据冗余度大</label>
+                    <label><input type="radio" name="q2" value="D"> D．数据独立性高</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="C"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 数据库系统的特点是数据共享性强，冗余度低且易于扩充。数据冗余度大是文件系统的缺点，而非数据库系统的特点。</p>
+                </div>
+            </div>
+
+            <!-- Question 3: 概念模型最著名的模型 -->
+            <div class="question-block" data-question-index="2">
+                <p class="question-text">3. 概念模型是现实世界的第一层抽象，这一类模型中最著名的模型是（　　）</p>
+                <div class="options">
+                    <label><input type="radio" name="q3" value="A"> A．层次模型</label>
+                    <label><input type="radio" name="q3" value="B"> B．关系模型</label>
+                    <label><input type="radio" name="q3" value="C"> C．网状模型</label>
+                    <label><input type="radio" name="q3" value="D"> D．实体-联系模型</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="D"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 实体-联系模型（E-R模型）是信息世界建模的有力工具，也是概念模型最常用的表示方法。</p>
+                </div>
+            </div>
+
+            <!-- Question 4: 物理独立性定义 -->
+            <div class="question-block" data-question-index="3">
+                <p class="question-text">4. 数据的物理独立性是指（　　）</p>
+                <div class="options">
+                    <label><input type="radio" name="q4" value="A"> A．数据库与数据库管理系统相互独立</label>
+                    <label><input type="radio" name="q4" value="B"> B．用户程序与数据库管理系统相互独立</label>
+                    <label><input type="radio" name="q4" value="C"> C．用户的应用程序与存储在磁盘上数据库中的数据是相互独立的</label>
+                    <label><input type="radio" name="q4" value="D"> D．应用程序与数据库中数据的逻辑结构是相互独立的</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="C"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 物理独立性指当数据库的存储结构（内模式）改变时，模式保持不变，应用程序因此不必改变。它保证了应用程序对数据库物理存储变化的免疫性。</p>
+                </div>
+            </div>
+
+            <!-- Question 5: 逻辑独立性修改 -->
+            <div class="question-block" data-question-index="4">
+                <p class="question-text">5. 要保证数据库的逻辑数据独立性，需要修改的是（　　）</p>
+                <div class="options">
+                    <label><input type="radio" name="q5" value="A"> A．模式与外模式之间的映象</label>
+                    <label><input type="radio" name="q5" value="B"> B．模式与内模式之间的映象</label>
+                    <label><input type="radio" name="q5" value="C"> C．模式</label>
+                    <label><input type="radio" name="q5" value="D"> D．三级模式</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="A"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 逻辑独立性由外模式/模式映象来保证。当模式改变时，DBA修改外模式/模式映象，使外模式保持不变，应用程序无需修改。</p>
+                </div>
+            </div>
+
+            <!-- Question 6: 关系数据模型基本结构 -->
+            <div class="question-block" data-question-index="5">
+                <p class="question-text">6. 关系数据模型的基本数据结构是（　　）</p>
+                <div class="options">
+                    <label><input type="radio" name="q6" value="A"> A．树</label>
+                    <label><input type="radio" name="q6" value="B"> B．图</label>
+                    <label><input type="radio" name="q6" value="C"> C．索引</label>
+                    <label><input type="radio" name="q6" value="D"> D．关系（二维表）</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="D"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 关系模型的核心概念就是“关系”，它在用户视图下表现为二维表。</p>
+                </div>
+            </div>
+
+            <!-- Question 7: 数据库三级模式中描述全局逻辑结构和特征的是 -->
+            <div class="question-block" data-question-index="6">
+                <p class="question-text">7. 在数据库的三级模式结构中，描述数据库中全体数据的全局逻辑结构和特征的是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q7" value="A"> A．外模式</label>
+                    <label><input type="radio" name="q7" value="B"> B．内模式</label>
+                    <label><input type="radio" name="q7" value="C"> C．存储模式</label>
+                    <label><input type="radio" name="q7" value="D"> D．模式</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="D"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 模式（Schema），也称逻辑模式，是数据库中全体数据的逻辑结构和特征的描述，是所有用户的公共数据视图，也是数据库系统的中心与关键。</p>
+                </div>
+            </div>
+
+            <!-- Question 8: 模式的个数 -->
+            <div class="question-block" data-question-index="7">
+                <p class="question-text">8. 在数据库三级模式中，模式的个数（　　）</p>
+                <div class="options">
+                    <label><input type="radio" name="q8" value="A"> A．只有一个</label>
+                    <label><input type="radio" name="q8" value="B"> B．可以有任意多个</label>
+                    <label><input type="radio" name="q8" value="C"> C．与用户个数相同</label>
+                    <label><input type="radio" name="q8" value="D"> D．由设置的系统参数决定</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="A"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 一个数据库只有一个模式，它描述了数据库的整体逻辑结构。外模式可以有多个，内模式只有一个。</p>
+                </div>
+            </div>
+            
+            <!-- Question 9: 物理数据独立性 -->
+            <div class="question-block" data-question-index="8">
+                <p class="question-text">9. 数据库系统中，物理数据独立性是指（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q9" value="A"> A．数据库与数据库管理系统的相互独立</label>
+                    <label><input type="radio" name="q9" value="B"> B．应用程序与DBMS的相互独立</label>
+                    <label><input type="radio" name="q9" value="C"> C．应用程序与存储在磁盘上数据库的物理模式是相互独立的</label>
+                    <label><input type="radio" name="q9" value="D"> D．应用程序与数据库中数据的逻辑结构相互独立</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="C"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 物理数据独立性意味着当底层物理存储结构改变时，上层的逻辑模式和应用程序不需要改变。这通过模式/内模式映象实现。</p>
+                </div>
+            </div>
+
+            <!-- Question 10: 相对于非关系模型，关系数据模型的缺点之一是 -->
+            <div class="question-block" data-question-index="9">
+                <p class="question-text">10. 相对于非关系模型，关系数据模型的缺点之一是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q10" value="A"> A．存取路径对用户透明，需查询优化</label>
+                    <label><input type="radio" name="q10" value="B"> B．数据结构简单</label>
+                    <label><input type="radio" name="q10" value="C"> C．数据独立性高</label>
+                    <label><input type="radio" name="q10" value="D"> D．有严格的数学基础</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="A"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 关系模型的存取路径对用户隐蔽，虽然提高了数据独立性，但查询效率在某些复杂情况下可能不如老式数据库，因此需要复杂的查询优化，增加了DBMS自身开发的难度。</p>
+                </div>
+            </div>
+            
+            <!-- Question 11: 数据模型组成 -->
+            <div class="question-block" data-question-index="10">
+                <p class="question-text">11. 关系数据模型的三个组成部分中，不包括（　　）</p>
+                <div class="options">
+                    <label><input type="radio" name="q11" value="A"> A．完整性约束</label>
+                    <label><input type="radio" name="q11" value="B"> B．数据结构</label>
+                    <label><input type="radio" name="q11" value="C"> C．恢复</label>
+                    <label><input type="radio" name="q11" value="D"> D．数据操作</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="C"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 数据模型的三要素是数据结构、数据操作和完整性约束。恢复是DBMS的功能之一，但不属于数据模型本身的组成部分。</p>
+                </div>
+            </div>
+
+            <!-- Question 12: 数据管理技术阶段没有专门软件管理 -->
+            <div class="question-block" data-question-index="11">
+                <p class="question-text">12. 下面列出的数据管理技术发展的三个阶段中，哪个（些）阶段没有专门的软件对数据进行管理？（　　）<br>Ⅰ.人工管理阶段<br>Ⅱ.文件系统阶段<br>Ⅲ.数据库阶段</p>
+                <div class="options">
+                    <label><input type="radio" name="q12" value="A"> A．只有Ⅰ</label>
+                    <label><input type="radio" name="q12" value="B"> B．只有Ⅱ</label>
+                    <label><input type="radio" name="q12" value="C"> C．Ⅰ和Ⅱ</label>
+                    <label><input type="radio" name="q12" value="D"> D．Ⅱ和Ⅲ</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="A"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 人工管理阶段没有专门的软件进行数据管理，数据由用户（程序员）自己管理。文件系统阶段有文件系统软件，数据库阶段有数据库管理系统。</p>
+                </div>
+            </div>
+
+            <!-- Question 13: 数据库中的表是哪级模式 -->
+            <div class="question-block" data-question-index="12">
+                <p class="question-text">13. 在关系数据库中，表（table）是三级模式结构中的（　　）</p>
+                <div class="options">
+                    <label><input type="radio" name="q13" value="A"> A．外模式</label>
+                    <label><input type="radio" name="q13" value="B"> B．模式</label>
+                    <label><input type="radio" name="q13" value="C"> C．存储模式</label>
+                    <label><input type="radio" name="q13" value="D"> D．内模式</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="B"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 在关系数据库中，表（Table）对应于关系模型中的“关系”，它是模式（逻辑模式）的主要组成部分。</p>
+                </div>
+            </div>
+
+            <!-- Question 14: 外模式与模式、内模式的独立性 -->
+            <div class="question-block" data-question-index="13">
+                <p class="question-text">14. 数据库的外模式（　　）</p>
+                <div class="options">
+                    <label><input type="radio" name="q14" value="A"> A．依赖于存储模式和存储设备</label>
+                    <label><input type="radio" name="q14" value="B"> B．独立于存储模式和存储设备</label>
+                    <label><input type="radio" name="q14" value="C"> C．是数据库中全体数据的逻辑结构和特征的描述</label>
+                    <label><input type="radio" name="q14" value="D"> D．一个数据库只有一个外模式</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="B"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 外模式是面向具体应用程序的，定义在逻辑模式之上，独立于存储模式和存储设备。一个数据库可以有多个外模式。</p>
+                </div>
+            </div>
+
+            <!-- Question 15: DBMS的主要功能有哪些不正确 -->
+            <div class="question-block" data-question-index="14">
+                <p class="question-text">15. 下面关于数据库管理系统主要功能的叙述中，哪一项是不正确的？（　　）</p>
+                <div class="options">
+                    <label><input type="radio" name="q15" value="A"> A．提供数据定义语言（DDL）和数据操纵语言（DML）</label>
+                    <label><input type="radio" name="q15" value="B"> B．负责数据库的安全性、完整性、并发控制和故障恢复</label>
+                    <label><input type="radio" name="q15" value="C"> C．负责对数据库的物理存储进行直接访问和管理</label>
+                    <label><input type="radio" name="q15" value="D"> D． DBMS直接提供应用程序的编写</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="D"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> DBMS提供应用开发工具和高级语言接口，辅助应用程序的编写，但DBMS本身不直接提供应用程序的编写功能。应用程序的编写通常由应用程序员使用高级语言完成。</p>
+                </div>
+            </div>
+
+            <!-- Question 16: 数据流图（DFD）是用于哪个阶段的工具？ -->
+            <div class="question-block" data-question-index="15">
+                <p class="question-text">16. 数据流图（DFD）是数据库设计中用于（　　）阶段的工具。</p>
+                <div class="options">
+                    <label><input type="radio" name="q16" value="A"> A．概念结构设计</label>
+                    <label><input type="radio" name="q16" value="B"> B．逻辑结构设计</label>
+                    <label><input type="radio" name="q16" value="C"> C．物理结构设计</label>
+                    <label><input type="radio" name="q16" value="D"> D．需求分析</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="D"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 数据流图（DFD）主要用于需求分析阶段，描述系统的数据输入、输出、数据存储和数据处理过程。</p>
+                </div>
+            </div>
+
+            <!-- Question 17: DB、DBMS、DBS 三者关系 -->
+            <div class="question-block" data-question-index="16">
+                <p class="question-text">17. 数据库（DB）、数据库管理系统（DBMS）、数据库系统（DBS）三者之间的关系是（　　）。</p>
+                <div class="options">
+                    <label><input type="radio" name="q17" value="A"> A．DB包含DBMS和DBS</label>
+                    <label><input type="radio" name="q17" value="B"> B．DBMS包含DB和DBS</label>
+                    <label><input type="radio" name="q17" value="C"> C．DBS包含DB和DBMS</label>
+                    <label><input type="radio" name="q17" value="D"> D．三者独立，互不包含</label>
+                </div>
+                <div class="answer-feedback" data-correct-answer="C"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 数据库系统（DBS）是一个更大的概念，它包括数据库（DB）、数据库管理系统（DBMS）、数据库管理员（DBA）以及相关的应用程序和用户。</p>
+                </div>
+            </div>
+
+
+            <!-- 填空题 -->
+            <h2 class="section-title"><i class="fas fa-pencil-alt"></i> 二、填空题</h2>
+
+            <!-- Question 18: 关系数据模型三部分 -->
+            <div class="question-block" data-question-index="17">
+                <p class="question-text">18. 关系数据模型由关系数据结构、关系操作和<input type="text" name="q18" class="fill-in-the-blank-input" data-correct-answer="关系完整性约束">三部分组成。</p>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 数据模型的三要素是数据结构、数据操作和完整性约束。</p>
+                </div>
+            </div>
+
+            <!-- Question 19: 数据库系统中最重要的软件和用户 -->
+            <div class="question-block" data-question-index="18">
+                <p class="question-text">19. 数据库系统中最重要的软件是<input type="text" name="q19a" class="fill-in-the-blank-input" data-correct-answer="数据库管理系统">，最重要的用户是<input type="text" name="q19b" class="fill-in-the-blank-input" data-correct-answer="数据库管理员">。</p>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> DBMS是数据库系统的核心软件，DBA是数据库系统的总负责人。（答案可写简称：DBMS，DBA）</p>
+                </div>
+            </div>
+
+            <!-- Question 20: 数据库的三级模式结构 -->
+            <div class="question-block" data-question-index="19">
+                <p class="question-text">20. 数据库系统的三级模式结构是指数据库系统由外模式、模式和<input type="text" name="q20" class="fill-in-the-blank-input" data-correct-answer="内模式">三级构成。</p>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 数据库的三级模式结构包括外模式、模式和内模式。</p>
+                </div>
+            </div>
+
+            <!-- Question 21: 数据库的逻辑数据独立性由何提供 -->
+            <div class="question-block" data-question-index="20">
+                <p class="question-text">21. 数据库的逻辑数据独立性是由<input type="text" name="q21" class="fill-in-the-blank-input" data-correct-answer="外模式/模式">映象提供的。</p>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 逻辑独立性通过外模式/模式映象来保证，使得模式的改变不影响外模式和应用程序。</p>
+                </div>
+            </div>
+
+            <!-- Question 22: 模式与内模式之间映象实现什么独立性 -->
+            <div class="question-block" data-question-index="21">
+                <p class="question-text">22. 在数据库的三级模式体系结构中，模式与内模式之间的映象（模式/内模式），实现了数据的<input type="text" name="q22" class="fill-in-the-blank-input" data-correct-answer="物理">独立性。</p>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 模式/内模式映象负责将逻辑模式映射到物理存储结构，从而实现物理独立性。</p>
+                </div>
+            </div>
+            
+            <!-- Question 23: 数据库系统组成人员 -->
+            <div class="question-block" data-question-index="22">
+                <p class="question-text">23. 数据库系统一般包括数据库、<input type="text" name="q23a" class="fill-in-the-blank-input" data-correct-answer="DBMS">、<input type="text" name="q23b" class="fill-in-the-blank-input" data-correct-answer="DBA">、<input type="text" name="q23c" class="fill-in-the-blank-input" data-correct-answer="应用系统">与用户。</p>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 数据库系统（DBS）由数据库、DBMS（及外围应用开发工具）、应用程序、数据库管理员和用户组成。</p>
+                </div>
+            </div>
+
+            <!-- Question 24: 数据库应用系统开发的各个阶段的步骤 -->
+            <div class="question-block" data-question-index="23">
+                <p class="question-text">24. 数据库应用系统开发的各个阶段的步骤为：需求分析、概念结构设计、逻辑结构设计、<input type="text" name="q24" class="fill-in-the-blank-input" data-correct-answer="物理结构设计">、数据库实施、数据库运行和维护。</p>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 数据库设计的六个阶段：需求分析、概念结构设计、逻辑结构设计、物理结构设计、数据库实施、数据库运行和维护。</p>
+                </div>
+            </div>
+
+
+            <!-- 判断题 -->
+            <h2 class="section-title"><i class="fas fa-question-circle"></i> 三、判断题</h2>
+
+            <!-- Question 25: 数据库避免了一切数据重复 -->
+            <div class="question-block" data-question-index="24">
+                <p class="question-text">25. 数据库系统能避免一切数据的重复。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q25" value="false"> 错误</label>
+                    <label><input type="radio" name="q25" value="true"> 正确</label>
+                </div>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 数据库系统能大大减少数据冗余，但很难完全避免所有数据的重复，例如为了性能优化，可能存在少量冗余。</p>
+                </div>
+            </div>
+
+            <!-- Question 26: 内模式是用户的局部数据视图 -->
+            <div class="question-block" data-question-index="25">
+                <p class="question-text">26. 内模式是数据库用户能够看见和使用的局部数据结构。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q26" value="false"> 错误</label>
+                    <label><input type="radio" name="q26" value="true"> 正确</label>
+                </div>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 内模式描述的是数据在数据库内部的物理存储结构和组织方式。外模式才是数据库用户（或应用程序）能看到和使用的局部数据结构。</p>
+                </div>
+            </div>
+
+            <!-- Question 27: 数据模型都包括数据结构、数据操作和完整性约束 -->
+            <div class="question-block" data-question-index="26">
+                <p class="question-text">27. 任何一个数据模型都必须包含数据结构、数据操作和完整性约束三部分。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q27" value="true"> 正确</label>
+                    <label><input type="radio" name="q27" value="false"> 错误</label>
+                </div>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 这是数据模型的三要素，是数据模型应具备的基本要求。</p>
+                </div>
+            </div>
+
+            <!-- Question 28: 数据库中数据的最小存取单位是数据项 -->
+            <div class="question-block" data-question-index="27">
+                <p class="question-text">28. 在数据库系统中，数据的最小存取单位是数据项。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q28" value="false"> 错误</label>
+                    <label><input type="radio" name="q28" value="true"> 正确</label>
+                </div>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 在数据库逻辑层面，数据的最小存取单位是字段（或属性值/数据项）。但在物理存储层面，最小存取单位通常是块或页。题目未明确层面，但通常“数据项”更偏向逻辑概念，而物理存取单位是块/页。因此判断为错误更严谨。</p>
+                </div>
+            </div>
+
+            <!-- Question 29: 数据库技术是计算机科学的一个分支 -->
+            <div class="question-block" data-question-index="28">
+                <p class="question-text">29. 数据库技术是计算机科学的一个分支，它主要是研究如何科学地组织和存储数据、有效地获取和处理数据。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q29" value="true"> 正确</label>
+                    <label><input type="radio" name="q29" value="false"> 错误</label>
+                </div>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 数据库技术确实是计算机科学的重要分支，其核心研究内容就是数据的有效管理。</p>
+                </div>
+            </div>
+
+            <!-- Question 30: 一个数据库只能有一个内模式和外模式 -->
+            <div class="question-block" data-question-index="29">
+                <p class="question-text">30. 一个数据库只有一个内模式和外模式。</p>
+                <div class="true-false-options">
+                    <label><input type="radio" name="q30" value="false"> 错误</label>
+                    <label><input type="radio" name="q30" value="true"> 正确</label>
+                </div>
+                <div class="answer-feedback"></div>
+                <div class="explanation">
+                    <p><strong>解析：：</strong> 一个数据库只有一个内模式，但可以有多个外模式，以满足不同用户的视图需求。</p>
+                </div>
+            </div>
+
+
+            <div class="button-container">
+                <button type="button" class="submit-btn" onclick="submitQuiz()">提交答案</button>
+                <button type="button" class="show-answers-btn" onclick="showAnswers()" style="display:none;">显示答案</button>
+                <button type="button" class="reset-btn" onclick="resetQuiz()" style="display:none;">重新测试</button>
+            </div>
+            <div id="quizResult" class="result-message" style="display:none;"></div>
+            <div id="scoreDisplay" class="score-display" style="display:none;"></div>
+        </form>
+    </div>
+
+    <script>
+        const questions = [
+            { name: 'q1', type: 'radio', correctAnswer: 'B' },
+            { name: 'q2', type: 'radio', correctAnswer: 'C' },
+            { name: 'q3', type: 'radio', correctAnswer: 'D' },
+            { name: 'q4', type: 'radio', correctAnswer: 'C' },
+            { name: 'q5', type: 'radio', correctAnswer: 'A' },
+            { name: 'q6', type: 'radio', correctAnswer: 'D' },
+            { name: 'q7', type: 'radio', correctAnswer: 'D' },
+            { name: 'q8', type: 'radio', correctAnswer: 'A' },
+            { name: 'q9', type: 'radio', correctAnswer: 'C' },
+            { name: 'q10', type: 'radio', correctAnswer: 'A' },
+            { name: 'q11', type: 'radio', correctAnswer: 'C' },
+            { name: 'q12', type: 'radio', correctAnswer: 'A' },
+            { name: 'q13', type: 'radio', correctAnswer: 'B' },
+            { name: 'q14', type: 'radio', correctAnswer: 'B' },
+            { name: 'q15', type: 'radio', correctAnswer: 'D' },
+            { name: 'q16', type: 'radio', correctAnswer: 'D' },
+            { name: 'q17', type: 'radio', correctAnswer: 'C' },
+            { name: 'q18', type: 'text', correctAnswer: '关系完整性约束' },
+            { name: 'q19a', type: 'text', correctAnswer: '数据库管理系统' },
+            { name: 'q19b', type: 'text', correctAnswer: '数据库管理员' },
+            { name: 'q20', type: 'text', correctAnswer: '内模式' },
+            { name: 'q21', type: 'text', correctAnswer: '外模式/模式' },
+            { name: 'q22', type: 'text', correctAnswer: '物理' },
+            { name: 'q23a', type: 'text', correctAnswer: 'DBMS' },
+            { name: 'q23b', type: 'text', correctAnswer: 'DBA' },
+            { name: 'q23c', type: 'text', correctAnswer: '应用系统' },
+            { name: 'q24', type: 'text', correctAnswer: '物理结构设计' },
+            { name: 'q25', type: 'radio', correctAnswer: 'false' },
+            { name: 'q26', type: 'radio', correctAnswer: 'false' },
+            { name: 'q27', type: 'radio', correctAnswer: 'true' },
+            { name: 'q28', type: 'radio', correctAnswer: 'false' },
+            { name: 'q29', type: 'radio', correctAnswer: 'true' },
+            { name: 'q30', type: 'radio', correctAnswer: 'false' }
+        ];
+
+        function submitQuiz() {
+            let score = 0;
+            const quizForm = document.getElementById('quizForm');
+            const quizResult = document.getElementById('quizResult');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            // 'allAnswered' is no longer used to block submission, but can be used for feedback if needed.
+            let allAnswered = true; 
+
+            // Clear previous feedback and explanations
+            questions.forEach((q, index) => {
+                const questionBlock = document.querySelector(`.question-block[data-question-index="${index}"]`);
+                if (questionBlock) {
+                    const feedbackDiv = questionBlock.querySelector('.answer-feedback');
+                    const explanationDiv = questionBlock.querySelector('.explanation');
+                    
+                    if (feedbackDiv) {
+                        feedbackDiv.textContent = '';
+                        feedbackDiv.className = 'answer-feedback'; // Reset class
+                        feedbackDiv.classList.remove('is-visible');
+                    }
+                    if (explanationDiv) {
+                        explanationDiv.classList.remove('is-visible');
+                    }
+                }
+            });
+
+            questions.forEach((q, index) => {
+                let userAnswer = ''; // Initialize userAnswer
+                if (q.type === 'radio') {
+                    const selectedOption = quizForm.querySelector(`input[name="${q.name}"]:checked`);
+                    if (selectedOption) {
+                        userAnswer = selectedOption.value;
+                    } else {
+                        allAnswered = false; // Still track if all are answered for scoring context
+                    }
+                } else if (q.type === 'text') {
+                    const inputField = quizForm.querySelector(`input[name="${q.name}"]`);
+                    userAnswer = inputField ? inputField.value.trim() : '';
+                    if (userAnswer === '') {
+                        allAnswered = false; // Still track if all are answered for scoring context
+                    }
+                }
+
+                // Check correctness for scoring
+                if (userAnswer !== '') { // Only score if an attempt was made
+                    let isCorrect = false;
+                    if (q.type === 'text') {
+                        const possibleAnswers = {
+                            'q19a': ['数据库管理系统', 'DBMS'],
+                            'q19b': ['数据库管理员', 'DBA'],
+                            'q23a': ['DBMS', '数据库管理系统'],
+                            'q23b': ['DBA', '数据库管理员'],
+                            'q23c': ['应用系统', '应用程序'],
+                            'q18': ['关系完整性约束', '完整性约束'],
+                            'q24': ['物理结构设计'],
+                            'q20': ['内模式'],
+                            'q21': ['外模式/模式'],
+                            'q22': ['物理']
+                        };
+                        const correctAnswersForField = possibleAnswers[q.name] || [q.correctAnswer];
+                        isCorrect = correctAnswersForField.some(ans => userAnswer.toLowerCase() === ans.toLowerCase());
+                    } else {
+                        isCorrect = (userAnswer === q.correctAnswer);
+                    }
+                    if (isCorrect) {
+                        score++;
+                    }
+                }
+            });
+
+            // Display overall quiz result and score
+            quizResult.textContent = `测验完成！你获得了 ${score} 分。`;
+            quizResult.className = `result-message ${score >= questions.length * 0.6 ? 'correct' : 'incorrect'}`;
+            quizResult.style.display = 'block';
+            scoreDisplay.textContent = `总分：${score} / ${questions.length}`;
+            scoreDisplay.style.display = 'block';
+
+            // Manage button visibility
+            document.querySelectorAll('.submit-btn').forEach(btn => btn.style.display = 'none');
+            document.querySelectorAll('.show-answers-btn').forEach(btn => btn.style.display = 'inline-block');
+            document.querySelectorAll('.reset-btn').forEach(btn => btn.style.display = 'inline-block');
+
+            // Disable all inputs after submission
+            quizForm.querySelectorAll('input, select, textarea').forEach(input => {
+                input.disabled = true;
+            });
+        }
+
+        function showAnswers() {
+            questions.forEach((q, index) => {
+                const questionBlock = document.querySelector(`.question-block[data-question-index="${index}"]`);
+                if (!questionBlock) return; // Add robust check
+
+                const feedbackDiv = questionBlock.querySelector('.answer-feedback');
+                const explanationDiv = questionBlock.querySelector('.explanation');
+                
+                // Determine user's answer for this question
+                let userAnswer = '';
+                if (q.type === 'radio') {
+                    const selectedOption = document.querySelector(`input[name="${q.name}"]:checked`);
+                    if (selectedOption) {
+                        userAnswer = selectedOption.value;
+                    }
+                } else if (q.type === 'text') {
+                    const inputField = document.querySelector(`input[name="${q.name}"]`);
+                    userAnswer = inputField ? inputField.value.trim() : '';
+                }
+
+                // Check correctness to show "你的回答：正确/错误"
+                let isCorrect = false;
+                if (q.type === 'text') {
+                    const possibleAnswers = {
+                        'q19a': ['数据库管理系统', 'DBMS'],
+                        'q19b': ['数据库管理员', 'DBA'],
+                        'q23a': ['DBMS', '数据库管理系统'],
+                        'q23b': ['DBA', '数据库管理员'],
+                        'q23c': ['应用系统', '应用程序'],
+                        'q18': ['关系完整性约束', '完整性约束'],
+                        'q24': ['物理结构设计'],
+                        'q20': ['内模式'],
+                        'q21': ['外模式/模式'],
+                        'q22': ['物理']
+                    };
+                    const correctAnswersForField = possibleAnswers[q.name] || [q.correctAnswer];
+                    isCorrect = correctAnswersForField.some(ans => userAnswer.toLowerCase() === ans.toLowerCase());
+                } else { // radio type
+                    isCorrect = (userAnswer === q.correctAnswer);
+                }
+
+                // Display user's answer status and the correct answer
+                if (feedbackDiv && explanationDiv) {
+                    feedbackDiv.classList.remove('correct', 'incorrect', 'info'); // Clear previous styles
+                    if (userAnswer !== '') { // If user attempted to answer
+                        if (isCorrect) {
+                            feedbackDiv.classList.add('correct');
+                            feedbackDiv.textContent = `你的回答：正确。`;
+                        } else {
+                            feedbackDiv.classList.add('incorrect');
+                            let displayCorrectAnswer = q.correctAnswer;
+                            if (q.type === 'text') {
+                                const possibleAnswersText = {
+                                    'q19a': '数据库管理系统 (或 DBMS)',
+                                    'q19b': '数据库管理员 (或 DBA)',
+                                    'q23a': 'DBMS (或 数据库管理系统)',
+                                    'q23b': 'DBA (或 数据库管理员)',
+                                    'q23c': '应用系统',
+                                    'q18': '关系完整性约束 (或 完整性约束)',
+                                    'q24': '物理结构设计',
+                                    'q20': '内模式',
+                                    'q21': '外模式/模式',
+                                    'q22': '物理'
+                                };
+                                displayCorrectAnswer = possibleAnswersText[q.name] || q.correctAnswer;
+                            }
+                            feedbackDiv.textContent = `你的回答：错误。正确答案是：${displayCorrectAnswer}`;
+                        }
+                    } else { // If user did not answer
+                        feedbackDiv.classList.add('info'); // Use info style for unanswered
+                        let displayCorrectAnswer = q.correctAnswer;
+                        if (q.type === 'text') {
+                            const possibleAnswersText = {
+                                'q19a': '数据库管理系统 (或 DBMS)',
+                                'q19b': '数据库管理员 (或 DBA)',
+                                'q23a': 'DBMS (或 数据库管理系统)',
+                                'q23b': 'DBA (或 数据库管理员)',
+                                'q23c': '应用系统',
+                                'q18': '关系完整性约束 (或 完整性约束)',
+                                'q24': '物理结构设计',
+                                'q20': '内模式',
+                                'q21': '外模式/模式',
+                                'q22': '物理'
+                            };
+                            displayCorrectAnswer = possibleAnswersText[q.name] || q.correctAnswer;
+                        }
+                        feedbackDiv.textContent = `未作答。正确答案是：${displayCorrectAnswer}`;
+                    }
+                    
+                    feedbackDiv.classList.add('is-visible'); // Show feedback
+                    explanationDiv.classList.add('is-visible'); // Show explanation
+                }
+            });
+            
+            document.querySelectorAll('.show-answers-btn').forEach(btn => btn.style.display = 'none');
+            document.querySelectorAll('.reset-btn').forEach(btn => btn.style.display = 'inline-block');
+        }
+
+        function resetQuiz() {
+            const quizForm = document.getElementById('quizForm');
+            quizForm.reset();
+
+            questions.forEach((q, index) => {
+                const questionBlock = document.querySelector(`.question-block[data-question-index="${index}"]`);
+                if (questionBlock) {
+                    const feedbackDiv = questionBlock.querySelector('.answer-feedback');
+                    const explanationDiv = questionBlock.querySelector('.explanation');
+                    if (feedbackDiv) {
+                        feedbackDiv.classList.remove('is-visible', 'correct', 'incorrect', 'info');
+                        feedbackDiv.textContent = '';
+                    }
+                    if (explanationDiv) {
+                        explanationDiv.classList.remove('is-visible');
+                    }
+                }
+            });
+            
+            document.getElementById('quizResult').style.display = 'none';
+            document.getElementById('scoreDisplay').style.display = 'none';
+
+            document.querySelectorAll('.submit-btn').forEach(btn => btn.style.display = 'inline-block');
+            document.querySelectorAll('.show-answers-btn').forEach(btn => btn.style.display = 'none');
+            document.querySelectorAll('.reset-btn').forEach(btn => btn.style.display = 'none');
+
+            quizForm.querySelectorAll('input, select, textarea').forEach(input => {
+                input.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>

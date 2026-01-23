@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+  <html>
+   <head>
+    <meta charset="UTF-8" />
+    <title>天气案例</title>
+    <script  src="vue.js"></script>
+   </head>
+   <body>
+    <div id="root">
+       <h2>今天天气很{{info}}</h2>
+       <button @click="changeweather">切换天气</button> 
+    </div>
+   </body>
+  
+   <script>
+    Vue.config.productionTip = false //阻止Vue启动时生成生产提示
+         
+    new Vue({
+       el:'#root',
+       data:{
+          ishot:true
+         },
+      computed:{
+         info(){
+            return this.ishot? '炎热':'凉爽'
+         }
+      },
+      methods: {
+         changeweather(){
+            this.ishot=!this.ishot
+         }
+      },
+    })   
+   </script>
+  </html>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UNICODE" ?>
+<topo version="1.3.00.200T">
+    <devices>
+        <dev id="206BCAE0-4398-4640-A96C-D2222136D2FC" name="LSW1" poe="0" model="S3700" settings="" system_mac="4C-1F-CC-63-2D-35" com_port="2001" bootmode="0" cx="365.000000" cy="317.000000" edit_left="392" edit_top="371">
+            <slot number="slot17" isMainBoard="1">
+                <interface sztype="Ethernet" interfacename="Ethernet" count="22" />
+                <interface sztype="Ethernet" interfacename="GE" count="2" />
+            </slot>
+        </dev>
+        <dev id="6E43E753-7723-41cd-A037-1835B4B9F476" name="AR1" poe="0" model="AR1220" settings="" system_mac="00-E0-FC-BF-52-1E" com_port="2000" bootmode="0" cx="357.000000" cy="105.000000" edit_left="384" edit_top="159">
+            <slot number="slot17" isMainBoard="1">
+                <interface sztype="Ethernet" interfacename="GE" count="2" />
+                <interface sztype="Ethernet" interfacename="Ethernet" count="8" />
+            </slot>
+        </dev>
+        <dev id="5AAEC09A-7374-43ab-8C05-73DF5C2437F1" name="PC2" poe="0" model="PC" settings=" -simpc_ip 178.152.20.10  -simpc_mask 255.255.255.0  -simpc_gateway 178.152.20.1  -simpc_mac 54-89-98-EC-79-F7  -simpc_mc_dstip 0.0.0.0  -simpc_mc_dstmac 00-00-00-00-00-00  -simpc_dns1 0.0.0.0  -simpc_dns2 0.0.0.0  -simpc_ipv6 ::  -simpc_prefix 128  -simpc_gatewayv6 ::  -simpc_dhcp_state 0  -simpc_dhcpv6_state 0  -simpc_dns_auto_state 0  -simpc_igmp_version 1  -simpc_group_ip_start 0.0.0.0  -simpc_src_ip_start 0.0.0.0  -simpc_group_num 0  -simpc_group_step 0  -simpc_src_num 0  -simpc_src_step 0  -simpc_type MODE_IS_INCLUDE " system_mac="54-89-98-EC-79-F7" com_port="0" bootmode="0" cx="676.000000" cy="315.000000" edit_left="703" edit_top="369">
+            <slot number="slot17" isMainBoard="1">
+                <interface sztype="Ethernet" interfacename="Ethernet" count="1" />
+            </slot>
+        </dev>
+        <dev id="5E062887-5073-426e-BCC8-F3A96F787650" name="PC1" poe="0" model="PC" settings=" -simpc_ip 178.152.10.10  -simpc_mask 255.255.255.0  -simpc_gateway 178.152.10.1  -simpc_mac 54-89-98-04-15-E5  -simpc_mc_dstip 0.0.0.0  -simpc_mc_dstmac 00-00-00-00-00-00  -simpc_dns1 0.0.0.0  -simpc_dns2 0.0.0.0  -simpc_ipv6 ::  -simpc_prefix 128  -simpc_gatewayv6 ::  -simpc_dhcp_state 0  -simpc_dhcpv6_state 0  -simpc_dns_auto_state 0  -simpc_igmp_version 1  -simpc_group_ip_start 0.0.0.0  -simpc_src_ip_start 0.0.0.0  -simpc_group_num 0  -simpc_group_step 0  -simpc_src_num 0  -simpc_src_step 0  -simpc_type MODE_IS_INCLUDE " system_mac="54-89-98-04-15-E5" com_port="0" bootmode="0" cx="76.000000" cy="316.000000" edit_left="103" edit_top="370">
+            <slot number="slot17" isMainBoard="1">
+                <interface sztype="Ethernet" interfacename="Ethernet" count="1" />
+            </slot>
+        </dev>
+    </devices>
+    <lines>
+        <line srcDeviceID="6E43E753-7723-41cd-A037-1835B4B9F476" destDeviceID="206BCAE0-4398-4640-A96C-D2222136D2FC">
+            <interfacePair lineName="Copper" srcIndex="0" srcBoundRectIsMoved="1" srcBoundRect_X="385.628418" srcBoundRect_Y="175.153046" srcOffset_X="13.000000" srcOffset_Y="-2.000000" tarIndex="0" tarBoundRectIsMoved="1" tarBoundRect_X="390.371582" tarBoundRect_Y="300.846954" tarOffset_X="5.000000" tarOffset_Y="-6.000000" />
+        </line>
+        <line srcDeviceID="206BCAE0-4398-4640-A96C-D2222136D2FC" destDeviceID="5AAEC09A-7374-43ab-8C05-73DF5C2437F1">
+            <interfacePair lineName="Copper" srcIndex="1" srcBoundRectIsMoved="1" srcBoundRect_X="435.182861" srcBoundRect_Y="343.722290" srcOffset_X="9.000000" srcOffset_Y="12.000000" tarIndex="0" tarBoundRectIsMoved="1" tarBoundRect_X="659.817139" tarBoundRect_Y="342.277710" tarOffset_X="-44.000000" tarOffset_Y="18.000000" />
+        </line>
+        <line srcDeviceID="206BCAE0-4398-4640-A96C-D2222136D2FC" destDeviceID="5E062887-5073-426e-BCC8-F3A96F787650">
+            <interfacePair lineName="Copper" srcIndex="2" srcBoundRectIsMoved="1" srcBoundRect_X="348.816498" srcBoundRect_Y="343.850586" srcOffset_X="-53.000000" srcOffset_Y="16.000000" tarIndex="0" tarBoundRectIsMoved="0" tarBoundRect_X="146.183502" tarBoundRect_Y="343.149414" tarOffset_X="0.000000" tarOffset_Y="0.000000" />
+        </line>
+    </lines>
+    <shapes />
+    <txttips />
+</topo>

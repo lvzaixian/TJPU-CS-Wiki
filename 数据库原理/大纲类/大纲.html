@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>答案版总纲</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for a consistent theme (Inspired by Vue.js example) */
+        :root {
+            --primary-main: #42b883; /* Vue.js Green - for main accents, section icons */
+            --primary-dark: #338a65; /* Darker Green */
+            --secondary-main: #35495e; /* Vue.js Dark Blue - for main titles, header background */
+            --accent-soft: #ff7e5f; /* Soft Orange - for subtle highlights, hover */
+            --text-default: #333; /* Standard text color */
+            --text-light-gray: #6c757d; /* Lighter gray for subtitles, comments */
+            --bg-light: #f5f7fa; /* Light gray page background gradient start */
+            --bg-lighter: #e4edf5; /* Lighter blue page background gradient end */
+            --card-bg: #FFFFFF; /* White card background */
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Card shadow from reference */
+            --border-card: #eceff1; /* Light border for cards */
+            --transition-ease: all 0.3s ease; /* General transition */
+
+            /* Code specific colors (inspired by Atom One Dark / reference) */
+            --code-bg: #282C34; /* Dark background for code blocks */
+            --code-text: #ABB2BF; /* Light gray for code text */
+            --code-comment: #5C6370; /* Muted gray for comments */
+            --code-keyword: #C678DD; /* Purple for SQL keywords */
+            --code-string: #98C379; /* Green for strings */
+            --code-number: #D19A66; /* Orange-brown for numbers */
+            --code-operator: #56B6C2; /* Cyan for operators */
+
+            /* ER Diagram specific colors (re-mapped to new palette) */
+            --er-entity: #8E44AD; /* Deep Purple */
+            --er-attribute: #27AE60; /* Emerald Green */
+            --er-relationship-1N: #DC3545; /* Red for 1:N relationships */
+            --er-relationship-MN: #007BFF; /* Blue for M:N relationships */
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Roboto', 'Noto Sans SC', sans-serif; /* Adopted fonts from reference */
+            line-height: 1.6;
+            color: var(--text-default);
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-lighter) 100%); /* Gradient background */
+            background-attachment: fixed;
+            overflow-x: hidden;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px; /* Reduced side padding slightly */
+        }
+
+        /* Header Styling (Adopted from Vue.js example) */
+        header {
+            background: linear-gradient(135deg, var(--secondary-main) 0%, var(--primary-main) 100%);
+            color: white;
+            padding: 80px 0 60px; /* Generous padding */
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Soft shadow */
+            margin-bottom: 50px; /* More space below header */
+        }
+        .header-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        header h1 {
+            font-size: 3.5rem; /* Larger title */
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .subtitle { /* For the sub-text below main title */
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .header-text-main { /* For the very top title like "数据库期末复习总纲 - 答案版" */
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .header-text-sub { /* For the paragraph below header-text-main */
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        /* Navigation Bar (Adapted from Vue.js chapter-nav, simplified for sections) */
+        nav {
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center; /* Center items */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            padding: 15px 0;
+            border-radius: 0 0 15px 15px; /* Rounded bottom corners */
+            margin-bottom: 30px; /* Space below nav */
+        }
+        nav a {
+            padding: 12px 25px;
+            margin: 0 10px;
+            border-radius: 30px; /* Pill shape */
+            cursor: pointer;
+            transition: var(--transition-ease);
+            font-weight: 500;
+            color: var(--text-light-gray);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Space for icon */
+        }
+        nav a:hover {
+            background: var(--primary-main);
+            color: white;
+            transform: translateY(-3px); /* Lift effect */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        /* Active class for navigation, if needed for future dynamic use */
+        nav a.active {
+            background: var(--primary-main);
+            color: white;
+        }
+
+        /* Section Styling (Adopted from Vue.js .section) */
+        section.content-section { /* Renamed to avoid conflict with .section-title */
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 40px; /* Generous padding */
+            margin-bottom: 50px;
+            transition: var(--transition-ease);
+            position: relative;
+            overflow: hidden;
+            border: none; /* Remove default border, using shadow */
+        }
+        section.content-section:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        section.content-section::before { /* Left accent bar */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 8px; /* Wider bar */
+            height: 100%;
+            background: var(--primary-main);
+        }
+
+        /* Section Header (Adopted from Vue.js .section-header) */
+        .section-header-styled { /* New class to apply Vue.js like header styling */
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-card); /* Subtle separator */
+        }
+        .section-icon { /* Icon styling from reference */
+            width: 60px; /* Slightly smaller icon */
+            height: 60px;
+            background: var(--primary-main);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px; /* Slightly smaller icon font */
+            margin-right: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h2.section-title { /* Main section title inside the section card */
+            font-size: 2.5rem !important; /* Override smaller Tailwind h2 */
+            color: var(--secondary-main);
+            margin: 0; /* Reset margins */
+            padding: 0; /* Reset padding */
+            border-bottom: none !important; /* Remove individual border */
+            text-align: left !important; /* Align left */
+            line-height: 1.2;
+        }
+        .section-subtitle { /* Subtitle for main section titles */
+            color: var(--text-light-gray);
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        /* Sub-section titles within sections */
+        h3.sub-section-title {
+            color: var(--secondary-main); /* Darker blue */
+            font-size: 1.8rem; /* text-2xl equivalent, slightly larger */
+            font-weight: 600;
+            margin-bottom: 1.2rem; /* More space */
+            padding-left: 0; /* Remove left padding as icon is used */
+            border-left: none; /* Remove left border as icon is used */
+            display: flex; /* Use flex for icon alignment */
+            align-items: center;
+            gap: 10px; /* Space between icon and text */
+        }
+        h3.sub-section-title i {
+            color: var(--primary-main); /* Primary theme color for icons */
+            font-size: 1.6rem;
+        }
+
+        /* Question Card specific to answers layout (keeping previous structure) */
+        .question-card {
+            background-color: var(--card-bg);
+            margin: 20px 0;
+            padding: 1.8rem;
+            border-radius: 12px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            transition: var(--transition-ease);
+            border: 1px solid var(--border-card);
+            position: relative;
+            overflow: hidden;
+        }
+        .question-card::before { /* Left accent bar for question cards */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: var(--accent-soft); /* Using accent color for individual questions */
+            border-radius: 12px 0 0 12px;
+        }
+        .question-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        h4.question-heading {
+            color: var(--secondary-main); /* Darker blue-gray */
+            font-size: 1.3rem; /* Slightly larger */
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        .question-text {
+            color: var(--text-default);
+            margin-bottom: 0.75rem;
+        }
+        .answer-text {
+            color: var(--text-answer);
+            font-weight: 500; /* Slightly bolder for clarity */
+            margin-top: 10px; /* Space above answer */
+        }
+        .answer-text ul li {
+            margin-bottom: 0.4rem;
+        }
+
+        /* Highlighted text within answers */
+        .text-highlight {
+            color: var(--primary-main); /* Bright blue */
+            font-weight: 600;
+        }
+        .text-relationship-red { /* For relationship cardinality in ER description */
+            color: var(--er-relationship-1N);
+            font-weight: 700;
+        }
+        .text-relationship-blue { /* For relationship cardinality in ER description */
+            color: var(--er-relationship-MN);
+            font-weight: 700;
+        }
+
+        /* Code Block Styling (from Vue.js example, adapted to SQL syntax) */
+        pre.code-block {
+            background-color: var(--code-bg);
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 20px 0;
+            line-height: 1.5;
+            color: var(--code-text);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Stronger shadow for code */
+        }
+        .code-block .code-comment { color: var(--code-comment); }
+        .code-block .code-tag { color: var(--code-keyword); } /* Re-using keyword for general "tag" elements */
+        .code-block .code-attr { color: var(--code-attribute); } /* Re-using attribute for general "attr" elements */
+        .code-block .code-string { color: var(--code-string); }
+        .code-block .sql-keyword { color: var(--code-keyword); }
+        .code-block .sql-string { color: var(--code-string); }
+        .code-block .sql-comment { color: var(--code-comment); font-style: italic; }
+        .code-block .sql-number { color: var(--code-number); }
+
+
+        /* Special Highlight block (for exam tips, intro text) */
+        .highlight-block {
+            background-color: var(--highlight-bg);
+            border-left: 5px solid var(--highlight-border);
+            padding: 20px 25px;
+            margin: 25px 0;
+            border-radius: 10px;
+            color: var(--text-default); /* Changed to default text, strong will use highlight color */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            line-height: 1.5;
+        }
+        .highlight-block strong {
+            color: var(--primary-main);
+        }
+        .highlight-block ul {
+            padding-left: 20px;
+            list-style: disc; /* Ensure bullets show */
+        }
+        .highlight-block ul li {
+            margin-bottom: 8px;
+        }
+
+        /* ER Diagram specific colors */
+        .entity-color { color: var(--er-entity); }
+        .attribute-color { color: var(--er-attribute); }
+        .relationship-color-red { color: var(--er-relationship-1N); }
+        .relationship-color-blue { color: var(--er-relationship-MN); }
+        .underline-solid { text-decoration: underline; text-decoration-style: solid; }
+        .underline-wavy { text-decoration: underline; text-decoration-style: wavy; }
+        
+        /* Custom property for answer text color - setting it here */
+        .answer-text {
+            color: var(--secondary-main); /* Dark blue for answer text, for better contrast on white cards */
+        }
+
+        /* Print styles */
+        @media print {
+            nav, .no-print, .question-card:hover, section.content-section:hover {
+                display: none !important;
+            }
+            body {
+                background-color: #fff !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .container {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            header {
+                box-shadow: none !important;
+                background: #f0f0f0 !important;
+                color: #333 !important;
+                padding: 20px !important;
+                margin-bottom: 15px !important;
+            }
+            section.content-section {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                border-radius: 5px !important;
+                margin-bottom: 15px !important;
+                padding: 15px !important;
+            }
+            section.content-section::before { /* Hide left accent bar in print */
+                display: none !important;
+            }
+            .section-header-styled {
+                border-bottom: 1px solid #eee !important;
+                padding-bottom: 10px !important;
+                margin-bottom: 15px !important;
+            }
+            .section-icon {
+                display: none !important;
+            }
+            h2.section-title, h3.sub-section-title {
+                page-break-before: always;
+                margin-top: 1.5rem !important;
+                margin-bottom: 1rem !important;
+                border-bottom: 1px solid #ccc !important;
+                color: #000 !important;
+                padding-top: 10px !important;
+                border-left: none !important;
+                padding-left: 0 !important;
+                text-align: left !important;
+            }
+            .question-card {
+                border: 1px solid #ddd !important;
+                box-shadow: none !important;
+                margin-bottom: 10px !important;
+                padding: 1rem !important;
+            }
+            .question-card::before {
+                display: none !important;
+            }
+            h1, h2, h3, h4, .text-highlight,
+            .entity-color, .attribute-color, .relationship-color-red, .relationship-color-blue,
+            .highlight-block, .answer-text, .question-text {
+                color: #000 !important;
+                background-color: #f0f0f0 !important;
+                border-color: #ccc !important;
+            }
+            pre.code-block {
+                background-color: #f0f0f0 !important;
+                border: 1px dashed #ccc !important;
+                padding: 0.5rem !important;
+                color: #333 !important;
+                box-shadow: none !important;
+            }
+            .code-block .sql-keyword, .code-block .sql-string, .code-block .sql-comment, .code-block .sql-number {
+                color: #333 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="header-content">
+            <h1 class="header-text-main">数据库期末复习总纲 - 答案版</h1>
+            <p class="header-text-sub subtitle">全面覆盖基本概念、SQL编程与数据库设计题</p>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="no-print">
+        <a href="#basic-concepts">🧠 基本概念</a>
+        <a href="#programming-questions">💻 程序题</a>
+        <a href="#design-questions">📐 设计题</a>
+        <a href="#exam-tips">📌 考试技巧</a>
+    </nav>
+
+    <main class="container">
+
+        <!-- 基本概念 Section -->
+        <section id="basic-concepts" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-lightbulb"></i></div>
+                <div>
+                    <h2 class="section-title">一、基本概念</h2>
+                    <p class="section-subtitle">掌握数据库核心理论，理解关键术语</p>
+                </div>
+            </div>
+
+            <!-- Question 1 -->
+            <div class="question-card">
+                <h4 class="question-heading">1. 数据库系统的组成,核心。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 数据库系统 (DBS) 主要由 <span class="text-highlight">数据库 (DB)</span>、<span class="text-highlight">数据库管理系统 (DBMS)</span>、<span class="text-highlight">数据库管理员 (DBA)</span>、和<span class="text-highlight">应用系统</span> 组成。其中，<span class="text-highlight">数据库管理系统 (DBMS) 是核心</span>。
+                </p>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question-card">
+                <h4 class="question-heading">2. 数据库三级模式的定义(一句话),个数。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 数据库三级模式包括：<span class="text-highlight">外模式（用户视图）</span>、<span class="text-highlight">模式（全局逻辑视图）</span>和<span class="text-highlight">内模式（物理存储视图）</span>。共有 <span class="text-highlight">3个</span> 模式。
+                </p>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question-card">
+                <h4 class="question-heading">3. 数据库的物理独立性、逻辑独立性。(和三级模式的关系)。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">物理独立性:</span> 指当数据库的<span class="text-highlight">内模式（物理存储结构）改变时，模式和外模式不需要改变</span>。它依赖于<span class="text-highlight">内模式与模式之间的映射</span>。</li>
+                        <li><span class="text-highlight">逻辑独立性:</span> 指当数据库的<span class="text-highlight">模式（全局逻辑结构）改变时，外模式和应用程序不需要改变</span>。它依赖于<span class="text-highlight">外模式与模式之间的映射</span>。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="question-card">
+                <h4 class="question-heading">4. 在关系模型中,二维表、行,列的定义。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">二维表 (关系/Relation):</span> 具有特定结构的数据集合，由行和列组成，表示实体和实体之间的联系。</li>
+                        <li><span class="text-highlight">行 (元组/Tuple):</span> 表中的一条记录，对应关系中的一个元组，表示一个实体或一个联系的实例。</li>
+                        <li><span class="text-highlight">列 (属性/Attribute):</span> 表中的一个字段，对应关系中的一个属性，表示实体或联系的某一特性。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="question-card">
+                <h4 class="question-heading">5. 数据库系统中,数据的最小存取单位。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 在数据库系统中，数据的最小存取单位是<span class="text-highlight">字段（或属性值）</span>。对于物理存取，最小单位通常是<span class="text-highlight">块或页</span>。
+                </p>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="question-card">
+                <h4 class="question-heading">6. 主码和外码的描述。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">主码 (Primary Key):</span> 能够<span class="text-highlight">唯一标识关系中每一个元组（行）的属性或属性组</span>。主码的值必须<span class="text-highlight">唯一且非空</span>。</li>
+                        <li><span class="text-highlight">外码 (Foreign Key):</span> 一个关系中的一个属性或属性组，它的值<span class="text-highlight">参照（匹配）另一个关系的主码的值</span>。外码用于建立和维护不同关系之间的联系。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="question-card">
+                <h4 class="question-heading">7. 关系代数: 已知学生表为学生(学号,姓名,性别,出生日期,专业编号),专业表为 专业(专业编号,名称)。</h4>
+                <p class="question-text">
+                    <span class="font-bold">查询姓名为XX的出生日期的关系代数。</span>
+                </p>
+                <p class="answer-text mb-3">
+                    <span class="font-bold">答案:</span> &Pi;<sub>出生日期</sub> ( &sigma;<sub>姓名='XX'</sub> (学生) )
+                </p>
+                <p class="question-text">
+                    <span class="font-bold">查询专业名称为“YY”的学生姓名的关系代数。</span>
+                </p>
+                <p class="answer-text mb-3">
+                    <span class="font-bold">答案:</span> &Pi;<sub>姓名</sub> (学生 &#x2A2D;<sub>学生.专业编号=专业.专业编号</sub> ( &sigma;<sub>名称='YY'</sub> (专业) ) )
+                </p>
+                <p class="question-text">
+                    <span class="font-bold">查询性别为*的学生姓名的关系代数。</span> (注：*通常指通配符，在此假设指特定性别如'男'或'女')
+                </p>
+                <p class="answer-text mb-3">
+                    <span class="font-bold">答案:</span> &Pi;<sub>姓名</sub> ( &sigma;<sub>性别='男'</sub> (学生) ) 或 &Pi;<sub>姓名</sub> ( &sigma;<sub>性别='女'</sub> (学生) ) (具体取决于*代表的性别)
+                </p>
+                <p class="question-text">
+                    <span class="font-bold">查询姓名为“XX”的学生的专业名称的关系代数。</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> &Pi;<sub>名称</sub> (学生 &#x2A2D;<sub>学生.专业编号=专业.专业编号</sub> ( &sigma;<sub>姓名='XX'</sub> (学生) ) )
+                </p>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="question-card">
+                <h4 class="question-heading">8. 完整性约束(3个),完整性约束使用的关键字(主码、外码、唯一、非空、检查)。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">实体完整性:</span> 规定关系的主码不能为空（<span class="text-highlight">NOT NULL</span>）且唯一（<span class="text-highlight">PRIMARY KEY</span>，隐含唯一）。</li>
+                        <li><span class="text-highlight">参照完整性:</span> 规定外码的值要么为空，要么必须匹配其参照关系的主码的值（<span class="text-highlight">FOREIGN KEY</span>）。</li>
+                        <li><span class="text-highlight">用户定义完整性:</span> 根据实际应用需求定义的约束，例如某个属性的取值范围（<span class="text-highlight">CHECK</span>）、唯一性约束（<span class="text-highlight">UNIQUE</span>）等。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 9 -->
+            <div class="question-card">
+                <h4 class="question-heading">9. 参照完整性的定义。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 参照完整性（Referential Integrity）是指如果关系中的某个属性或属性组是<span class="text-highlight">外码</span>，则它的值必须<span class="text-highlight">在它所参照的父关系的主码中存在</span>，或者该外码的<span class="text-highlight">所有组成属性都为空值</span>。
+                </p>
+            </div>
+
+            <!-- Question 10 -->
+            <div class="question-card">
+                <h4 class="question-heading">10. 创建表的语句。</h4>
+                <p class="question-text">
+                    <span class="font-bold">创建订单(orders)表的语句如下,按要求把相关语句补充完整。</span>
+                </p>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">CREATE TABLE</span> orders (
+    <span style="color: var(--code-text);">order_id</span> <span style="color: var(--code-keyword);">INT PRIMARY KEY</span>,
+    <span style="color: var(--code-text);">user_id</span> <span style="color: var(--code-keyword);">INT NOT NULL</span>,
+    <span style="color: var(--code-text);">order_date</span> <span style="color: var(--code-keyword);">DATETIME DEFAULT CURRENT_TIMESTAMP</span>,
+    <span style="color: var(--code-text);">total_amount</span> <span style="color: var(--code-keyword);">DECIMAL</span>(<span style="color: var(--code-number);">10</span>,<span style="color: var(--code-number);">2</span>),
+    <span style="color: var(--code-keyword);">FOREIGN KEY</span> (user_id) <span style="color: var(--code-keyword);">REFERENCES</span> users(user_id)
+);</code></pre>
+                <p class="question-text mt-3">
+                    <span class="font-bold">创建选课表(course_selection)的语句如下,按要求把相关语句补充完整。(1)选课日期(属性名)数据类型为日期型,且非空; (2)主码为学号(student_id)和课程号(course_id)的组合。</span>
+                </p>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">CREATE TABLE</span> course_selection (
+    <span style="color: var(--code-text);">student_id</span> <span style="color: var(--code-keyword);">INT</span>,
+    <span style="color: var(--code-text);">course_id</span> <span style="color: var(--code-keyword);">INT</span>,
+    <span style="color: var(--code-text);">enrollment_date</span> <span style="color: var(--code-keyword);">DATE NOT NULL</span>,
+    <span style="color: var(--code-keyword);">PRIMARY KEY</span> (student_id, course_id)
+);</code></pre>
+            </div>
+
+            <!-- Question 11 -->
+            <div class="question-card">
+                <h4 class="question-heading">11. 修改表定义的命令,可以修改什么。Alter Table.</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 修改表定义的命令是 <span class="text-highlight">ALTER TABLE</span>。它可以修改表的结构，包括：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">添加/删除列 (ADD/DROP COLUMN)</span></li>
+                        <li><span class="text-highlight">修改列的数据类型、大小或约束 (ALTER COLUMN/MODIFY COLUMN)</span></li>
+                        <li><span class="text-highlight">添加/删除约束 (ADD/DROP CONSTRAINT，如PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK)</span></li>
+                        <li><span class="text-highlight">重命名表或列 (RENAME TO/RENAME COLUMN)</span></li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 12 -->
+            <div class="question-card">
+                <h4 class="question-heading">12. 删除表定义的命令。Drop Table (Delete)</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 删除表定义的命令是 <span class="text-highlight">DROP TABLE</span>。它会<span class="text-highlight">删除表的结构和所有数据</span>。
+                    <br>而 <span class="text-highlight">DELETE FROM</span> 命令是<span class="text-highlight">删除表中的数据，但不删除表结构</span>。
+                </p>
+            </div>
+
+            <!-- Question 13 -->
+            <div class="question-card">
+                <h4 class="question-heading">13. 查询语句中,关键字 Select、From、Where、Group By、Having、Order By 的作用。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">SELECT:</span> 指定要<span class="text-highlight">查询的列或表达式</span>。</li>
+                        <li><span class="text-highlight">FROM:</span> 指定要<span class="text-highlight">从中检索数据的表或视图</span>。</li>
+                        <li><span class="text-highlight">WHERE:</span> 用于<span class="text-highlight">筛选行，指定满足条件的行才会被返回</span>。</li>
+                        <li><span class="text-highlight">GROUP BY:</span> 将查询结果<span class="text-highlight">按照一个或多个列进行分组</span>，通常与聚合函数一起使用。</li>
+                        <li><span class="text-highlight">HAVING:</span> 对 <span class="text-highlight">GROUP BY 分组后的结果进行筛选</span>，条件中可以使用聚合函数。</li>
+                        <li><span class="text-highlight">ORDER BY:</span> 对查询结果<span class="text-highlight">进行排序</span>（升序ASC或降序DESC）。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 14 -->
+            <div class="question-card">
+                <h4 class="question-heading">14. LIKE 查询通配符的含义(%,_)。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 在 <span class="text-highlight">LIKE</span> 子句中使用的通配符：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">% (百分号):</span> 代表<span class="text-highlight">任意长度（0个或多个）的任意字符</span>。</li>
+                        <li><span class="text-highlight">_ (下划线):</span> 代表<span class="text-highlight">单个任意字符</span>。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 15 -->
+            <div class="question-card">
+                <h4 class="question-heading">15. 连接操作的含义(等值连接、自然连接)。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 连接操作用于<span class="text-highlight">将两个或多个关系（表）根据它们之间的共同属性（列）连接起来</span>，生成一个新的关系。
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">等值连接 (Equijoin):</span> <span class="text-highlight">连接两个表中相等属性值的行</span>。结果中通常包含重复的连接属性列。</li>
+                        <li><span class="text-highlight">自然连接 (Natural Join):</span> 是一种特殊的等值连接，它<span class="text-highlight">自动找出两个表中所有相同的属性列，并基于这些列进行等值连接</span>，<span class="text-highlight">结果中只保留一个连接属性列</span>（消除重复列）。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 16 -->
+            <div class="question-card">
+                <h4 class="question-heading">16. 常用的聚集函数(Count两个)。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 常用的聚集函数（Aggregate Functions）包括：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">COUNT(*):</span> 统计<span class="text-highlight">行数</span>（包括NULL值）。</li>
+                        <li><span class="text-highlight">COUNT(列名):</span> 统计<span class="text-highlight">指定列中非NULL值的行数</span>。</li>
+                        <li><span class="text-highlight">SUM(列名):</span> 计算指定列的<span class="text-highlight">总和</span>。</li>
+                        <li><span class="text-highlight">AVG(列名):</span> 计算指定列的<span class="text-highlight">平均值</span>。</li>
+                        <li><span class="text-highlight">MAX(列名):</span> 获取指定列的<span class="text-highlight">最大值</span>。</li>
+                        <li><span class="text-highlight">MIN(列名):</span> 获取指定列的<span class="text-highlight">最小值</span>。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 17 -->
+            <div class="question-card">
+                <h4 class="question-heading">17. Exists 子查询定义(不要求写程序)。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> <span class="text-highlight">EXISTS</span> 子查询用于<span class="text-highlight">检查子查询是否返回了任何行</span>。如果子查询返回至少一行，EXISTS 条件为真；如果子查询没有返回任何行，EXISTS 条件为假。它只关心是否存在行，而不关心返回的具体数据。
+                </p>
+            </div>
+
+            <!-- Question 18 -->
+            <div class="question-card">
+                <h4 class="question-heading">18. 集合操作的命令(并、交、差)。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 集合操作用于对两个或多个查询结果进行组合，要求所有参与查询的列数和对应列的数据类型必须兼容。
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">并集 (UNION):</span> 返回两个查询结果的<span class="text-highlight">所有不重复的行</span>。</li>
+                        <li><span class="text-highlight">交集 (INTERSECT):</span> 返回两个查询结果中<span class="text-highlight">共同存在的行</span>。</li>
+                        <li><span class="text-highlight">差集 (EXCEPT 或 MINUS):</span> 返回第一个查询结果中<span class="text-highlight">存在但第二个查询结果中不存在的行</span>。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 19 -->
+            <div class="question-card">
+                <h4 class="question-heading">19. 索引的作用,什么情况下需要建立索引。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">索引的作用:</span> 索引是<span class="text-highlight">提高数据库查询速度</span>的有效方式，类似于书的目录。它通过<span class="text-highlight">创建快速数据查找路径</span>，减少数据库系统扫描的数据量，从而<span class="text-highlight">加快数据检索速度</span>。</li>
+                        <li><span class="text-highlight">建立索引的情况:</span>
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li>经常在 <span class="text-highlight">WHERE 子句中使用的列</span>。</li>
+                                <li>经常在 <span class="text-highlight">JOIN 操作中连接的列（外码）</span>。</li>
+                                <li>经常在 <span class="text-highlight">ORDER BY、GROUP BY 子句中使用的列</span>。</li>
+                                <li><span class="text-highlight">主码和唯一约束列</span>（通常会自动创建索引）。</li>
+                                <li>表中<span class="text-highlight">数据量大</span>，查询性能要求高。</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 20 -->
+            <div class="question-card">
+                <h4 class="question-heading">20. 视图的定义,如何修改视图的定义(关键字),视图更新的要求。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">视图的定义:</span> 视图是一个<span class="text-highlight">虚拟的表</span>，其内容由查询定义。它不存储实际数据，而是<span class="text-highlight">基于一个或多个基本表的数据动态生成</span>。视图提供了一种逻辑上的数据访问方式，可以简化复杂查询、提高数据安全性。</li>
+                        <li><span class="text-highlight">修改视图的定义:</span> 使用 <span class="text-highlight">ALTER VIEW</span> 或先 <span class="text-highlight">DROP VIEW</span> 再 <span class="text-highlight">CREATE VIEW</span>。</li>
+                        <li><span class="text-highlight">视图更新的要求:</span> 只有当视图的定义满足一定条件时，才能对视图进行更新（INSERT, UPDATE, DELETE）。通常，可更新视图需要满足以下条件：
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li>视图的查询定义<span class="text-highlight">只涉及一个基本表</span>。</li>
+                                <li>视图中<span class="text-highlight">包含基本表的所有非空列</span>。</li>
+                                <li>视图中<span class="text-highlight">不包含聚合函数、DISTINCT、GROUP BY、HAVING 子句</span>。</li>
+                                <li>视图中<span class="text-highlight">不包含 UNION、INTERSECT、EXCEPT 等集合操作</span>。</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 21 -->
+            <div class="question-card">
+                <h4 class="question-heading">21. 1NF、2NF、3NF的定义。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">第一范式 (1NF):</span> 关系中的<span class="text-highlight">所有属性都是不可再分的原子值</span>。即不允许在关系中出现重复的组（嵌套关系）。</li>
+                        <li><span class="text-highlight">第二范式 (2NF):</span> 在满足 1NF 的基础上，<span class="text-highlight">非主属性完全函数依赖于主码</span>（即不存在部分函数依赖）。</li>
+                        <li><span class="text-highlight">第三范式 (3NF):</span> 在满足 2NF 的基础上，<span class="text-highlight">非主属性不传递函数依赖于主码</span>（即不存在传递函数依赖）。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 22 -->
+            <div class="question-card">
+                <h4 class="question-heading">22. 在SQL中,授予权限和撤销权限的命令。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">授予权限:</span> <span class="text-highlight">GRANT</span></li>
+                        <li><span class="text-highlight">撤销权限:</span> <span class="text-highlight">REVOKE</span></li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 23 -->
+            <div class="question-card">
+                <h4 class="question-heading">23. 授予用户对表 TableB 的查询权限的命令。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                </p>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">GRANT</span> <span style="color: var(--code-keyword);">SELECT</span> <span style="color: var(--code-keyword);">ON</span> TableB <span style="color: var(--code-keyword);">TO</span> UserName;</code></pre>
+            </div>
+
+            <!-- Question 24 -->
+            <div class="question-card">
+                <h4 class="question-heading">24. 授予用户对表 TableB 的插入权限并允许转授权的命令。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                </p>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">GRANT</span> <span style="color: var(--code-keyword);">INSERT</span> <span style="color: var(--code-keyword);">ON</span> TableB <span style="color: var(--code-keyword);">TO</span> UserName <span style="color: var(--code-keyword);">WITH GRANT OPTION</span>;</code></pre>
+            </div>
+
+            <!-- Question 25 -->
+            <div class="question-card">
+                <h4 class="question-heading">25. 先创建一个名为R1的角色,再将对表 TableB 的插入权限授予该角色的命令(2条)。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                </p>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">CREATE ROLE</span> R1;
+<span style="color: var(--code-keyword);">GRANT</span> <span style="color: var(--code-keyword);">INSERT</span> <span style="color: var(--code-keyword);">ON</span> TableB <span style="color: var(--code-keyword);">TO</span> R1;</code></pre>
+                <p class="question-text mt-3">
+                    <span class="font-bold">先创建一个名为R1的角色,再将用户分配到角色 R1 中的命令(2条)。</span>
+                </p>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">CREATE ROLE</span> R1;
+<span style="color: var(--code-keyword);">GRANT</span> R1 <span style="color: var(--code-keyword);">TO</span> UserName; <span style="color: var(--code-comment);">-- 或 ALTER USER UserName DEFAULT ROLE R1; (根据数据库系统有所不同)</span></code></pre>
+            </div>
+
+            <!-- Question 26 -->
+            <div class="question-card">
+                <h4 class="question-heading">26. 数据库设计的阶段,每个阶段的任务。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 数据库设计通常分为以下几个阶段：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">需求分析:</span> 收集、分析用户的数据需求和功能需求。形成<span class="text-highlight">数据字典和数据流图</span>。</li>
+                        <li><span class="text-highlight">概念结构设计:</span> 抽象、概括数据，形成独立于具体DBMS的概念模型。主要任务是<span class="text-highlight">绘制 E-R 图</span>。</li>
+                        <li><span class="text-highlight">逻辑结构设计:</span> 将概念模型转换为特定 DBMS 所支持的数据模型（如关系模型），并进行<span class="text-highlight">范式化处理</span>。</li>
+                        <li><span class="text-highlight">物理结构设计:</span> 为逻辑数据模型选择合适的物理存储结构和存取方法，如<span class="text-highlight">确定文件组织方式、建立索引</span>等。</li>
+                        <li><span class="text-highlight">数据库实施:</span> 根据设计结果，使用 DDL 语言<span class="text-highlight">建立数据库模式，装载数据，并编写应用程序</span>。</li>
+                        <li><span class="text-highlight">数据库运行和维护:</span> 数据库的日常运行、性能监控、备份恢复、安全管理和系统优化等。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 27 -->
+            <div class="question-card">
+                <h4 class="question-heading">27. 在E-R 模型中,一对一、一对多、多对多联系转换为关系模型的方法(合并? 独立?)。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">1:1 联系:</span>
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li><span class="text-highlight">合并:</span> 将联系属性和任意一个实体的主码合并到另一个实体对应的关系模式中（作为外码）。</li>
+                                <li><span class="text-highlight">独立:</span> 单独创建一个关系模式，其主码由参与联系的两个实体的主码构成，并包含联系属性。</li>
+                            </ul>
+                        </li>
+                        <li><span class="text-highlight">1:N 联系:</span>
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li><span class="text-highlight">合并:</span> 在 N 端实体对应的关系模式中<span class="text-highlight">加入 1 端实体的主码作为外码</span>，并包含联系属性。</li>
+                            </ul>
+                        </li>
+                        <li><span class="text-highlight">M:N 联系:</span>
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li><span class="text-highlight">独立:</span> <span class="text-highlight">单独创建一个关系模式</span>。该关系模式的主码由参与联系的两个实体的主码构成，并包含联系属性。</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 28 -->
+            <div class="question-card">
+                <h4 class="question-heading">28. 日志文件的定义。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> <span class="text-highlight">日志文件（Log File）</span>是数据库管理系统用于<span class="text-highlight">记录所有事务操作的日志信息</span>的文件。这些信息包括事务的开始、结束、对数据库的每一次更新操作（如修改前的值、修改后的值、操作时间等），主要用于<span class="text-highlight">数据库的恢复（如回滚、前滚）和并发控制</span>。
+                </p>
+            </div>
+
+            <!-- Question 29 -->
+            <div class="question-card">
+                <h4 class="question-heading">29. 数据库恢复:备份(不同的备份方法:完全、增量)+日志。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 数据库恢复是指将数据库从故障状态恢复到一致性状态。主要依赖于<span class="text-highlight">备份和日志文件</span>。
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">备份:</span>
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li><span class="text-highlight">完全备份 (Full Backup):</span> 备份<span class="text-highlight">所有数据</span>，耗时最长，但恢复最快。</li>
+                                <li><span class="text-highlight">增量备份 (Incremental Backup):</span> 备份<span class="text-highlight">自上次任何类型备份以来所有改变的数据</span>。恢复时需要最近一次完全备份和所有后续的增量备份。</li>
+                            </ul>
+                        </li>
+                        <li><span class="text-highlight">日志文件:</span> 记录了所有事务的操作，用于在恢复时进行<span class="text-highlight">重做（Redo）和撤销（Undo）操作</span>，以确保数据的一致性。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 30 -->
+            <div class="question-card">
+                <h4 class="question-heading">30. 事务的 ACID 特性,每个特性的含义(一句话)。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 事务的 ACID 特性是数据库系统保证事务正确执行的四个基本要素：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">原子性 (Atomicity):</span> 事务是<span class="text-highlight">一个不可分割的工作单元</span>，要么全部执行成功，要么全部不执行（回滚）。</li>
+                        <li><span class="text-highlight">一致性 (Consistency):</span> 事务执行前后，<span class="text-highlight">数据库从一个一致性状态转换到另一个一致性状态</span>，保持数据的完整性约束。</li>
+                        <li><span class="text-highlight">隔离性 (Isolation):</span> 多个并发事务执行时，<span class="text-highlight">一个事务的执行不被其他事务干扰</span>，就像是独立地执行一样。</li>
+                        <li><span class="text-highlight">持久性 (Durability):</span> 事务一旦<span class="text-highlight">提交成功，它对数据库的改变就是永久的</span>，即使系统发生故障也不会丢失。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 31 -->
+            <div class="question-card">
+                <h4 class="question-heading">31. 在封锁协议中,X锁和S锁的定义。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 在数据库的封锁协议中，<span class="text-highlight">X锁（排它锁/Exclusive Lock）</span>和<span class="text-highlight">S锁（共享锁/Shared Lock）</span>是两种基本的锁类型：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">S锁 (共享锁/读锁):</span> 如果事务 T 对数据对象 A 加上 S 锁，则其他事务<span class="text-highlight">可以对 A 加 S 锁，但不能加 X 锁</span>。主要用于<span class="text-highlight">读操作</span>，允许多个事务并发读取同一数据。</li>
+                        <li><span class="text-highlight">X锁 (排它锁/写锁):</span> 如果事务 T 对数据对象 A 加上 X 锁，则其他事务<span class="text-highlight">不能对 A 加任何类型的锁</span>。主要用于<span class="text-highlight">写操作</span>，保证在修改数据时不会有其他事务同时读写。</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Question 32 -->
+            <div class="question-card">
+                <h4 class="question-heading">32. 数据库并发操作中,三种不一致(丢失修改、脏读、不可重复读)的原因。并发控制的主要技术:封锁、时间戳、乐观方法、多版本并发控制。</h4>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 数据库并发操作中可能出现的三种不一致性：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">丢失修改 (Lost Update):</span> <span class="text-highlight">一个事务的更新被另一个事务的更新覆盖</span>，导致前一个事务的修改丢失。原因是没有足够的并发控制机制（如锁）来保护更新操作。</li>
+                        <li><span class="text-highlight">脏读 (Dirty Read):</span> 一个事务<span class="text-highlight">读取了另一个未提交事务的数据</span>，如果后一个事务回滚，则前一个事务读取到的数据就是“脏”数据，不应该存在。</li>
+                        <li><span class="text-highlight">不可重复读 (Non-repeatable Read):</span> 一个事务<span class="text-highlight">在同一查询中多次读取同一数据，但每次读取到的数据不同</span>，因为在两次读取之间有另一个事务修改并提交了数据。</li>
+                    </ul>
+                    <br>
+                    <span class="font-bold">并发控制的主要技术:</span>
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">封锁 (Locking):</span> 通过对数据对象加锁来控制并发访问，防止冲突。</li>
+                        <li><span class="text-highlight">时间戳 (Timestamp):</span> 给事务或数据项赋予时间戳，基于时间戳的顺序来解决冲突。</li>
+                        <li><span class="text-highlight">乐观方法 (Optimistic Concurrency Control):</span> 假定冲突很少发生，在事务提交时才检查冲突，如果发现冲突则回滚。</li>
+                        <li><span class="text-highlight">多版本并发控制 (Multi-Version Concurrency Control, MVCC):</span> 为每个被修改的数据项创建多个版本，读事务可以访问旧版本，写事务创建新版本，从而实现读写不冲突。</li>
+                    </ul>
+                </p>
+            </div>
+        </section>
+
+        <!-- 程序题 Section -->
+        <section id="programming-questions" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-code"></i></div>
+                <div>
+                    <h2 class="section-title">二、程序题</h2>
+                    <p class="section-subtitle">SQL编程与结果分析，掌握数据库操作精髓</p>
+                </div>
+            </div>
+
+            <div class="highlight-block">
+                <p><strong>📌 本部分共两类：看程序写结果（15分）+ SQL 编程（25分）</strong></p>
+            </div>
+            <p class="mb-4" style="color: var(--text-default);">以下程序题的“写结果”部分，由于没有提供具体的数据库数据，答案将以<span class="text-highlight">解释查询目的和预期输出格式</span>为主。请根据您实际的数据库数据运行SQL语句来获得具体结果。</p>
+
+            <h3 class="sub-section-title"><i class="fas fa-search"></i> 写结果题：</h3>
+            <!-- 程序题 1. 写结果 -->
+            <div class="question-card">
+                <h4 class="question-heading">1. 写结果:</h4>
+                <p class="question-text">
+                    <span class="font-bold">Select rname 姓名, 2014-rage 出生年份 From reader Where 条件 1;</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">解释:</span> 该查询将从 <span class="text-highlight">reader</span> 表中筛选出满足 <span class="text-highlight">条件1</span> 的读者，并返回他们的 <span class="text-highlight">姓名</span> 和根据 <span class="text-highlight">2014 - 年龄</span> 计算出的 <span class="text-highlight">出生年份</span>。
+                </p>
+                <pre class="code-block"><code><span style="color: var(--code-text);">姓名</span>      <span style="color: var(--code-text);">出生年份</span>
+<span style="color: var(--code-comment);">(根据条件1和实际数据填充)</span></code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">2. 写结果:</h4>
+                <p class="question-text">
+                    <span class="font-bold">Select DISTINCT rno 读者编号 From borrow Where 条件 1:</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">解释:</span> 该查询将从 <span class="text-highlight">borrow</span> 表中筛选出满足 <span class="text-highlight">条件1</span> 的借阅记录，并返回<span class="text-highlight">不重复的读者编号</span>。
+                </p>
+                <pre class="code-block"><code><span style="color: var(--code-text);">读者编号</span>
+<span style="color: var(--code-comment);">(根据条件1和实际数据填充)</span></code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">3. 写结果:</h4>
+                <p class="question-text">
+                    <span class="font-bold">Select bpublisher, Count(bpublisher) From book Group By bpublisher Having Count(*)>=n;</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">解释:</span> 该查询会按照 <span class="text-highlight">出版社 (bpublisher)</span> 对 <span class="text-highlight">book</span> 表进行分组，然后筛选出<span class="text-highlight">图书数量大于或等于 n 的出版社及其对应的图书数量</span>。
+                </p>
+                <pre class="code-block"><code><span style="color: var(--code-text);">bpublisher</span>    <span style="color: var(--code-text);">Count(bpublisher)</span>
+<span style="color: var(--code-comment);">(根据实际数据和n的值填充)</span></code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">4. 写结果:</h4>
+                <p class="question-text">
+                    <span class="font-bold">Select rno, Sum(fine) From borrow Group By rno Having Sum (fine)>n;</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">解释:</span> 该查询会按照 <span class="text-highlight">读者编号 (rno)</span> 对 <span class="text-highlight">borrow</span> 表进行分组，然后筛选出<span class="text-highlight">罚款总额大于 n 的读者编号及其对应的罚款总额</span>。
+                </p>
+                <pre class="code-block"><code><span style="color: var(--code-text);">rno</span>        <span style="color: var(--code-text);">Sum(fine)</span>
+<span style="color: var(--code-comment);">(根据实际数据和n的值填充)</span></code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">5. 写结果:</h4>
+                <p class="question-text">
+                    <span class="font-bold">Select reader.rname, borrow.bishn From reader, borrow Where reader.rno = borrow.rno AND reader.rname='某某某'</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">解释:</span> 该查询使用<span class="text-highlight">等值连接</span>，查找姓名为 <span class="text-highlight">'某某某'</span> 的读者所借阅的<span class="text-highlight">图书的 ISBN 号及其姓名</span>。
+                </p>
+                <pre class="code-block"><code><span style="color: var(--code-text);">rname</span>      <span style="color: var(--code-text);">bishn</span>
+<span style="color: var(--code-comment);">(根据实际数据填充)</span></code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">6. 写结果:</h4>
+                <p class="question-text">
+                    <span class="font-bold">Select r.rno, r.rname From reader r, borrow b, book bk Where r.rno = b.rno AND bk.bisbn=b.bisbn AND bname='XXX';</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">解释:</span> 该查询使用<span class="text-highlight">多表连接</span>，查找借阅了书名为 <span class="text-highlight">'XXX'</span> 的图书的<span class="text-highlight">读者编号和姓名</span>。
+                </p>
+                <pre class="code-block"><code><span style="color: var(--code-text);">rno</span>        <span style="color: var(--code-text);">rname</span>
+<span style="color: var(--code-comment);">(根据实际数据填充)</span></code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">7. 写结果:</h4>
+                <p class="question-text">
+                    <span class="font-bold">Select rname From reader Where rno IN (Select rno From borrow Where 条件 1);</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">解释:</span> 该查询使用<span class="text-highlight">嵌套子查询</span>，查找在 <span class="text-highlight">borrow</span> 表中<span class="text-highlight">满足条件1的借阅记录对应的读者姓名</span>。
+                </p>
+                <pre class="code-block"><code><span style="color: var(--code-text);">rname</span>
+<span style="color: var(--code-comment);">(根据条件1和实际数据填充)</span></code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">8. 写结果:</h4>
+                <p class="question-text">
+                    <span class="font-bold">Select DISTINCT rno From borrow Where fine > (Select AVG(fine) From borrow Where fine&lt;&gt;0);</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">解释:</span> 该查询使用<span class="text-highlight">嵌套子查询</span>，查找<span class="text-highlight">罚款金额大于平均罚款金额（不包括罚款为0的记录）的读者编号</span>。
+                </p>
+                <pre class="code-block"><code><span style="color: var(--code-text);">rno</span>
+<span style="color: var(--code-comment);">(根据实际数据填充)</span></code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">9. 写结果:</h4>
+                <p class="question-text">
+                    <span class="font-bold">Select rno, rname From reader Where EXISTS (Select * From borrow Where rno = reader.rno AND bisbn='XXX');</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">解释:</span> 该查询使用 <span class="text-highlight">EXISTS 子查询</span>，查找<span class="text-highlight">借阅了 ISBN 号为 'XXX' 的图书的读者编号和姓名</span>。
+                </p>
+                <pre class="code-block"><code><span style="color: var(--code-text);">rno</span>        <span style="color: var(--code-text);">rname</span>
+<span style="color: var(--code-comment);">(根据实际数据填充)</span></code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">10. 写结果:</h4>
+                <p class="question-text">
+                    <span class="font-bold">Select bname From book Where NOT EXISTS (Select * From borrow Where bisbn=book.bisbn);</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">解释:</span> 该查询使用 <span class="text-highlight">NOT EXISTS 子查询</span>，查找<span class="text-highlight">没有被任何读者借阅过的图书的书名</span>。
+                </p>
+                <pre class="code-block"><code><span style="color: var(--code-text);">bname</span>
+<span style="color: var(--code-comment);">(根据实际数据填充)</span></code></pre>
+            </div>
+
+            <h3 class="sub-section-title"><i class="fas fa-laptop-code"></i> SQL 编程题：</h3>
+            <!-- 程序题 2. 编程 -->
+            <div class="question-card">
+                <h4 class="question-heading">1. 使用集合查询,查询借阅 ISBN号为'B1'或'B2'图书的读者编号。</h4>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">SELECT</span> rno <span style="color: var(--code-keyword);">FROM</span> borrow <span style="color: var(--code-keyword);">WHERE</span> bisbn <span style="color: var(--code-operator);">=</span> <span style="color: var(--code-string);">'B1'</span>
+<span style="color: var(--code-keyword);">UNION</span>
+<span style="color: var(--code-keyword);">SELECT</span> rno <span style="color: var(--code-keyword);">FROM</span> borrow <span style="color: var(--code-keyword);">WHERE</span> bisbn <span style="color: var(--code-operator);">=</span> <span style="color: var(--code-string);">'B2'</span>;</code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">2. 使用集合查询,查询没借过ISBN 号为'B'图书的读者编号。</h4>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">SELECT</span> rno <span style="color: var(--code-keyword);">FROM</span> reader
+<span style="color: var(--code-keyword);">EXCEPT</span>
+<span style="color: var(--code-keyword);">SELECT</span> rno <span style="color: var(--code-keyword);">FROM</span> borrow <span style="color: var(--code-keyword);">WHERE</span> bisbn <span style="color: var(--code-operator);">=</span> <span style="color: var(--code-string);">'B'</span>;</code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">3. 使用嵌套查询,查询比 某某 年龄小的读者姓名。</h4>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">SELECT</span> rname <span style="color: var(--code-keyword);">FROM</span> reader
+<span style="color: var(--code-keyword);">WHERE</span> rage <span style="color: var(--code-operator);">&lt;</span> ( <span style="color: var(--code-keyword);">SELECT</span> rage <span style="color: var(--code-keyword);">FROM</span> reader <span style="color: var(--code-keyword);">WHERE</span> rname <span style="color: var(--code-operator);">=</span> <span style="color: var(--code-string);">'某某'</span> );</code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">4. 使用嵌套查询,查询其他专业中比 某 专业所有读者年龄都大的读者姓名和年龄。</h4>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">SELECT</span> rname, rage <span style="color: var(--code-keyword);">FROM</span> reader
+<span style="color: var(--code-keyword);">WHERE</span> rspecialty <span style="color: var(--code-operator);">&lt;&gt;</span> <span style="color: var(--code-string);">'某'</span> <span style="color: var(--code-keyword);">AND</span> rage <span style="color: var(--code-operator);">&gt; ALL</span> (
+    <span style="color: var(--code-keyword);">SELECT</span> rage <span style="color: var(--code-keyword);">FROM</span> reader
+    <span style="color: var(--code-keyword);">WHERE</span> rspecialty <span style="color: var(--code-operator);">=</span> <span style="color: var(--code-string);">'某'</span>
+);</code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">5. 已知创建一个新表的SQL语句如下: Create Table borrow_count (mo char(5) Primary Key, amount int); 汇总每位读者借书总数,插入到 borrow_count 表中。</h4>
+                <p class="question-text">
+                    (注：题目中的 `mo` 应为 `rno` 以匹配 `borrow` 表中的读者编号)
+                </p>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">INSERT INTO</span> borrow_count (rno, amount) <span style="color: var(--code-comment);">-- 修正 mo 为 rno</span>
+<span style="color: var(--code-keyword);">SELECT</span> rno, <span style="color: var(--code-keyword);">COUNT</span>(*) <span style="color: var(--code-keyword);">FROM</span> borrow <span style="color: var(--code-keyword);">GROUP BY</span> rno;</code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">6. 已知创建一个新表的SQL语句如下: Create Table reader_fee (rno char(5) Primary Key, fee numeric(7,2)); 汇总每位读者罚款的总额,插入到 reader_fee表中。</h4>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">INSERT INTO</span> reader_fee (rno, fee)
+<span style="color: var(--code-keyword);">SELECT</span> rno, <span style="color: var(--code-keyword);">SUM</span>(fine) <span style="color: var(--code-keyword);">FROM</span> borrow <span style="color: var(--code-keyword);">GROUP BY</span> rno;</code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">7. 删除“某某某(人名)”(无重名)的借阅记录。</h4>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">DELETE FROM</span> borrow <span style="color: var(--code-keyword);">WHERE</span> rno <span style="color: var(--code-operator);">=</span> (
+    <span style="color: var(--code-keyword);">SELECT</span> rno <span style="color: var(--code-keyword);">FROM</span> reader <span style="color: var(--code-keyword);">WHERE</span> rname <span style="color: var(--code-operator);">=</span> <span style="color: var(--code-string);">'某某某'</span>
+);</code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">8. 删除“某(书名)”(无重名)的借阅记录。</h4>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">DELETE FROM</span> borrow <span style="color: var(--code-keyword);">WHERE</span> bisbn <span style="color: var(--code-operator);">=</span> (
+    <span style="color: var(--code-keyword);">SELECT</span> bisbn <span style="color: var(--code-keyword);">FROM</span> book <span style="color: var(--code-keyword);">WHERE</span> bname <span style="color: var(--code-operator);">=</span> <span style="color: var(--code-string);">'某某'</span>
+);</code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">9. 使用连接查询,将同时借阅'B1'和'B2'两本书的读者的罚款金额改为0。</h4>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">UPDATE</span> borrow
+<span style="color: var(--code-keyword);">SET</span> fine <span style="color: var(--code-operator);">=</span> <span style="color: var(--code-number);">0</span>
+<span style="color: var(--code-keyword);">WHERE</span> rno <span style="color: var(--code-keyword);">IN</span> (
+    <span style="color: var(--code-keyword);">SELECT</span> b1.rno
+    <span style="color: var(--code-keyword);">FROM</span> borrow b1, borrow b2
+    <span style="color: var(--code-keyword);">WHERE</span> b1.rno <span style="color: var(--code-operator);">=</span> b2.rno <span style="color: var(--code-keyword);">AND</span> b1.bisbn <span style="color: var(--code-operator);">=</span> <span style="color: var(--code-string);">'B1'</span> <span style="color: var(--code-keyword);">AND</span> b2.bisbn <span style="color: var(--code-operator);">=</span> <span style="color: var(--code-string);">'B2'</span>
+);</code></pre>
+            </div>
+
+            <div class="question-card">
+                <h4 class="question-heading">10. 使用连接子查询,将同时借阅 B1'和'B2'两本书的读者的罚款金额提高10%。</h4>
+                <pre class="code-block"><code class="language-sql"><span style="color: var(--code-keyword);">UPDATE</span> borrow
+<span style="color: var(--code-keyword);">SET</span> fine <span style="color: var(--code-operator);">=</span> fine <span style="color: var(--code-operator);">*</span> <span style="color: var(--code-number);">1.1</span>
+<span style="color: var(--code-keyword);">WHERE</span> rno <span style="color: var(--code-keyword);">IN</span> (
+    <span style="color: var(--code-keyword);">SELECT</span> b1.rno
+    <span style="color: var(--code-keyword);">FROM</span> borrow b1, borrow b2
+    <span style="color: var(--code-keyword);">WHERE</span> b1.rno <span style="color: var(--code-operator);">=</span> b2.rno <span style="color: var(--code-keyword);">AND</span> b1.bisbn <span style="color: var(--code-operator);">=</span> <span style="color: var(--code-string);">'B1'</span> <span style="color: var(--code-keyword);">AND</span> b2.bisbn <span style="color: var(--code-operator);">=</span> <span style="color: var(--code-string);">'B2'</span>
+);</code></pre>
+            </div>
+        </section>
+
+        <!-- 设计题 Section -->
+        <section id="design-questions" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-sitemap"></i></div>
+                <div>
+                    <h2 class="section-title">三、设计题</h2>
+                    <p class="section-subtitle">从概念到实现的数据库设计实践</p>
+                </div>
+            </div>
+
+            <h3 class="sub-section-title"><i class="fas fa-cubes"></i> (一) 规范化设计</h3>
+
+            <!-- 规范化设计 1 -->
+            <div class="question-card">
+                <h4 class="question-heading">1. 已知关系模式: 订单表(订单号,客户号,日期,产品号,产品名,单价,数量,总价) 函数依赖为: 订单号 → 客户号、日期； 产品号 → 产品名、单价； (订单号,产品号) → 数量、总价</h4>
+                <p class="question-text mt-3">
+                    <span class="font-bold">(1) 写出订单表的主码。</span>
+                </p>
+                <p class="answer-text mb-3">
+                    <span class="font-bold">答案:</span> 订单表的主码是 <span class="text-highlight underline-solid">(订单号, 产品号)</span>。
+                </p>
+                <p class="question-text">
+                    <span class="font-bold">(2) 订单表满足第几范式?为什么?</span>
+                </p>
+                <p class="answer-text mb-3">
+                    <span class="font-bold">答案:</span>
+                    订单表满足<span class="text-highlight">第一范式 (1NF)</span>。因为所有属性都是原子性的，没有重复组。
+                    <br>但是，它<span class="text-highlight">不满足第二范式 (2NF)</span>。原因在于存在<span class="text-highlight">部分函数依赖</span>：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">订单号 → 客户号、日期</span> (订单号是主码的一部分，但客户号和日期只依赖于订单号)</li>
+                        <li><span class="text-highlight">产品号 → 产品名、单价</span> (产品号是主码的一部分，但产品名和单价只依赖于产品号)</li>
+                    </ul>
+                </p>
+                <p class="question-text">
+                    <span class="font-bold">(3) 将订单表规范到3NF,并用下划线画出主码。</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 规范到3NF的关系模式：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">订单 (<u>订单号</u>, 客户号, 日期)</span></li>
+                        <li><span class="text-highlight">产品 (<u>产品号</u>, 产品名, 单价)</span></li>
+                        <li><span class="text-highlight">订单明细 (<u>订单号</u>, <u>产品号</u>, 数量, 总价)</span></li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- 规范化设计 2 -->
+            <div class="question-card">
+                <h4 class="question-heading">2. 已知关系模式: 订单表(订单号,客户号,日期,产品号,产品名,单价,数量,总价) 函数依赖为: 订单号 → 客户号、日期； 产品号 → 产品名、单价； (订单号,产品号) → 数量、总价</h4>
+                <p class="question-text mt-3">
+                    <span class="font-bold">(1) 写出订单表的主码。</span>
+                </p>
+                <p class="answer-text mb-3">
+                    <span class="font-bold">答案:</span> 订单表的主码是 <span class="text-highlight underline-solid">(订单号, 产品号)</span>。
+                </p>
+                <p class="question-text">
+                    <span class="font-bold">(2) 订单表满足第几范式?为什么?</span>
+                </p>
+                <p class="answer-text mb-3">
+                    <span class="font-bold">答案:</span>
+                    订单表满足<span class="text-highlight">第一范式 (1NF)</span>。因为所有属性都是原子性的，没有重复组。
+                    <br>但是，它<span class="text-highlight">不满足第二范式 (2NF)</span>。原因在于存在<span class="text-highlight">部分函数依赖</span>：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">订单号 → 客户号、日期</span> (订单号是主码的一部分，但客户号和日期只依赖于订单号)</li>
+                        <li><span class="text-highlight">产品号 → 产品名、单价</span> (产品号是主码的一部分，但产品名和单价只依赖于产品号)</li>
+                    </ul>
+                </p>
+                <p class="question-text">
+                    <span class="font-bold">(3) 将订单表规范到3NF,并用下划线画出主码。</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 规范到3NF的关系模式：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">订单 (<u>订单号</u>, 客户号, 日期)</span></li>
+                        <li><span class="text-highlight">产品 (<u>产品号</u>, 产品名, 单价)</span></li>
+                        <li><span class="text-highlight">订单明细 (<u>订单号</u>, <u>产品号</u>, 数量, 总价)</span></li>
+                    </ul>
+                </p>
+            </div>
+
+            <h3 class="sub-section-title"><i class="fas fa-bezier-curve"></i> (二) 数据库设计</h3>
+
+            <!-- 数据库设计 1 -->
+            <div class="question-card">
+                <h4 class="question-heading">1. 设计一个数据库,包括三个实体型,实体型“商店”的属性有:商店编号、店名、店址、店经理。实体型“会员”的属性有:会员编号、会员名、地址。实体型“职工”的属性有:职工编号、职工姓名、性别、工资。每家商店有若干职工,但每个职工只能服务于一家商店,每家商店有若干会员,每个会员可以属于多家商店。在联系中应反映出职工参加某商店工作的开始时间,会员的加入时间。</h4>
+                <p class="question-text mt-3">
+                    <span class="font-bold">(1) 画出ER图。</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                    由于无法直接绘制图形，以下是ER图的文字描述（包含颜色区分以辅助理解）：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="font-bold entity-color">实体型 (矩形)</span>:
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li><span class="text-highlight">商店</span> (<span class="attribute-color">商店编号</span><span class="underline-solid">_</span>, <span class="attribute-color">店名</span>, <span class="attribute-color">店址</span>, <span class="attribute-color">店经理</span>)</li>
+                                <li><span class="text-highlight">会员</span> (<span class="attribute-color">会员编号</span><span class="underline-solid">_</span>, <span class="attribute-color">会员名</span>, <span class="attribute-color">地址</span>)</li>
+                                <li><span class="text-highlight">职工</span> (<span class="attribute-color">职工编号</span><span class="underline-solid">_</span>, <span class="attribute-color">职工姓名</span>, <span class="attribute-color">性别</span>, <span class="attribute-color">工资</span>)</li>
+                            </ul>
+                        </li>
+                        <li><span class="font-bold relationship-color-red">联系 (菱形)</span>:
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li><span class="text-highlight">聘用</span> (商店 <span class="text-relationship-red">1</span> 对 <span class="text-relationship-red">多</span> 职工): 属性 <span class="relationship-color-red">开始时间</span></li>
+                            </ul>
+                        </li>
+                        <li><span class="font-bold relationship-color-blue">联系 (菱形)</span>:
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li><span class="text-highlight">属于</span> (会员 <span class="text-relationship-blue">多</span> 对 <span class="text-relationship-blue">多</span> 商店): 属性 <span class="relationship-color-blue">加入时间</span></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+                <p class="question-text mt-3">
+                    <span class="font-bold">(2) 将该ER图转换成关系模式(能合并的联系合并),并指出主码(下划直线)和外码(下划波浪线)。</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 转换后的关系模式：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">商店 (<u>商店编号</u>, 店名, 店址, 店经理)</span></li>
+                        <li><span class="text-highlight">会员 (<u>会员编号</u>, 会员名, 地址)</span></li>
+                        <li><span class="text-highlight">职工 (<u>职工编号</u>, 职工姓名, 性别, 工资, <span class="underline-wavy">商店编号</span>, 开始时间)</span>
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li>（说明：1对多联系“聘用”合并到多端实体“职工”中，将“商店”的主码“商店编号”作为外码加入，并带上联系属性“开始时间”）</li>
+                            </ul>
+                        </li>
+                        <li><span class="text-highlight">会员属于商店 (<u>会员编号</u>, <u>商店编号</u>, 加入时间)</span>
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li>（说明：多对多联系“属于”独立成一个关系模式，主码是两端实体主码的组合，并带上联系属性“加入时间”）</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- 数据库设计 2 -->
+            <div class="question-card">
+                <h4 class="question-heading">2. 设某商业集团数据库中有3个实体集,一是“商店”实体集,属性有商店编号、商店名、地址;二是“商品”实体集,属性有商品号、商品名、规格、单价;三是“职工”实体集,属性有职工编号、姓名、性别、业绩。每个商店可销售多种商品,每种商品也可以放在多个商店销售,每个商店销售商的一种商品有月销量。每个商店有许多职工,每个职工只能在一个商店工作,商店聘用职工有聘期和工资。</h4>
+                <p class="question-text mt-3">
+                    <span class="font-bold">(1) 画出ER图。</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span>
+                    由于无法直接绘制图形，以下是ER图的文字描述（包含颜色区分以辅助理解）：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="font-bold entity-color">实体型 (矩形)</span>:
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li><span class="text-highlight">商店</span> (<span class="attribute-color">商店编号</span><span class="underline-solid">_</span>, <span class="attribute-color">店名</span>, <span class="attribute-color">地址</span>)</li>
+                                <li><span class="text-highlight">商品</span> (<span class="attribute-color">商品号</span><span class="underline-solid">_</span>, <span class="attribute-color">商品名</span>, <span class="attribute-color">规格</span>, <span class="attribute-color">单价</span>)</li>
+                                <li><span class="text-highlight">职工</span> (<span class="attribute-color">职工编号</span><span class="underline-solid">_</span>, <span class="attribute-color">姓名</span>, <span class="attribute-color">性别</span>, <span class="attribute-color">业绩</span>)</li>
+                            </ul>
+                        </li>
+                        <li><span class="font-bold relationship-color-red">联系 (菱形)</span>:
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li><span class="text-highlight">聘用</span> (商店 <span class="text-relationship-red">1</span> 对 <span class="text-relationship-red">多</span> 职工): 属性 <span class="relationship-color-red">聘期</span>, <span class="relationship-color-red">工资</span></li>
+                            </ul>
+                        </li>
+                        <li><span class="font-bold relationship-color-blue">联系 (菱形)</span>:
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li><span class="text-highlight">销售</span> (商店 <span class="text-relationship-blue">多</span> 对 <span class="text-relationship-blue">多</span> 商品): 属性 <span class="relationship-highlight">月销量</span></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+                <p class="question-text mt-3">
+                    <span class="font-bold">(2) 将该ER图转换成关系模式(能合并的联系合并),并指出主码(下划直线)和外码(下划波浪线)。</span>
+                </p>
+                <p class="answer-text">
+                    <span class="font-bold">答案:</span> 转换后的关系模式：
+                    <ul class="list-disc pl-5 mt-2 answer-text list-disc-inner">
+                        <li><span class="text-highlight">商店 (<u>商店编号</u>, 店名, 店址, 店经理)</span></li>
+                        <li><span class="text-highlight">商品 (<u>商品号</u>, 商品名, 规格, 单价)</span></li>
+                        <li><span class="text-highlight">职工 (<u>职工编号</u>, 姓名, 性别, 业绩, <span class="underline-wavy">商店编号</span>, 聘期, 工资)</span>
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li>（说明：1对多联系“聘用”合并到多端实体“职工”中，将“商店”的主码“商店编号”作为外码加入，并带上联系属性“开始时间”）</li>
+                            </ul>
+                        </li>
+                        <li><span class="text-highlight">商店销售商品 (<u>商店编号</u>, <u>商品号</u>, 月销量)</span>
+                            <ul class="list-circle pl-5 mt-1 answer-text">
+                                <li>（说明：多对多联系“销售”独立成一个关系模式，主码是两端实体主码的组合，并带上联系属性“月销量”）</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </p>
+            </div>
+        </section>
+
+        <!-- 考试技巧 Section -->
+        <section id="exam-tips" class="content-section mb-12">
+            <div class="section-header-styled">
+                <div class="section-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div>
+                    <h2 class="section-title">四、考试技巧</h2>
+                    <p class="section-subtitle">高效备考，自信应答</p>
+                </div>
+            </div>
+
+            <div class="highlight-block">
+                <p style="color: var(--text-default);">为了帮助您更好地准备期末考试，以下是一些实用的备考建议：</p>
+                <ul class="list-disc pl-5">
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">扎实基础:</strong> 深入理解数据库基本概念，如DBS组成、三级模式、两级独立性、范式定义等。这是所有进阶知识的基础。</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">熟练SQL:</strong> 数据库考试中SQL编程是重中之重。务必多练习SQL查询、插入、更新、删除语句，尤其是连接查询、子查询、聚合函数和集合操作。掌握各种子句（SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY）的作用及其执行顺序。</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">ER图与规范化:</strong> 彻底理解ER图的绘制规则（实体、属性、联系及其类型）和将ER图转换为关系模式的方法（特别是1:1, 1:N, M:N联系的转换）。熟悉范式理论（1NF, 2NF, 3NF）及如何将关系模式规范到3NF，这是设计题的考点。</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">事务与并发控制:</strong> 掌握ACID特性及其含义。了解数据库并发操作中可能出现的各种不一致性问题（丢失修改、脏读、不可重复读）以及相应的并发控制技术（封锁、时间戳、乐观方法、MVCC）。</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">权限管理:</strong> 熟悉`GRANT`和`REVOKE`命令的语法和用途，以及角色的创建和分配，这部分内容通常以填空或选择题形式考察。</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">真题演练:</strong> 如果有条件，务必练习历年考题。通过做真题，可以熟悉题型和出题思路，提高解题速度和准确性。注意总结常考的知识点和易错点。</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">时间管理:</strong> 考试时合理分配时间，先做自己最有把握的题目，再攻克难题。确保所有题目都有所作答，即使不确定也要尝试写出部分答案。</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: var(--primary-main);">审题仔细:</strong> 仔细阅读题目要求，特别是程序题和设计题。理解题目意图是正确解题的第一步，避免因粗心导致失分。</li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+</body>
+</html>

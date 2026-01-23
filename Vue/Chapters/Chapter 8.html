@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U8--组件基础</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.36/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #D6F0FF; /* 冰川蓝 */
+            --secondary-color: #A0E3F5; /* 天穹青 */
+            --accent-color: #FF7AA2; /* 珊瑚粉 */
+            --background-color: rgba(247, 253, 255, 0.98); /* 雾面白 */
+            --text-color: #2c3e50;
+            --light-text: #f8f8f8;
+            --border-color: #c5e8f7;
+            --code-bg: #f0f9ff;
+            --shadow: 0 5px 15px rgba(0,0,0,0.05);
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding-top: 80px;
+            background-image: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        }
+        
+        /* 导航栏样式 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--text-color);
+            padding: 15px 20px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            letter-spacing: 1px;
+            color: #2c662d;
+        }
+        
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 15px;
+        }
+        
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 8px 15px;
+            border-radius: 30px;
+            background: rgba(160, 227, 245, 0.3);
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+        
+        .nav-links a:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .nav-links a i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+        
+        /* 主内容容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 章节样式 */
+        .chapter {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid var(--accent-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chapter:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .chapter h2 {
+            color: #2c662d;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed var(--border-color);
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            position: relative;
+        }
+        
+        .chapter h2 i {
+            margin-right: 15px;
+            background: var(--accent-color);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 8px rgba(255, 122, 162, 0.3);
+        }
+        
+        .chapter h3 {
+            color: #2c662d;
+            margin: 35px 0 20px;
+            padding: 10px 15px;
+            background: linear-gradient(90deg, rgba(214, 240, 255, 0.3), transparent);
+            border-left: 4px solid var(--accent-color);
+            font-size: 1.6rem;
+            position: relative;
+        }
+        
+        /* 知识点卡片 */
+        .knowledge-card {
+            background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: var(--shadow);
+            border: 1px solid #81d4fa;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        
+        .knowledge-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .knowledge-card h4 {
+            color: #0277bd;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .knowledge-card h4 i {
+            margin-right: 12px;
+            color: #0288d1;
+            font-size: 1.5rem;
+        }
+        
+        .knowledge-card p, .knowledge-card ol, .knowledge-card ul {
+            position: relative;
+            z-index: 2;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .knowledge-card ol, .knowledge-card ul {
+            padding-left: 25px;
+            margin: 15px 0;
+        }
+        
+        .knowledge-card li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+            position: relative;
+        }
+        
+        .knowledge-card li::before {
+            content: '•';
+            color: var(--accent-color);
+            font-weight: bold;
+            position: absolute;
+            left: -15px;
+            top: 0;
+            font-size: 1.2rem;
+        }
+        
+        /* 代码块样式 */
+        .code-container {
+            position: relative;
+            margin: 30px 0;
+            background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+            color: #2c3e50;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid #81d4fa;
+        }
+        
+        .code-header {
+            background: linear-gradient(135deg, #b3e5fc, #81d4fa);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #81d4fa;
+        }
+        
+        .code-title {
+            font-weight: bold;
+            color: #0277bd;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .code-title i {
+            margin-right: 12px;
+            color: #0288d1;
+            font-size: 1.3rem;
+        }
+        
+        .run-btn {
+            background: linear-gradient(135deg, var(--accent-color), #ff5c8d);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(255, 122, 162, 0.4);
+        }
+        
+        .run-btn i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .run-btn:hover {
+            background: linear-gradient(135deg, #ff5c8d, var(--accent-color));
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 122, 162, 0.5);
+        }
+        
+        pre {
+            margin: 0;
+            padding: 30px;
+            overflow-x: auto;
+            background: var(--code-bg);
+        }
+        
+        code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        
+        .comment { color: #75715e; }
+        .keyword { color: #d73a49; }
+        .string { color: #2c662d; }
+        .function { color: #6f42c1; }
+        .variable { color: #e36209; }
+        .property { color: #005cc5; }
+        
+        /* 结果容器 */
+        .result-container {
+            background: linear-gradient(135deg, #f8f8f8, #f0f0f0);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 25px;
+            display: none;
+            box-shadow: var(--shadow);
+        }
+        
+        .result-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-header {
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .result-header::before {
+            content: "►";
+            margin-right: 12px;
+            font-size: 1.3em;
+            color: var(--accent-color);
+        }
+        
+        /* 比较表格 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            font-size: 1.1rem;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--accent-color), #ff5c8d);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--primary-color);
+        }
+        
+        .comparison-table td:first-child {
+            font-weight: bold;
+            color: var(--accent-color);
+            width: 25%;
+        }
+        
+        /* 提示框 */
+        .tip-box {
+            background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+            border-left: 5px solid var(--accent-color);
+            padding: 25px;
+            margin: 35px 0;
+            border-radius: 0 15px 15px 0;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tip-icon {
+            font-size: 28px;
+            color: var(--accent-color);
+            margin-right: 20px;
+            min-width: 40px;
+        }
+        
+        .tip-content {
+            flex: 1;
+        }
+        
+        .tip-box h4 {
+            color: #0277bd;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .tip-box p {
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .chapter {
+                padding: 20px;
+            }
+            
+            .navbar {
+                padding: 10px 15px;
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+                font-size: 1.4rem;
+                justify-content: center;
+            }
+            
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .nav-links li {
+                margin: 5px;
+            }
+            
+            .chapter h2 {
+                font-size: 1.6rem;
+            }
+            
+            .chapter h2 i {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* 示例样式 */
+        .example-container {
+            padding: 20px;
+            border: 1px solid #81d4fa;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+        }
+        
+        .example-container button, .example-container input {
+            margin: 12px;
+            padding: 10px 18px;
+            border: 1px solid var(--accent-color);
+            border-radius: 6px;
+            background: white;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+        
+        .example-container button:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+        }
+        
+        .example-container input {
+            padding: 10px;
+            width: 220px;
+            font-size: 1.1rem;
+        }
+        
+        .example-container a {
+            color: var(--accent-color);
+            text-decoration: underline;
+            margin: 12px;
+            display: inline-block;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .example-container h3, .example-container h4 {
+            margin: 15px 10px;
+            color: #0277bd;
+            font-weight: 600;
+        }
+        
+        .example-container span {
+            display: inline-block;
+            margin: 12px;
+            padding: 8px 15px;
+            background: white;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .highlight {
+            background-color: rgba(255, 122, 162, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #c94a1f;
+        }
+        
+        /* 动画效果 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* 可视化元素 */
+        .visual-box {
+            display: flex;
+            justify-content: space-around;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .visual-item {
+            text-align: center;
+            width: 220px;
+            margin: 15px;
+            padding: 25px;
+            border-radius: 15px;
+            background: white;
+            box-shadow: var(--shadow);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .visual-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        
+        .visual-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+        
+        .visual-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+        
+        .visual-desc {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px 0;
+        }
+        
+        .process-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+        
+        .step-desc {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            color: #666;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* 项目结构样式 */
+        .file-structure {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin: 20px 0;
+            font-family: 'Fira Code', monospace;
+        }
+        
+        .file-item {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .file-item::before {
+            content: '📄';
+            position: absolute;
+            left: 0;
+        }
+        
+        .folder-item {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+            font-weight: bold;
+        }
+        
+        .folder-item::before {
+            content: '📁';
+            position: absolute;
+            left: 0;
+        }
+        
+        .folder-content {
+            padding-left: 30px;
+            border-left: 2px solid var(--border-color);
+            margin: 5px 0;
+        }
+        
+        .explanation {
+            font-style: italic;
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式数据展示 */
+        .reactive-box {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin: 15px 0;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            transition: all 0.5s;
+        }
+        
+        .vue-app {
+            padding: 15px;
+            border: 1px solid #81d4fa;
+            border-radius: 8px;
+            background: white;
+            margin: 15px 0;
+            box-shadow: var(--shadow);
+        }
+        
+        .grade-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .grade-A { background: #e1f5fe; color: #0277bd; }
+        .grade-B { background: #fff8e1; color: #f9a825; }
+        .grade-C { background: #fff3e0; color: #ef6c00; }
+        .grade-D { background: #ffebee; color: #c62828; }
+        
+        .dom-status {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .list-index {
+            width: 30px;
+            height: 30px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .object-render {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        
+        .property-row {
+            display: flex;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .property-name {
+            font-weight: bold;
+            color: var(--accent-color);
+            min-width: 120px;
+        }
+        
+        .property-value {
+            flex: 1;
+        }
+        
+        .lifecycle-diagram {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        
+        .lifecycle-stage {
+            width: 150px;
+            padding: 15px;
+            margin: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+        }
+        
+        .lifecycle-stage::after {
+            content: '→';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+        
+        .lifecycle-stage:last-child::after {
+            display: none;
+        }
+        
+        .stage-title {
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+        
+        .stage-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .component-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            border: 1px solid #81d4fa;
+        }
+        
+        .component-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        
+        .component-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+        
+        .component-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #0277bd;
+        }
+        
+        /* 新增样式：语法总结 */
+        .syntax-summary {
+            background: linear-gradient(135deg, #f8f8f8, #e8f4fc);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 5px solid var(--accent-color);
+            box-shadow: var(--shadow);
+        }
+        
+        .syntax-summary h3 {
+            color: #0277bd;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .syntax-summary h3 i {
+            margin-right: 12px;
+            color: var(--accent-color);
+            font-size: 1.5rem;
+        }
+        
+        .syntax-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .syntax-table th {
+            background: linear-gradient(135deg, #4a90e2, #5ba6f0);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1rem;
+        }
+        
+        .syntax-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .syntax-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .syntax-table tr:nth-child(even) {
+            background-color: #f8fbff;
+        }
+        
+        .syntax-table .syntax-type {
+            font-weight: bold;
+            color: #2c662d;
+            width: 25%;
+        }
+        
+        .syntax-table .syntax-code {
+            font-family: 'Fira Code', monospace;
+            font-size: 15px;
+            color: #d73a49;
+        }
+        
+        .syntax-table .syntax-desc {
+            color: #555;
+        }
+        
+        .syntax-example {
+            background: #f0f9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            border-left: 3px solid #81d4fa;
+        }
+        
+        .syntax-notes {
+            background: #fff8e1;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 3px solid #ffc107;
+        }
+        
+        .syntax-notes h4 {
+            color: #f57c00;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .syntax-notes h4 i {
+            margin-right: 10px;
+        }
+        
+        .syntax-notes ul {
+            padding-left: 20px;
+        }
+        
+        .syntax-notes li {
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .syntax-notes li::before {
+            content: '•';
+            color: #ff9800;
+            font-weight: bold;
+            position: absolute;
+            left: -15px;
+            top: 0;
+        }
+        
+        /* 关键点标记 */
+        .key-point {
+            background: linear-gradient(to right, #fffde7, #fff9c4);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #ffd600;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        }
+        
+        .key-point h4 {
+            color: #f57c00;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .key-point h4 i {
+            margin-right: 10px;
+            color: #ff9800;
+        }
+        
+        /* 新增：语法高亮块 */
+        .syntax-highlight {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .syntax-highlight .keyword { color: #f92672; }
+        .syntax-highlight .function { color: #66d9ef; }
+        .syntax-highlight .string { color: #a6e22e; }
+        .syntax-highlight .comment { color: #75715e; }
+        .syntax-highlight .variable { color: #fd971f; }
+        .syntax-highlight .number { color: #ae81ff; }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon"><i class="fab fa-vuejs"></i></span>
+            <span>Vue.js 组件基础学习手册</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#api"><i class="fas fa-code"></i> API风格</a></li>
+            <li><a href="#lifecycle"><i class="fas fa-arrows-rotate"></i> 生命周期</a></li>
+            <li><a href="#registration"><i class="fas fa-puzzle-piece"></i> 组件注册</a></li>
+            <li><a href="#props"><i class="fas fa-exchange-alt"></i> Props属性</a></li>
+            <li><a href="#communication"><i class="fas fa-comments"></i> 组件通信</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- API风格 -->
+        <div class="chapter" id="api">
+            <h2><i class="fas fa-code"></i> 选项式API与组合式API</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-lightbulb"></i> Vue.js 的两种API风格</h4>
+                <p>Vue 3支持两种编写组件的API风格：<span class="highlight">选项式API（Options API）</span>和<span class="highlight">组合式API（Composition API）</span>。</p>
+                <ul>
+                    <li><strong>选项式API</strong> - Vue 2的传统写法，通过data、methods等选项组织代码</li>
+                    <li><strong>组合式API</strong> - Vue 3的新写法，通过setup()函数组织所有逻辑代码</li>
+                </ul>
+                <p class="explanation">组合式API更适合大型项目，它解决了选项式API在复杂组件中代码分散的问题。</p>
+            </div>
+            
+            <!-- 新增：API语法总结表格 -->
+            <div class="syntax-summary">
+                <h3><i class="fas fa-table"></i> API语法模板总结</h3>
+                
+                <table class="syntax-table">
+                    <thead>
+                        <tr>
+                            <th>API类型</th>
+                            <th>语法模板</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="syntax-type">选项式API</td>
+                            <td class="syntax-code">data() { return { ... } }</td>
+                            <td class="syntax-desc">数据定义</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">选项式API</td>
+                            <td class="syntax-code">methods: { ... }</td>
+                            <td class="syntax-desc">方法定义</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">选项式API</td>
+                            <td class="syntax-code">computed: { ... }</td>
+                            <td class="syntax-desc">计算属性</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">组合式API</td>
+                            <td class="syntax-code">const data = ref(value)</td>
+                            <td class="syntax-desc">响应式数据</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">组合式API</td>
+                            <td class="syntax-code">const computedValue = computed(() => ...)</td>
+                            <td class="syntax-desc">计算属性</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">组合式API</td>
+                            <td class="syntax-code">watch(source, callback)</td>
+                            <td class="syntax-desc">侦听器</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="syntax-example">
+                    <span class="comment">// 选项式API完整示例</span><br>
+                    <span class="keyword">export</span> <span class="keyword">default</span> {<br>
+                    &nbsp;&nbsp;data() {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> { count: <span class="number">0</span> }<br>
+                    &nbsp;&nbsp;},<br>
+                    &nbsp;&nbsp;methods: {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;increment() { <span class="keyword">this</span>.count++ }<br>
+                    &nbsp;&nbsp;}<br>
+                    }
+                </div>
+                
+                <div class="syntax-example">
+                    <span class="comment">// 组合式API完整示例</span><br>
+                    &lt;script setup&gt;<br>
+                    <span class="keyword">import</span> { ref, computed } <span class="keyword">from</span> <span class="string">'vue'</span><br>
+                    <span class="keyword">const</span> count = ref(<span class="number">0</span>)<br>
+                    <span class="keyword">const</span> increment = () => { count.value++ }<br>
+                    <span class="keyword">const</span> double = computed(() => count.value * <span class="number">2</span>)<br>
+                    &lt;/script&gt;
+                </div>
+            </div>
+            
+            <h3>选项式API示例</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 选项式API结构</div>
+                </div>
+                <pre><code>&lt;script&gt;
+export default {
+  // 数据属性
+  data() {
+    return {
+      count: 0
+    }
+  },
+  
+  // 方法
+  methods: {
+    increment() {
+      this.count++;
+    }
+  },
+  
+  // 计算属性
+  computed: {
+    doubleCount() {
+      return this.count * 2;
+    }
+  },
+  
+  // 侦听器
+  watch: {
+    count(newValue, oldValue) {
+      console.log(`计数从 ${oldValue} 变为 ${newValue}`);
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+            </div>
+            
+            <h3>组合式API示例</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 组合式API结构</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;script setup&gt;
+import { ref, computed, watch } from 'vue';
+
+// 响应式数据
+const count = ref(0);
+
+// 方法
+function increment() {
+  count.value++;
+}
+
+// 计算属性
+const doubleCount = computed(() => count.value * 2);
+
+// 侦听器
+watch(count, (newValue, oldValue) => {
+  console.log(`计数从 ${oldValue} 变为 ${newValue}`);
+});
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="composition-example" class="example-container">
+                    <div class="vue-app">
+                        <p>当前计数: {{ count }}</p>
+                        <p>双倍计数: {{ doubleCount }}</p>
+                        <button @click="increment">增加计数</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>选项式API</th>
+                            <th>组合式API</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>逻辑分散在多个选项中</td>
+                            <td>逻辑集中在一个setup函数中</td>
+                        </tr>
+                        <tr>
+                            <td>适合小型项目</td>
+                            <td>适合大型复杂项目</td>
+                        </tr>
+                        <tr>
+                            <td>学习曲线平缓</td>
+                            <td>需要理解响应式API</td>
+                        </tr>
+                        <tr>
+                            <td>this上下文访问数据</td>
+                            <td>直接访问响应式变量</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 生命周期 -->
+        <div class="chapter" id="lifecycle">
+            <h2><i class="fas fa-arrows-rotate"></i> 生命周期函数</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-infinity"></i> 组件生命周期</h4>
+                <p>每个Vue组件从创建到销毁都会经历一系列阶段，这些阶段称为组件的<span class="highlight">生命周期</span>。</p>
+                <p>Vue提供了一系列<span class="highlight">生命周期钩子函数</span>，允许我们在特定阶段执行自定义逻辑。</p>
+                <p class="explanation">理解生命周期对于掌握组件行为至关重要，它决定了何时可以访问DOM、何时更新数据等。</p>
+            </div>
+            
+            <!-- 新增：生命周期语法总结表格 -->
+            <div class="syntax-summary">
+                <h3><i class="fas fa-table"></i> 生命周期钩子函数对比</h3>
+                
+                <table class="syntax-table">
+                    <thead>
+                        <tr>
+                            <th>阶段</th>
+                            <th>选项式API</th>
+                            <th>组合式API</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="syntax-type">创建前</td>
+                            <td class="syntax-code">beforeCreate</td>
+                            <td class="syntax-code">-</td>
+                            <td class="syntax-desc">实例初始化之后，数据观测之前调用</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">创建后</td>
+                            <td class="syntax-code">created</td>
+                            <td class="syntax-code">-</td>
+                            <td class="syntax-desc">实例创建完成后调用，可以访问数据</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">挂载前</td>
+                            <td class="syntax-code">beforeMount</td>
+                            <td class="syntax-code">onBeforeMount</td>
+                            <td class="syntax-desc">挂载开始之前调用，相关render函数首次被调用</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">挂载后</td>
+                            <td class="syntax-code">mounted</td>
+                            <td class="syntax-code">onMounted</td>
+                            <td class="syntax-desc">挂载完成后调用，可以访问DOM元素</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">更新前</td>
+                            <td class="syntax-code">beforeUpdate</td>
+                            <td class="syntax-code">onBeforeUpdate</td>
+                            <td class="syntax-desc">数据更新时调用，发生在虚拟DOM打补丁之前</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">更新后</td>
+                            <td class="syntax-code">updated</td>
+                            <td class="syntax-code">onUpdated</td>
+                            <td class="syntax-desc">数据更改导致的虚拟DOM重新渲染后调用</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">卸载前</td>
+                            <td class="syntax-code">beforeUnmount</td>
+                            <td class="syntax-code">onBeforeUnmount</td>
+                            <td class="syntax-desc">实例销毁之前调用</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">卸载后</td>
+                            <td class="syntax-code">unmounted</td>
+                            <td class="syntax-code">onUnmounted</td>
+                            <td class="syntax-desc">实例销毁后调用</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="key-point">
+                    <h4><i class="fas fa-exclamation-circle"></i> 关键点</h4>
+                    <p>组合式API中，beforeCreate和created生命周期钩子被setup()函数替代。</p>
+                </div>
+                
+                <div class="syntax-example">
+                    <span class="comment">// 组合式API生命周期使用示例</span><br>
+                    &lt;script setup&gt;<br>
+                    <span class="keyword">import</span> { onMounted, onUnmounted } <span class="keyword">from</span> <span class="string">'vue'</span>;<br>
+                    <br>
+                    onMounted(() => {<br>
+                    &nbsp;&nbsp;<span class="comment">// 组件挂载后执行操作</span><br>
+                    &nbsp;&nbsp;console.log(<span class="string">'组件已挂载'</span>);<br>
+                    });<br>
+                    <br>
+                    onUnmounted(() => {<br>
+                    &nbsp;&nbsp;<span class="comment">// 组件卸载前执行清理</span><br>
+                    &nbsp;&nbsp;console.log(<span class="string">'组件即将卸载'</span>);<br>
+                    });<br>
+                    &lt;/script&gt;
+                </div>
+            </div>
+            
+            <div class="lifecycle-diagram">
+                <div class="lifecycle-stage">
+                    <div class="stage-title">创建前</div>
+                    <div class="stage-desc">beforeCreate</div>
+                    <div class="stage-desc">onBeforeCreate</div>
+                </div>
+                <div class="lifecycle-stage">
+                    <div class="stage-title">创建后</div>
+                    <div class="stage-desc">created</div>
+                    <div class="stage-desc">onCreated</div>
+                </div>
+                <div class="lifecycle-stage">
+                    <div class="stage-title">挂载前</div>
+                    <div class="stage-desc">beforeMount</div>
+                    <div class="stage-desc">onBeforeMount</div>
+                </div>
+                <div class="lifecycle-stage">
+                    <div class="stage-title">挂载后</div>
+                    <div class="stage-desc">mounted</div>
+                    <div class="stage-desc">onMounted</div>
+                </div>
+                <div class="lifecycle-stage">
+                    <div class="stage-title">更新前</div>
+                    <div class="stage-desc">beforeUpdate</div>
+                    <div class="stage-desc">onBeforeUpdate</div>
+                </div>
+                <div class="lifecycle-stage">
+                    <div class="stage-title">更新后</div>
+                    <div class="stage-desc">updated</div>
+                    <div class="stage-desc">onUpdated</div>
+                </div>
+                <div class="lifecycle-stage">
+                    <div class="stage-title">卸载前</div>
+                    <div class="stage-desc">beforeUnmount</div>
+                    <div class="stage-desc">onBeforeUnmount</div>
+                </div>
+                <div class="lifecycle-stage">
+                    <div class="stage-title">卸载后</div>
+                    <div class="stage-desc">unmounted</div>
+                    <div class="stage-desc">onUnmounted</div>
+                </div>
+            </div>
+            
+            <h3>生命周期使用示例</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 组合式API生命周期</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;script setup&gt;
+import { ref, onMounted, onUnmounted } from 'vue';
+
+const timer = ref(null);
+const seconds = ref(0);
+
+// 组件挂载后启动计时器
+onMounted(() => {
+  timer.value = setInterval(() => {
+    seconds.value++;
+  }, 1000);
+});
+
+// 组件卸载前清除计时器
+onUnmounted(() => {
+  clearInterval(timer.value);
+});
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;p&gt;组件已运行 {{ seconds }} 秒&lt;/p&gt;
+&lt;/template&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="lifecycle-example" class="example-container">
+                    <div class="vue-app">
+                        <p>组件已运行 {{ seconds }} 秒</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 组件注册 -->
+        <div class="chapter" id="registration">
+            <h2><i class="fas fa-puzzle-piece"></i> 组件的注册和引用</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-cubes"></i> 组件注册方式</h4>
+                <p>在Vue中，组件需要注册后才能使用。Vue提供两种注册方式：<span class="highlight">全局注册</span>和<span class="highlight">局部注册</span>。</p>
+                <ul>
+                    <li><strong>全局注册</strong> - 在应用层面注册，任何地方都可使用</li>
+                    <li><strong>局部注册</strong> - 在组件内注册，只能在当前组件使用</li>
+                </ul>
+                <p class="explanation">全局注册适合频繁使用的通用组件，局部注册适合特定功能组件。</p>
+            </div>
+            
+            <!-- 新增：组件注册语法总结 -->
+            <div class="syntax-summary">
+                <h3><i class="fas fa-table"></i> 组件注册语法模板</h3>
+                
+                <table class="syntax-table">
+                    <thead>
+                        <tr>
+                            <th>注册类型</th>
+                            <th>语法模板</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="syntax-type">全局注册</td>
+                            <td class="syntax-code">app.component('ComponentName', Component)</td>
+                            <td class="syntax-desc">在main.js中使用，全局可用</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">局部注册<br>(选项式API)</td>
+                            <td class="syntax-code">components: { ComponentName }</td>
+                            <td class="syntax-desc">在组件选项中注册</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">局部注册<br>(组合式API)</td>
+                            <td class="syntax-code">import Component from './Component.vue'</td>
+                            <td class="syntax-desc">导入后直接在模板中使用</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="syntax-example">
+                    <span class="comment">// 全局注册示例 (src/main.js)</span><br>
+                    <span class="keyword">import</span> { createApp } <span class="keyword">from</span> <span class="string">'vue'</span>;<br>
+                    <span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./App.vue'</span>;<br>
+                    <span class="keyword">import</span> MyComponent <span class="keyword">from</span> <span class="string">'./components/MyComponent.vue'</span>;<br>
+                    <br>
+                    <span class="keyword">const</span> app = createApp(App);<br>
+                    app.component(<span class="string">'MyComponent'</span>, MyComponent);<br>
+                    app.mount(<span class="string">'#app'</span>);
+                </div>
+                
+                <div class="syntax-example">
+                    <span class="comment">// 局部注册示例 (选项式API)</span><br>
+                    &lt;script&gt;<br>
+                    <span class="keyword">import</span> LocalComponent <span class="keyword">from</span> <span class="string">'./LocalComponent.vue'</span>;<br>
+                    <br>
+                    <span class="keyword">export</span> <span class="keyword">default</span> {<br>
+                    &nbsp;&nbsp;components: {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;LocalComponent,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// 或自定义名称: MyLocalComponent: LocalComponent</span><br>
+                    &nbsp;&nbsp;}<br>
+                    }<br>
+                    &lt;/script&gt;
+                </div>
+                
+                <div class="syntax-example">
+                    <span class="comment">// 局部注册示例 (组合式API)</span><br>
+                    &lt;script setup&gt;<br>
+                    <span class="keyword">import</span> LocalComponent <span class="keyword">from</span> <span class="string">'./LocalComponent.vue'</span>;<br>
+                    &lt;/script&gt;<br>
+                    <br>
+                    <span class="comment">&lt;!-- 直接在模板中使用 --&gt;</span><br>
+                    &lt;template&gt;<br>
+                    &nbsp;&nbsp;&lt;LocalComponent /&gt;<br>
+                    &lt;/template&gt;
+                </div>
+            </div>
+            
+            <h3>全局注册</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 在main.js中全局注册组件</div>
+                </div>
+                <pre><code>// src/main.js
+import { createApp } from 'vue';
+import App from './App.vue';
+import GlobalComponent from './components/GlobalComponent.vue';
+
+const app = createApp(App);
+
+// 全局注册组件
+app.component('GlobalComponent', GlobalComponent);
+
+app.mount('#app');</code></pre>
+            </div>
+            
+            <h3>局部注册</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 在组件内局部注册</div>
+                </div>
+                <pre><code>&lt;script&gt;
+import LocalComponent from './LocalComponent.vue';
+
+export default {
+  components: {
+    // 注册为 <local-component>
+    LocalComponent,
+    
+    // 自定义名称注册
+    MyLocalComponent: LocalComponent
+  }
+}
+&lt;/script&gt;
+
+&lt;!-- 使用setup语法糖 --&gt;
+&lt;script setup&gt;
+import LocalComponent from './LocalComponent.vue';
+&lt;/script&gt;</code></pre>
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-icon"><i class="fas fa-info-circle"></i></div>
+                <div class="tip-content">
+                    <h4>组件命名最佳实践</h4>
+                    <p>1. 使用<strong>帕斯卡命名法(PascalCase)</strong>命名组件文件：MyComponent.vue</p>
+                    <p>2. 在模板中可以使用<strong>帕斯卡命名法</strong>或<strong>短横线命名法(kebab-case)</strong>：</p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&lt;MyComponent&gt; 或 &lt;my-component&gt;</p>
+                    <p>3. 避免使用HTML原生标签名作为组件名</p>
+                </div>
+            </div>
+            
+            <h3>解决样式冲突</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 使用scoped样式</div>
+                </div>
+                <pre><code>&lt;style scoped&gt;
+/* 只作用于当前组件 */
+.container {
+  padding: 20px;
+}
+
+/* 使用深度选择器作用于子组件 */
+:deep(.child-element) {
+  margin: 10px;
+}
+&lt;/style&gt;</code></pre>
+            </div>
+            
+            <div class="visual-box">
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="visual-title">scoped属性</div>
+                    <div class="visual-desc">为组件添加唯一属性，防止样式冲突</div>
+                </div>
+                
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <div class="visual-title">深度选择器</div>
+                    <div class="visual-desc">使用:deep()修改子组件样式</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Props属性 -->
+        <div class="chapter" id="props">
+            <h2><i class="fas fa-exchange-alt"></i> Props属性</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-paper-plane"></i> 父组件向子组件传值</h4>
+                <p><span class="highlight">Props</span>是父组件向子组件传递数据的主要方式。</p>
+                <p>使用步骤：</p>
+                <ol>
+                    <li>在子组件中声明props</li>
+                    <li>在父组件中通过属性传递数据</li>
+                    <li>在子组件中使用props数据</li>
+                </ol>
+                <p class="explanation">Props遵循单向数据流原则，父组件数据变化会自动更新子组件，但子组件不能直接修改props。</p>
+            </div>
+            
+            <!-- 新增：Props语法总结 -->
+            <div class="syntax-summary">
+                <h3><i class="fas fa-table"></i> Props声明与验证</h3>
+                
+                <table class="syntax-table">
+                    <thead>
+                        <tr>
+                            <th>类型</th>
+                            <th>语法模板</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="syntax-type">基础声明</td>
+                            <td class="syntax-code">defineProps(['propA', 'propB'])</td>
+                            <td class="syntax-desc">简单props声明</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">类型声明</td>
+                            <td class="syntax-code">defineProps({ propA: String })</td>
+                            <td class="syntax-desc">指定props类型</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">默认值</td>
+                            <td class="syntax-code">default: 'value'</td>
+                            <td class="syntax-desc">设置props默认值</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">必填项</td>
+                            <td class="syntax-code">required: true</td>
+                            <td class="syntax-desc">标记必须传递的prop</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">自定义验证</td>
+                            <td class="syntax-code">validator(value) { ... }</td>
+                            <td class="syntax-desc">自定义验证函数</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="syntax-example">
+                    <span class="comment">// 带验证的Props声明</span><br>
+                    &lt;script setup&gt;<br>
+                    <span class="keyword">const</span> props = defineProps({<br>
+                    &nbsp;&nbsp;<span class="comment">// 基础类型检查</span><br>
+                    &nbsp;&nbsp;age: Number,<br>
+                    &nbsp;&nbsp;<br>
+                    &nbsp;&nbsp;<span class="comment">// 多个类型</span><br>
+                    &nbsp;&nbsp;id: [String, Number],<br>
+                    &nbsp;&nbsp;<br>
+                    &nbsp;&nbsp;<span class="comment">// 必填项</span><br>
+                    &nbsp;&nbsp;name: {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;type: String,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;required: <span class="keyword">true</span><br>
+                    &nbsp;&nbsp;},<br>
+                    &nbsp;&nbsp;<br>
+                    &nbsp;&nbsp;<span class="comment">// 带默认值</span><br>
+                    &nbsp;&nbsp;size: {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;type: String,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;default: <span class="string">'medium'</span><br>
+                    &nbsp;&nbsp;},<br>
+                    &nbsp;&nbsp;<br>
+                    &nbsp;&nbsp;<span class="comment">// 自定义验证函数</span><br>
+                    &nbsp;&nbsp;status: {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;validator(value) {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> [<span class="string">'success'</span>, <span class="string">'warning'</span>, <span class="string">'error'</span>].includes(value);<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                    &nbsp;&nbsp;}<br>
+                    });<br>
+                    &lt;/script&gt;
+                </div>
+                
+                <div class="syntax-notes">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Props最佳实践</h4>
+                    <ul>
+                        <li><strong>明确类型</strong>：为每个prop指定类型，便于理解和调试</li>
+                        <li><strong>设置默认值</strong>：为可选prop提供默认值</li>
+                        <li><strong>标记必需prop</strong>：使用required: true标记必须传递的prop</li>
+                        <li><strong>避免修改prop</strong>：如果需要基于prop修改数据，使用data或computed属性</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <h3>声明Props</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 在子组件中声明props</div>
+                </div>
+                <pre><code>&lt;!-- 子组件 ChildComponent.vue --&gt;
+&lt;script setup&gt;
+// 基础类型声明
+const props = defineProps({
+  title: String,
+  count: Number,
+  isActive: Boolean,
+  items: Array,
+  user: Object
+});
+
+// 带验证的声明
+const props = defineProps({
+  // 基础类型检查
+  age: Number,
+  
+  // 多个类型
+  id: [String, Number],
+  
+  // 必填项
+  name: {
+    type: String,
+    required: true
+  },
+  
+  // 带默认值
+  size: {
+    type: String,
+    default: 'medium'
+  },
+  
+  // 自定义验证函数
+  status: {
+    validator(value) {
+      return ['success', 'warning', 'error'].includes(value);
+    }
+  }
+});
+&lt;/script&gt;</code></pre>
+            </div>
+            
+            <h3>使用Props</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 父组件向子组件传递数据</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;!-- 父组件 --&gt;
+&lt;template&gt;
+  &lt;ChildComponent
+    title="用户信息"
+    :count="userCount"
+    :is-active="true"
+    :items="userList"
+    :user="currentUser"
+    name="张三"
+  /&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+import ChildComponent from './ChildComponent.vue';
+import { ref } from 'vue';
+
+const userCount = ref(10);
+const userList = ref(['Alice', 'Bob', 'Charlie']);
+const currentUser = ref({ name: '张三', age: 30 });
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="props-example" class="example-container">
+                    <div class="vue-app">
+                        <h4>用户信息 ({{ count }} 个用户)</h4>
+                        <ul>
+                            <li v-for="(item, index) in items" :key="index">{{ item }}</li>
+                        </ul>
+                        <p>当前用户: {{ user.name }}, {{ user.age }}岁</p>
+                        <p>必填属性: {{ name }}</p>
+                        <p>状态: {{ isActive ? '激活' : '未激活' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 组件通信 -->
+        <div class="chapter" id="communication">
+            <h2><i class="fas fa-comments"></i> 组件通信</h2>
+            
+            <div class="knowledge-card">
+                <h4><i class="fas fa-network-wired"></i> 组件间通信方式</h4>
+                <p>Vue提供了多种组件间通信方式：</p>
+                <ul>
+                    <li><span class="highlight">Props</span> - 父组件向子组件传递数据</li>
+                    <li><span class="highlight">自定义事件</span> - 子组件向父组件传递数据</li>
+                    <li><span class="highlight">依赖注入</span> - 跨层级组件通信</li>
+                </ul>
+                <p class="explanation">选择合适的通信方式取决于组件间的关系和通信需求。</p>
+            </div>
+            
+            <!-- 新增：组件通信语法总结 -->
+            <div class="syntax-summary">
+                <h3><i class="fas fa-table"></i> 组件通信方法总结</h3>
+                
+                <table class="syntax-table">
+                    <thead>
+                        <tr>
+                            <th>通信方式</th>
+                            <th>语法模板</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="syntax-type">Props</td>
+                            <td class="syntax-code">&lt;Child :prop="value" /&gt;</td>
+                            <td class="syntax-desc">父→子单向数据流</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">自定义事件</td>
+                            <td class="syntax-code">emit('event', data)</td>
+                            <td class="syntax-desc">子→父通信</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">依赖注入</td>
+                            <td class="syntax-code">provide(key, value)</td>
+                            <td class="syntax-desc">跨层级提供数据</td>
+                        </tr>
+                        <tr>
+                            <td class="syntax-type">依赖注入</td>
+                            <td class="syntax-code">inject(key)</td>
+                            <td class="syntax-desc">跨层级注入数据</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="syntax-example">
+                    <span class="comment">// 自定义事件示例 (子组件)</span><br>
+                    &lt;script setup&gt;<br>
+                    <span class="keyword">const</span> emit = defineEmits([<span class="string">'updateCount'</span>]);<br>
+                    <br>
+                    <span class="keyword">function</span> increment() {<br>
+                    &nbsp;&nbsp;emit(<span class="string">'updateCount'</span>, <span class="number">5</span>); <span class="comment">// 触发事件</span><br>
+                    }<br>
+                    &lt;/script&gt;<br>
+                    <br>
+                    <span class="comment">// 父组件监听事件</span><br>
+                    &lt;Child @update-count="handleUpdate" /&gt;<br>
+                    <br>
+                    &lt;script setup&gt;<br>
+                    <span class="keyword">const</span> handleUpdate = (value) => {<br>
+                    &nbsp;&nbsp;count.value += value;<br>
+                    }<br>
+                    &lt;/script&gt;
+                </div>
+                
+                <div class="syntax-example">
+                    <span class="comment">// 依赖注入示例 (祖先组件)</span><br>
+                    &lt;script setup&gt;<br>
+                    <span class="keyword">import</span> { provide, ref } <span class="keyword">from</span> <span class="string">'vue'</span>;<br>
+                    <br>
+                    <span class="keyword">const</span> theme = ref(<span class="string">'light'</span>);<br>
+                    provide(<span class="string">'appTheme'</span>, {<br>
+                    &nbsp;&nbsp;theme,<br>
+                    &nbsp;&nbsp;toggleTheme: () => {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;theme.value = theme.value === <span class="string">'light'</span> ? <span class="string">'dark'</span> : <span class="string">'light'</span>;<br>
+                    &nbsp;&nbsp;}<br>
+                    });<br>
+                    &lt;/script&gt;<br>
+                    <br>
+                    <span class="comment">// 后代组件使用</span><br>
+                    &lt;script setup&gt;<br>
+                    <span class="keyword">import</span> { inject } <span class="keyword">from</span> <span class="string">'vue'</span>;<br>
+                    <br>
+                    <span class="keyword">const</span> { theme, toggleTheme } = inject(<span class="string">'appTheme'</span>);<br>
+                    &lt;/script&gt;
+                </div>
+            </div>
+            
+            <h3>子组件向父组件通信（自定义事件）</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 使用自定义事件</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;!-- 子组件 --&gt;
+&lt;script setup&gt;
+const emit = defineEmits(['updateCount']);
+
+function increment() {
+  emit('updateCount', 5); // 触发事件并传递值
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;button @click="increment"&gt;增加5&lt;/button&gt;
+&lt;/template&gt;
+
+&lt;!-- 父组件 --&gt;
+&lt;template&gt;
+  &lt;ChildComponent @update-count="handleUpdate" /&gt;
+  &lt;p&gt;当前值: {{ count }}&lt;/p&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+import ChildComponent from './ChildComponent.vue';
+import { ref } from 'vue';
+
+const count = ref(10);
+
+function handleUpdate(value) {
+  count.value += value;
+}
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="event-example" class="example-container">
+                    <div class="vue-app">
+                        <button @click="increment">增加5</button>
+                        <p>当前值: {{ parentCount }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>跨级组件通信（依赖注入）</h3>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title"><i class="fas fa-code"></i> 使用provide/inject</div>
+                    <button class="run-btn"><i class="fas fa-play"></i> 运行代码</button>
+                </div>
+                <pre><code>&lt;!-- 祖先组件 --&gt;
+&lt;script setup&gt;
+import { provide, ref } from 'vue';
+
+const theme = ref('light');
+
+function toggleTheme() {
+  theme.value = theme.value === 'light' ? 'dark' : 'light';
+}
+
+// 提供数据和函数
+provide('appTheme', {
+  theme,
+  toggleTheme
+});
+&lt;/script&gt;
+
+&lt;!-- 后代组件（任意层级） --&gt;
+&lt;script setup&gt;
+import { inject } from 'vue';
+
+const { theme, toggleTheme } = inject('appTheme');
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;div :class="theme"&gt;
+    &lt;p&gt;当前主题: {{ theme }}&lt;/p&gt;
+    &lt;button @click="toggleTheme"&gt;切换主题&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/template&gt;</code></pre>
+            </div>
+            <div class="result-container">
+                <div class="result-header">运行结果</div>
+                <div id="inject-example" class="example-container">
+                    <div class="vue-app" :class="theme">
+                        <p>当前主题: {{ theme }}</p>
+                        <button @click="toggleTheme">切换主题</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="visual-box">
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="visual-title">Props向下传递</div>
+                    <div class="visual-desc">父组件通过props向子组件传递数据</div>
+                </div>
+                
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="visual-title">事件向上传递</div>
+                    <div class="visual-desc">子组件通过事件向父组件传递数据</div>
+                </div>
+                
+                <div class="visual-item">
+                    <div class="visual-icon">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <div class="visual-title">依赖注入</div>
+                    <div class="visual-desc">跨层级组件通过provide/inject通信</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Vue.js 组件基础学习手册 | 基于 Vue 3 组件基础PDF内容 | 针对JavaScript初学者</p>
+        <p>本手册涵盖了API风格、生命周期、组件注册、Props属性、组件通信等核心知识点</p>
+    </div>
+
+    <script>
+        // 运行按钮功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const runButtons = document.querySelectorAll('.run-btn');
+            
+            runButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const resultContainer = this.closest('.code-container').nextElementSibling;
+                    if (resultContainer) {
+                        resultContainer.classList.add('active');
+                    }
+                    
+                    // 添加视觉反馈
+                    const originalHTML = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-check"></i> 已运行';
+                    button.style.background = 'linear-gradient(135deg, #4caf50, #2e7d32)';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalHTML;
+                        button.style.background = 'linear-gradient(135deg, var(--accent-color), #ff5c8d)';
+                    }, 2000);
+                });
+            });
+            
+            // 为组合式API示例创建Vue应用
+            Vue.createApp({
+                setup() {
+                    const count = Vue.ref(0);
+                    const doubleCount = Vue.computed(() => count.value * 2);
+                    
+                    function increment() {
+                        count.value++;
+                    }
+                    
+                    return {
+                        count,
+                        doubleCount,
+                        increment
+                    };
+                }
+            }).mount('#composition-example .vue-app');
+            
+            // 为生命周期示例创建Vue应用
+            Vue.createApp({
+                setup() {
+                    const timer = Vue.ref(null);
+                    const seconds = Vue.ref(0);
+                    
+                    Vue.onMounted(() => {
+                        timer.value = setInterval(() => {
+                            seconds.value++;
+                        }, 1000);
+                    });
+                    
+                    Vue.onUnmounted(() => {
+                        clearInterval(timer.value);
+                    });
+                    
+                    return { seconds };
+                }
+            }).mount('#lifecycle-example .vue-app');
+            
+            // 为Props示例创建Vue应用
+            Vue.createApp({
+                setup() {
+                    return {
+                        count: 10,
+                        items: ['Alice', 'Bob', 'Charlie'],
+                        user: { name: '张三', age: 30 },
+                        name: '张三',
+                        isActive: true
+                    };
+                }
+            }).mount('#props-example .vue-app');
+            
+            // 为自定义事件示例创建Vue应用
+            Vue.createApp({
+                setup() {
+                    const parentCount = Vue.ref(10);
+                    
+                    function increment() {
+                        parentCount.value += 5;
+                    }
+                    
+                    return {
+                        parentCount,
+                        increment
+                    };
+                }
+            }).mount('#event-example .vue-app');
+            
+            // 为依赖注入示例创建Vue应用
+            Vue.createApp({
+                setup() {
+                    const theme = Vue.ref('light');
+                    
+                    function toggleTheme() {
+                        theme.value = theme.value === 'light' ? 'dark' : 'light';
+                    }
+                    
+                    return {
+                        theme,
+                        toggleTheme
+                    };
+                }
+            }).mount('#inject-example .vue-app');
+        });
+    </script>
+</body>
+</html>
